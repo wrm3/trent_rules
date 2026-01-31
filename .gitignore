@@ -1,0 +1,238 @@
+# AI Project Template - .gitignore
+# For public repository - blocks research, personal data, and sensitive files
+
+# ============================================================================
+# Research & Development (Private - development artifacts)
+# ============================================================================
+research/
+research_future_dev/
+
+# ============================================================================
+# Environment & Secrets
+# ============================================================================
+.env
+.env.local
+.env.*.local
+*.key
+*.pem
+*.p12
+*.pfx
+secrets/
+credentials/
+
+# ============================================================================
+# API Keys & Tokens
+# ============================================================================
+*_api_key*
+*_token*
+*_secret*
+.anthropic_api_key
+.openai_api_key
+
+# ============================================================================
+# Personal Data & Logs
+# ============================================================================
+*.log
+logs/
+*.sqlite
+*.db
+*.db-journal
+personal/
+private/
+
+# ============================================================================
+# Temporary Files & Caches
+# ============================================================================
+temp_scripts/
+tmp/
+temp/
+*.tmp
+*.temp
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.coverage
+htmlcov/
+
+# Cache directories
+.cache/
+reports/
+
+# ============================================================================
+# IDE & Editor Files
+# ============================================================================
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.DS_Store
+Thumbs.db
+
+# Cursor chat backup folder (rescued from crash)
+eb8320a92b4390884dbf884cf56859ce/
+
+# ============================================================================
+# Node Modules & Dependencies
+# ============================================================================
+node_modules/
+package-lock.json
+yarn.lock
+.pnp.*
+
+# ============================================================================
+# Python Virtual Environments
+# ============================================================================
+venv/
+.venv/
+env/
+ENV/
+virtualenv/
+
+# ============================================================================
+# Media Files
+# ============================================================================
+*.mp4
+*.mp3
+*.wav
+*.avi
+*.mkv
+*.mov
+*.flv
+*.m4a
+*.m4a.part
+*.webm
+
+# ============================================================================
+# Large Binary Files (exceed GitHub limits)
+# ============================================================================
+*.exe
+*.dll
+*.so
+*.dylib
+*.ckpt
+*.pt
+*.pth
+*.safetensors
+*.bin
+*.onnx
+models/
+checkpoints/
+
+# ============================================================================
+# Backup Files
+# ============================================================================
+*.bak
+*.backup
+*.old
+*_backup/
+*_old/
+
+# ============================================================================
+# OS-Specific
+# ============================================================================
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+$RECYCLE.BIN/
+/nul
+
+# macOS
+.DS_Store
+.AppleDouble
+.LSOverride
+._*
+
+# Linux
+*~
+.directory
+
+# ============================================================================
+# Documentation Builds
+# ============================================================================
+_build/
+.doctrees/
+site/
+
+# ============================================================================
+# Test Coverage & Reports
+# ============================================================================
+.coverage
+.coverage.*
+coverage/
+*.cover
+.hypothesis/
+.tox/
+
+# ============================================================================
+# FTP Configuration & Credentials (NEVER commit these!)
+# ============================================================================
+ftp_sites.json
+*ftp*.json
+*ftp_config*
+*ftp_credentials*
+.ftpconfig
+.ftppass
+
+# ============================================================================
+# Development/Project-Specific Files (not for template distribution)
+# ============================================================================
+/scripts/
+/test_frames/
+/metadata.json
+/setup-symlinks.ps1
+/supebase.md
+
+# ============================================================================
+# KEEP THESE - Template Content (for distribution)
+# ============================================================================
+# Task management system - NOW INCLUDED IN REPO
+!.fstrent_spec_tasks/
+!.fstrent_spec_tasks/**/*
+
+# Cursor configuration
+!.cursor/
+!.cursor/**/*
+
+# Other IDE configurations
+!.windsurf/
+!.windsurf/**/*
+!.roo-code/
+!.roo-code/**/*
+!.cline/
+!.cline/**/*
+
+# Template folder (everything to copy to new projects)
+!template/
+!template/**/*
+
+# Example project
+!example-project/
+!example-project/**/*
+
+# Documentation
+!docs/
+!docs/**/*
+
+# GitHub files
+!.github/
+!.github/**/*
+
+# Root files
+!README.md
+!LICENSE
+!CONTRIBUTING.md
+!CODE_OF_CONDUCT.md
+!CHANGELOG.md
+!.gitignore
+!.mcp.json
+!agents.md

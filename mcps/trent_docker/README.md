@@ -1,0 +1,399 @@
+# trent_docker
+
+Unified MCP (Model Context Protocol) server providing RAG, research, MediaWiki, and template installation tools.
+
+## Features
+
+| Category | Tools | Description |
+|----------|-------|-------------|
+| **RAG** | `rag_search`, `rag_ingest_text`, `rag_list_sources`, `rag_stats` | Semantic search over knowledge bases using pgvector |
+| **Research** | `research_search`, `research_scrape`, `research_comprehensive`, `research_deep` | Web research via Perplexity/Google (NO DuckDuckGo) |
+| **MediaWiki** | `mediawiki_page`, `mediawiki_search` | Wiki page CRUD and search |
+| **Template** | `template_install` | Install trent to new projects |
+
+---
+
+## Quick Start (Docker)
+
+### 1. Prerequisites
+
+- Docker Desktop (Windows/Mac) or Docker Engine (Linux)
+- Docker Compose v2.0+
+- API keys for services you want to use
+
+### 2. Configure Environment
+
+```bash
+# Copy example environment file
+cp .env.example .env
+
+# Edit with your API keys
+notepad .env  # Windows
+# or: nano .env  # Linux/Mac
+```
+
+**Minimum required for RAG:**
+```env
+OPENAI_API_KEY=sk-your-openai-key
+POSTGRES_PASSWORD=your_secure_password
+```
+
+### 3. Start the Server
+
+```bash
+# Start PostgreSQL and MCP server
+docker-compose up -d
+
+# View logs
+docker-compose logs -f trent
+```
+
+### 4. Verify Deployment
+
+```bash
+# Check health endpoint
+curl http://localhost:8082/health
+
+# Or use PowerShell
+Invoke-WebRequest -Uri "http://localhost:8082/health" -UseBasicParsing
+```
+
+---
+
+## Deployment Options
+
+### Option A: Docker Compose (Recommended)
+
+Full stack with PostgreSQL and optional pgAdmin.
+
+```bash
+# Start core services
+docker-compose up -d
+
+# Start with pgAdmin for database management
+docker-compose --profile admin up -d
+
+# Stop services
+docker-compose down
+
+# Stop and remove data volumes (DESTRUCTIVE)
+docker-compose down -v
+```
+
+**Services:**
+| Service | Port | Description |
+|---------|------|-------------|
+| `trent` | 8082 | MCP server (SSE transport) |
+| `postgres` | 5433 | PostgreSQL with pgvector |
+| `pgadmin` | 8083 | Database admin UI (optional) |
+
+### Option B: Standalone Container
+
+If you have an external PostgreSQL database:
+
+```bash
+# Build the image
+docker build -t trent .
+
+# Run with environment variables
+docker run -d \
+  --name trent \
+  -p 8082:8082 \
+  -e OPENAI_API_KEY=sk-your-key \
+  -e POSTGRES_HOST=your-postgres-host \
+  -e POSTGRES_PORT=5432 \
+  -e POSTGRES_DB=rag_knowledge \
+  -e POSTGRES_USER=trent \
+  -e POSTGRES_PASSWORD=your-password \
+  -e MCP_TRANSPORT=sse \
+  trent
+```
+
+### Option C: Local Development (stdio)
+
+For IDE integration without Docker:
+
+```bash
+# Create virtual environment
+python -m venv .venv
+.venv\Scripts\activate  # Windows
+# source .venv/bin/activate  # Linux/Mac
+
+# Install dependencies
+pip install -r requirements.txt
+
+# Run with stdio transport (for IDE integration)
+python -m trent.server
+```
+
+---
+
+## Client Configuration
+
+### Claude Desktop
+
+Add to `claude_desktop_config.json`:
+
+```json
+{
+  "mcpServers": {
+    "trent": {
+      "url": "http://localhost:8082/sse"
+    }
+  }
+}
+```
+
+**Config file location:**
+- Windows: `%APPDATA%\Claude\claude_desktop_config.json`
+- Mac: `~/Library/Application Support/Claude/claude_desktop_config.json`
+
+### VS Code (Continue Extension)
+
+Add to Continue config:
+
+```json
+{
+  "models": [...],
+  "mcpServers": [
+    {
+      "name": "trent",
+      "transport": {
+        "type": "sse",
+        "url": "http://localhost:8082/sse"
+      }
+    }
+  ]
+}
+```
+
+### Cursor IDE
+
+Add to MCP settings:
+
+```json
+{
+  "trent": {
+    "transport": "sse",
+    "url": "http://localhost:8082/sse"
+  }
+}
+```
+
+---
+
+## Environment Variables
+
+### Required for RAG
+
+| Variable | Description | Example |
+|----------|-------------|---------|
+| `OPENAI_API_KEY` | OpenAI API key for embeddings | `sk-...` |
+| `POSTGRES_HOST` | PostgreSQL host | `localhost` or `postgres` |
+| `POSTGRES_PASSWORD` | Database password | `your_secure_password` |
+
+### Optional: Research APIs
+
+| Variable | Description |
+|----------|-------------|
+| `PERPLEXITY_API_KEY` | Perplexity API (best for research) |
+| `GOOGLE_SEARCH_API_KEY` | Google Custom Search API |
+| `GOOGLE_SEARCH_ENGINE_ID` | Google Search Engine ID |
+| `ANTHROPIC_API_KEY` | Anthropic API (for summaries) |
+
+### Optional: MediaWiki
+
+| Variable | Description |
+|----------|-------------|
+| `MEDIAWIKI_URL` | Wiki base URL |
+| `MEDIAWIKI_USERNAME` | Bot username |
+| `MEDIAWIKI_PASSWORD` | Bot password |
+
+---
+
+## Transport Modes
+
+| Mode | Use Case | Command/Config |
+|------|----------|----------------|
+| `stdio` | IDE integration (local) | Default, or `MCP_TRANSPORT=stdio` |
+| `sse` | HTTP with Server-Sent Events | `MCP_TRANSPORT=sse` |
+| `streamable-http` | Full HTTP transport | `MCP_TRANSPORT=streamable-http` |
+
+**Docker Compose uses SSE by default** (best for network access).
+
+---
+
+## Common Operations
+
+### View Logs
+
+```bash
+# All services
+docker-compose logs -f
+
+# Just the MCP server
+docker-compose logs -f trent
+
+# Last 100 lines
+docker-compose logs --tail=100 trent
+```
+
+### Restart Services
+
+```bash
+# Restart MCP server only
+docker-compose restart trent
+
+# Restart everything
+docker-compose restart
+```
+
+### Update and Rebuild
+
+```bash
+# Pull latest and rebuild
+docker-compose build --no-cache
+docker-compose up -d
+```
+
+### Database Operations
+
+```bash
+# Connect to PostgreSQL
+docker exec -it trent_postgres psql -U trent -d rag_knowledge
+
+# Run SQL file
+docker exec -i trent_postgres psql -U trent -d rag_knowledge < your_script.sql
+
+# Backup database
+docker exec trent_postgres pg_dump -U trent rag_knowledge > backup.sql
+
+# Restore database
+docker exec -i trent_postgres psql -U trent -d rag_knowledge < backup.sql
+```
+
+### Reset Everything
+
+```bash
+# Stop and remove containers, networks, volumes
+docker-compose down -v
+
+# Start fresh
+docker-compose up -d
+```
+
+---
+
+## Health Check
+
+The server provides a health check endpoint and tool:
+
+```bash
+# HTTP health check
+curl http://localhost:8082/health
+
+# Using the MCP tool (from connected client)
+# Call: trent_server_status
+```
+
+Response:
+```json
+{
+  "success": true,
+  "status": "healthy",
+  "server": "trent_docker",
+  "version": "2.0.0",
+  "features": ["rag", "research", "template_installer"],
+  "plugins": [...]
+}
+```
+
+---
+
+## Troubleshooting
+
+### Container won't start
+
+```bash
+# Check logs for errors
+docker-compose logs trent
+
+# Common issues:
+# - Missing OPENAI_API_KEY
+# - PostgreSQL not ready (wait and retry)
+# - Port 8082 already in use
+```
+
+### Database connection failed
+
+```bash
+# Check PostgreSQL is running
+docker-compose ps postgres
+
+# Test connection
+docker exec -it trent_postgres pg_isready -U trent
+
+# Check PostgreSQL logs
+docker-compose logs postgres
+```
+
+### MCP client can't connect
+
+1. Verify server is running: `docker-compose ps`
+2. Check port is accessible: `curl http://localhost:8082/health`
+3. Verify client config uses correct URL: `http://localhost:8082/sse`
+4. Check firewall isn't blocking port 8082
+
+### RAG search returns no results
+
+```bash
+# Check if data exists
+docker exec -it trent_postgres psql -U trent -d rag_knowledge -c "SELECT COUNT(*) FROM sources;"
+
+# Check embeddings exist
+docker exec -it trent_postgres psql -U trent -d rag_knowledge -c "SELECT COUNT(*) FROM content_chunks WHERE embedding IS NOT NULL;"
+```
+
+---
+
+## File Structure
+
+```
+trent_docker/
+├── docker-compose.yml      # Docker Compose configuration
+├── Dockerfile              # Container build instructions
+├── requirements.txt        # Python dependencies
+├── .env.example           # Environment template
+├── pyproject.toml         # Python project config
+│
+├── init_db/               # PostgreSQL initialization
+│   ├── 01_extensions.sql  # Enable pgvector
+│   ├── 02_schema.sql      # Create tables/indexes
+│   ├── 03_multi_subject.sql # Multi-subject support
+│   └── 04_grants.sql      # Permissions
+│
+├── trent/                 # Main package
+│   ├── server.py          # FastMCP server
+│   ├── config.py          # Configuration loader
+│   ├── plugin_loader.py   # Dynamic tool loading
+│   ├── subjects.py        # Multi-subject manager
+│   │
+│   ├── database/          # Database modules
+│   │   ├── client.py      # RAG database client
+│   │   ├── embeddings.py  # OpenAI embeddings
+│   │   └── multi_subject.py
+│   │
+│   └── tools/plugins/     # MCP tool plugins
+│       ├── rag_*.py       # RAG tools
+│       ├── research_*.py  # Research tools
+│       ├── mediawiki_*.py # MediaWiki tools
+│       └── template_*.py  # Template tools
+│
+└── templates/             # Installation templates
+```
+
+---
+
+## License
+
+MIT License - See LICENSE file for details.

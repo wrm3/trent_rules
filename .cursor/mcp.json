@@ -1,0 +1,7 @@
+{
+  "mcpServers": {
+    "trent": {
+      "url": "http://localhost:8082/sse"
+    }
+  }
+}
