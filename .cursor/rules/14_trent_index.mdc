@@ -71,6 +71,13 @@ The trent system is a consolidated, practical task management framework optimize
 - **Solution Proposals**: Concrete fixes with user approval workflow
 - **Continuous Improvement**: Tracking and resolving system issues over time
 
+### 6. **`project_files.mdc`** - Project Instruction Files
+- **agents.md Management**: Universal AI agent instructions file
+- **CLAUDE.md Management**: Claude-specific project context file
+- **Section Markers**: Protected trent sections with HTML comment markers
+- **Multi-Tool Compatibility**: Coexistence with other AI systems
+- **Template Maintenance**: Templates for new project installation
+
 ## Directory Structure
 ```
 .trent/

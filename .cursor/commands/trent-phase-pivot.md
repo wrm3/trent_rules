@@ -67,7 +67,25 @@ pivot_reason: '{Why the pivot occurred}'
 - [ ] Task {M×100}: {First task}
 ```
 
-### 4. Confirm Synchronization
+### 4. Update Project Files (If Exists)
+
+**Update CLAUDE.md** (if present):
+```markdown
+## Current Phase
+- **Phase {M}**: {New Phase Name}
+- **Status**: In Progress
+- **Pivoted From**: Phase {N} - {Old Name}
+- **Pivot Reason**: {Why the pivot occurred}
+- **New Objectives**: {Key objectives from new phase file}
+- **Subsystems**: {Affected subsystems}
+```
+
+**Consider agents.md update** if pivot significantly changes:
+- Project direction or purpose
+- Available features or capabilities
+- Development workflow
+
+### 5. Confirm Synchronization
 ```markdown
 ---
 **Pivot Sync Confirmation:**
@@ -75,6 +93,8 @@ pivot_reason: '{Why the pivot occurred}'
 - Old phase file: status: paused ✅
 - New phase {M}: header added ✅
 - New phase file: created with pivoted_from: {N} ✅
+- CLAUDE.md: {updated/not present}
+- agents.md: {updated/not needed}
 - Sync verified: ✅
 ---
 ```

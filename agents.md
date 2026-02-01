@@ -273,6 +273,12 @@ Commands use the `trent-` prefix.
 
 ---
 
-**Version**: 3.1.0  
+<!-- NOTE: This is the SOURCE REPOSITORY for trent -->
+<!-- The entire file documents the trent system itself -->
+<!-- For projects USING trent, see template/agents.md -->
+
+---
+
+**Version**: 3.2.0  
 **Last Updated**: 2026-01-31  
 **Supported IDEs**: Cursor

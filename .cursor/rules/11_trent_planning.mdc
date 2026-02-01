@@ -524,6 +524,58 @@ Before creating any PRD, ask these essential questions:
 **Q26**: Available resources? (Dev time, Expertise, Budget, Third-party services)
 **Q27**: Hard constraints? (Specific tech, No cloud, Budget limits, Policies)
 
+## Project Instruction Files Initialization
+
+### When to Initialize
+
+**During project setup (`@trent-setup` or `@trent-plan`):**
+1. Check if `agents.md` exists
+2. Check if `CLAUDE.md` exists
+3. Create or update as needed
+
+### agents.md Initialization
+
+**If missing**: Create from template with project-specific content
+**If exists**: Add/update trent section between markers
+
+```markdown
+## agents.md Creation Checklist
+- [ ] Project name and description filled in
+- [ ] Project structure documented
+- [ ] Development commands listed
+- [ ] Code style guidelines included
+- [ ] Trent section added with markers
+- [ ] Version and date set
+```
+
+### CLAUDE.md Initialization
+
+**If missing**: Create from template (optional but recommended)
+**If exists**: Add/update trent section between markers
+
+```markdown
+## CLAUDE.md Creation Checklist
+- [ ] Project overview written
+- [ ] Tech stack documented
+- [ ] Key directories listed
+- [ ] Development commands included
+- [ ] Trent section added with markers
+```
+
+### Integration with Phase Management
+
+**On Phase Creation/Pivot:**
+- Update CLAUDE.md with new phase context
+- Add phase objectives to "Important Notes" section
+
+**Template for Phase Update in CLAUDE.md:**
+```markdown
+## Current Phase
+- **Phase {N}**: {Phase Name}
+- **Objectives**: {Key objectives}
+- **Focus Areas**: {Subsystems being worked on}
+```
+
 ## Codebase Analysis for Existing Projects
 
 ### Automatic Project Analysis
@@ -533,6 +585,8 @@ When initializing in existing projects:
 3. **Create phase documents** organizing work into logical stages
 4. **Identify subsystems** from code organization
 5. **Document current architecture** and integration points
+6. **Create/update agents.md** with discovered project info
+7. **Create/update CLAUDE.md** with tech stack and conventions
 
 ### Analysis Process
 1. **File Structure Analysis**: Identify main components and modules

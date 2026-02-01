@@ -63,12 +63,24 @@ pivot_reason: ''
 {Additional context}
 ```
 
-### 3. Confirm Synchronization
+### 3. Update Project Files (If Exists)
+
+**Update CLAUDE.md** (if present):
+```markdown
+## Current Phase
+- **Phase {N}**: {Phase Name}
+- **Status**: Planning → In Progress
+- **Objectives**: {Key objectives from phase file}
+- **Subsystems**: {Affected subsystems}
+```
+
+### 4. Confirm Synchronization
 ```markdown
 ---
 **Phase Sync Confirmation:**
 - TASKS.md header: ### Phase {N}: {Name} ✅
 - Phase file: phase{N}_{name}.md ✅
+- CLAUDE.md: {updated/not present}
 - Sync verified: ✅
 ---
 ```

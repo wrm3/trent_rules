@@ -305,7 +305,51 @@ Phase: {phase}
 | `documentation` | `docs` |
 | `task` (default) | `feat` |
 
-**Step 4: Confirmation**
+**Step 4: Project Files Analysis**
+Check if completed task affects project instruction files:
+
+```markdown
+## 📋 Project Files Impact Analysis
+
+**Task Type**: {task_type}
+**Subsystems**: {affected_subsystems}
+
+**agents.md Update Needed?**
+- [ ] Added new MCP tool → YES, document in agents.md
+- [ ] Added new command → YES, add to commands table
+- [ ] Added new skill → YES, add to skills list
+- [ ] Added new agent → YES, add to agents table
+- [ ] Changed task workflow → YES, update task management section
+- [ ] Changed status indicators → YES, update status section
+- [ ] Added new feature → MAYBE, if user-facing
+- [ ] Bug fix only → NO
+- [ ] Refactor only → NO
+- [ ] Documentation only → NO
+
+**CLAUDE.md Update Needed?**
+- [ ] Changed tech stack → YES
+- [ ] Added new directory → YES, update structure
+- [ ] Changed dev commands → YES
+- [ ] Changed conventions → YES
+- [ ] Phase pivot occurred → YES, update current phase
+
+**Update Required**: [YES/NO]
+```
+
+**If Update Required:**
+```markdown
+## 🔄 Project Files Update
+
+**agents.md changes:**
+- {what to add/update}
+
+**CLAUDE.md changes:**
+- {what to add/update}
+
+Shall I update these files? (yes/no/skip)
+```
+
+**Step 5: Confirmation**
 ```markdown
 ---
 **Task Completion Summary:**
@@ -313,6 +357,7 @@ Phase: {phase}
 - Validation: ✅ PASSED
 - Files updated: task{ID}_name.md, TASKS.md
 - Git commit: {commit_hash} (or "skipped")
+- Project files: {updated/not needed}
 ---
 ```
 
@@ -322,11 +367,16 @@ Phase: {phase}
   → Run validation check
   → Update task file + TASKS.md (ATOMIC)
   → Offer git commit
+  → Check project files impact
   → Confirm completion
 
 □ Did I offer git commit? (MANDATORY CHECK)
   → If task completed and no commit offered, offer it NOW
   → Never end response without commit offer after task completion
+
+□ Did I check project files impact? (MANDATORY CHECK)
+  → If task added MCP tool/command/skill/agent, update agents.md
+  → If task changed tech stack/structure, update CLAUDE.md
 ```
 
 **Failure to Complete Workflow = SYSTEM VIOLATION**
