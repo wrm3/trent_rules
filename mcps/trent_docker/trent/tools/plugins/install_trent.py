@@ -58,6 +58,21 @@ def setup(context: dict):
         _template_path = package_root / 'templates'
 
 
+def _translate_windows_path(path: str) -> str:
+    """
+    Translate Windows paths to Docker mount paths when running in container.
+    E.g., 'G:\\OpenClaw' -> '/mnt/g/OpenClaw'
+    """
+    import re
+    # Check if it's a Windows-style path (e.g., G:\, C:\, g:/, etc.)
+    match = re.match(r'^([a-zA-Z]):[/\\](.*)$', path)
+    if match:
+        drive_letter = match.group(1).lower()
+        rest_of_path = match.group(2).replace('\\', '/')
+        return f'/mnt/{drive_letter}/{rest_of_path}'
+    return path
+
+
 async def execute(
     target_path: str,
     template_type: str = "full",
@@ -70,6 +85,15 @@ async def execute(
     """
     config = context.get('config', _config) if context else _config
 
+    # Store original path for reporting
+    original_target_path = target_path
+    
+    # Translate Windows paths if running in Docker container
+    if os.path.exists('/mnt'):
+        target_path = _translate_windows_path(target_path)
+        if target_path != original_target_path:
+            logger.info(f"Translated Windows path: {original_target_path} -> {target_path}")
+
     logger.info(f"Template install to: {target_path}")
     logger.info(f"Template type: {template_type}, dry_run: {dry_run}")
 
@@ -81,7 +105,8 @@ async def execute(
     except Exception as e:
         return {
             'success': False,
-            'error': f"Invalid target path: {e}"
+            'error': f"Invalid target path: {e}",
+            'hint': "If using Windows paths like 'G:\\Project', ensure Docker has access to the drive."
         }
 
     # Get template source
@@ -100,7 +125,8 @@ async def execute(
 
     result = {
         'success': False,
-        'target_path': str(target),
+        'target_path': original_target_path,  # Show original Windows path to user
+        'target_path_resolved': str(target),  # Actual path used
         'template_source': str(template_source),
         'template_type': template_type,
         'os_info': os_info,

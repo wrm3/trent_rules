@@ -46,6 +46,10 @@ services:
       - trent_research:/app/research_output
       # Mount templates for installation
       - ./templates:/app/templates:ro
+      # Mount Windows drives for install_trent to write to host filesystem
+      - /g:/mnt/g
+      - /p:/mnt/p
+      - /m:/mnt/m
     depends_on:
       postgres:
         condition: service_healthy
