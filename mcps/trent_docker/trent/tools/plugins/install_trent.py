@@ -22,9 +22,9 @@ TOOL_NAME = "install_trent"
 
 TOOL_DESCRIPTION = (
     "Install trent development templates to a project directory. "
-    "Copies IDE configurations (.claude, .cursor, .vscode), rules, skills, and agents. "
-    "OS-aware: detects Windows Developer Mode for symlink handling. "
-    "Merges directories without destroying existing content."
+    "Copies .cursor (rules, commands, skills), .trent (task management), "
+    "agents.md, and CLAUDE.md. OS-aware: detects Windows Developer Mode "
+    "for symlink handling. Merges directories without destroying existing content."
 )
 
 TOOL_PARAMS = {
