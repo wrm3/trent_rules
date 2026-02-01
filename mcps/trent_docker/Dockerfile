@@ -24,6 +24,7 @@ RUN pip install --no-cache-dir -r requirements.txt
 # Copy application code
 COPY trent/ ./trent/
 COPY templates/ ./templates/
+COPY templates_full/ ./templates_full/
 
 # Create necessary directories
 RUN mkdir -p /app/data /app/logs /app/research_output

@@ -1,11 +1,11 @@
 """
 Install Trent Full Tool Plugin
 
-Install COMPLETE trent development environment from the source repository.
+Install COMPLETE trent development environment from bundled templates.
 Copies the full .cursor folder (all rules, skills, commands, agents),
 .trent templates, docs/, temp_scripts/, agents.md, and CLAUDE.md.
 
-This is different from install_trent which only copies curated templates.
+This is different from install_trent which only copies curated trent-specific templates.
 """
 import os
 import sys
@@ -13,7 +13,6 @@ import shutil
 import asyncio
 import logging
 import platform
-import re
 from pathlib import Path
 from typing import Optional, Dict, Any, List
 from datetime import datetime
@@ -25,16 +24,15 @@ from datetime import datetime
 TOOL_NAME = "install_trent_full"
 
 TOOL_DESCRIPTION = (
-    "Install COMPLETE trent development environment from source repository. "
-    "Copies full .cursor folder (ALL rules, skills, commands, agents), "
-    ".trent templates, empty docs/ and temp_scripts/ folders, plus agents.md "
-    "and CLAUDE.md. Use this for new projects that need the full development setup. "
-    "For agents.md/CLAUDE.md: merges with existing files or skips if merge not possible."
+    "Install COMPLETE trent development environment from bundled templates. "
+    "Copies full .cursor folder (ALL 18 rules, ALL 36 skills, ALL 17 commands, ALL 38 agents), "
+    ".trent templates, empty docs/ and temp_scripts/ folders, plus agents.md, CLAUDE.md, "
+    "and index files. Use this for new projects that need the full development setup. "
+    "For agents.md/CLAUDE.md: merges with existing files if possible."
 )
 
 TOOL_PARAMS = {
     "target_path": "Target project directory to install to (required)",
-    "source_path": "Source trent_rules repository path (default: G:\\trent_rules)",
     "force_overwrite": "Overwrite existing files (default: False)",
     "dry_run": "Preview changes without applying (default: False)",
     "skip_project_files": "Skip agents.md and CLAUDE.md (default: False)"
@@ -48,15 +46,19 @@ logger = logging.getLogger(__name__)
 # ============================================================
 
 _config = None
-
-# Default source path - the trent_rules repository
-DEFAULT_SOURCE_PATH = "G:\\trent_rules"
+_template_path = None
 
 
 def setup(context: dict):
     """Called once during plugin loading to set up dependencies."""
-    global _config
+    global _config, _template_path
     _config = context.get('config', {})
+    
+    # Get template path - use templates_full/ relative to package root
+    _template_path = _config.get('template_full_path')
+    if not _template_path:
+        package_root = Path(__file__).parent.parent.parent.parent
+        _template_path = package_root / 'templates_full'
 
 
 def _translate_windows_path(path: str) -> str:
@@ -64,6 +66,7 @@ def _translate_windows_path(path: str) -> str:
     Translate Windows paths to Docker mount paths when running in container.
     E.g., 'G:\\OpenClaw' -> '/mnt/g/OpenClaw'
     """
+    import re
     match = re.match(r'^([a-zA-Z]):[/\\](.*)$', path)
     if match:
         drive_letter = match.group(1).lower()
@@ -85,14 +88,12 @@ def _merge_markdown_files(source_content: str, dest_content: str, filename: str)
         section_marker = '<!-- TRENT SYSTEM CONTEXT -->'
         section_end = '<!-- END TRENT SYSTEM CONTEXT -->'
     else:
-        # For other files, just return source if dest doesn't exist
         return source_content
     
     # Check if destination already has trent section
     if section_marker in dest_content:
         # Replace existing trent section with new one
         if section_marker in source_content:
-            # Extract trent section from source
             start_idx = source_content.find(section_marker)
             end_idx = source_content.find(section_end)
             if end_idx == -1:
@@ -101,7 +102,6 @@ def _merge_markdown_files(source_content: str, dest_content: str, filename: str)
                 end_idx += len(section_end)
             new_section = source_content[start_idx:end_idx]
             
-            # Replace in destination
             dest_start = dest_content.find(section_marker)
             dest_end = dest_content.find(section_end)
             if dest_end == -1:
@@ -123,7 +123,6 @@ def _merge_markdown_files(source_content: str, dest_content: str, filename: str)
             
             return dest_content.rstrip() + '\n\n' + new_section + '\n'
         else:
-            # Source doesn't have section markers either - append whole source
             return dest_content.rstrip() + '\n\n---\n\n' + source_content
     
     return dest_content
@@ -131,52 +130,47 @@ def _merge_markdown_files(source_content: str, dest_content: str, filename: str)
 
 async def execute(
     target_path: str,
-    source_path: str = DEFAULT_SOURCE_PATH,
     force_overwrite: bool = False,
     dry_run: bool = False,
     skip_project_files: bool = False,
     context: dict = None
 ) -> dict:
     """
-    Install complete trent development environment from source repository.
+    Install complete trent development environment from bundled templates.
     """
     config = context.get('config', _config) if context else _config
 
-    # Store original paths for reporting
+    # Store original path for reporting
     original_target_path = target_path
-    original_source_path = source_path
     
     # Translate Windows paths if running in Docker container
     if os.path.exists('/mnt'):
         target_path = _translate_windows_path(target_path)
-        source_path = _translate_windows_path(source_path)
         if target_path != original_target_path:
             logger.info(f"Translated target: {original_target_path} -> {target_path}")
-        if source_path != original_source_path:
-            logger.info(f"Translated source: {original_source_path} -> {source_path}")
 
-    logger.info(f"Full install from: {source_path} to: {target_path}")
+    logger.info(f"Full install to: {target_path}")
     logger.info(f"dry_run: {dry_run}, force_overwrite: {force_overwrite}")
 
-    # Validate paths
+    # Validate target path
     try:
         target = Path(target_path).resolve()
-        source = Path(source_path).resolve()
-        
         if not dry_run:
             target.mkdir(parents=True, exist_ok=True)
     except Exception as e:
         return {
             'success': False,
-            'error': f"Invalid path: {e}",
-            'hint': "Ensure Docker has access to the drives (G:, P:, M: are mounted)."
+            'error': f"Invalid target path: {e}",
+            'hint': "Ensure Docker has access to the drive."
         }
 
-    if not source.exists():
+    # Get template source
+    template_source = Path(_template_path) if _template_path else None
+    if not template_source or not template_source.exists():
         return {
             'success': False,
-            'error': f"Source repository not found: {source}",
-            'hint': f"Expected trent_rules at {original_source_path}"
+            'error': f"Template source not found: {template_source}",
+            'hint': "templates_full/ directory missing from Docker image"
         }
 
     # Check OS capabilities
@@ -185,9 +179,8 @@ async def execute(
     result = {
         'success': False,
         'target_path': original_target_path,
-        'source_path': original_source_path,
         'target_path_resolved': str(target),
-        'source_path_resolved': str(source),
+        'template_source': str(template_source),
         'os_info': os_info,
         'dry_run': dry_run,
         'copied_files': [],
@@ -201,8 +194,8 @@ async def execute(
     start_time = datetime.now()
 
     try:
-        # 1. Copy .cursor folder (full, not templates)
-        cursor_source = source / '.cursor'
+        # 1. Copy .cursor folder (full)
+        cursor_source = template_source / '.cursor'
         cursor_dest = target / '.cursor'
         if cursor_source.exists():
             logger.info("Copying .cursor folder...")
@@ -215,21 +208,20 @@ async def execute(
                 })
             else:
                 copied = await _merge_directories(
-                    cursor_source, cursor_dest, force_overwrite, os_info,
-                    exclude_patterns=['logs/', 'metrics/', 'mcp.json']
+                    cursor_source, cursor_dest, force_overwrite, os_info
                 )
                 result['copied_files'].extend(copied['copied'])
                 result['skipped_files'].extend(copied['skipped'])
         else:
-            result['warnings'].append(".cursor folder not found in source")
+            result['warnings'].append(".cursor folder not found in templates_full")
 
-        # 2. Copy .trent folder (from template, not populated)
-        trent_template = source / '.trent_template'
+        # 2. Copy .trent folder
+        trent_source = template_source / '.trent'
         trent_dest = target / '.trent'
-        if trent_template.exists():
+        if trent_source.exists():
             logger.info("Copying .trent templates...")
             if dry_run:
-                file_count = _count_files(trent_template)
+                file_count = _count_files(trent_source)
                 result['copied_files'].append({
                     'directory': '.trent',
                     'action': 'would_copy',
@@ -237,13 +229,12 @@ async def execute(
                 })
             else:
                 copied = await _merge_directories(
-                    trent_template, trent_dest, force_overwrite, os_info,
-                    exclude_patterns=['examples/']
+                    trent_source, trent_dest, force_overwrite, os_info
                 )
                 result['copied_files'].extend(copied['copied'])
                 result['skipped_files'].extend(copied['skipped'])
         else:
-            result['warnings'].append(".trent_template folder not found in source")
+            result['warnings'].append(".trent folder not found in templates_full")
 
         # 3. Create empty docs/ folder
         docs_dest = target / 'docs'
@@ -272,7 +263,7 @@ async def execute(
         # 5. Copy index files
         index_files = ['AGENTS_INDEX.md', 'SKILLS_INDEX.md', 'COMMANDS_INDEX.md', 'HOOKS_INDEX.md', 'RULES_INDEX.md']
         for filename in index_files:
-            source_file = source / filename
+            source_file = template_source / filename
             dest_file = target / filename
             
             if source_file.exists():
@@ -293,13 +284,10 @@ async def execute(
                             logger.warning(f"Failed to copy {filename}: {e}")
                             result['skipped_files'].append(str(dest_file))
 
-        # 6. Handle agents.md and CLAUDE.md (merge or skip)
+        # 6. Handle agents.md and CLAUDE.md (merge or copy)
         if not skip_project_files:
             for filename in ['agents.md', 'CLAUDE.md']:
-                source_file = source / 'template' / filename
-                if not source_file.exists():
-                    source_file = source / filename
-                
+                source_file = template_source / filename
                 dest_file = target / filename
                 
                 if source_file.exists():
@@ -332,7 +320,7 @@ async def execute(
                             result['copied_files'].append(str(dest_file))
                             logger.info(f"Copied: {filename}")
                 else:
-                    result['warnings'].append(f"{filename} not found in source")
+                    result['warnings'].append(f"{filename} not found in templates_full")
 
         result['operation_time_seconds'] = round((datetime.now() - start_time).total_seconds(), 2)
         result['success'] = True
@@ -397,12 +385,10 @@ async def _merge_directories(
     source: Path,
     dest: Path,
     force_overwrite: bool,
-    os_info: dict,
-    exclude_patterns: List[str] = None
+    os_info: dict
 ) -> dict:
     """Merge source directory into destination without destroying existing content."""
     result = {'copied': [], 'skipped': []}
-    exclude_patterns = exclude_patterns or []
 
     if not source.exists():
         return result
@@ -410,17 +396,12 @@ async def _merge_directories(
     dest.mkdir(parents=True, exist_ok=True)
 
     for item in source.iterdir():
-        # Check exclusions
-        rel_path = str(item.relative_to(source))
-        if any(pattern.rstrip('/') in rel_path for pattern in exclude_patterns):
-            continue
-
         source_item = source / item.name
         dest_item = dest / item.name
 
         if source_item.is_dir():
             sub_result = await _merge_directories(
-                source_item, dest_item, force_overwrite, os_info, exclude_patterns
+                source_item, dest_item, force_overwrite, os_info
             )
             result['copied'].extend(sub_result['copied'])
             result['skipped'].extend(sub_result['skipped'])
