@@ -73,6 +73,59 @@ def _translate_windows_path(path: str) -> str:
     return path
 
 
+def _merge_markdown_files(source_content: str, dest_content: str, filename: str) -> str:
+    """
+    Merge two markdown files intelligently.
+    For agents.md/CLAUDE.md: preserve existing content, add trent sections if missing.
+    """
+    # Define section markers
+    if filename.lower() == 'agents.md':
+        section_marker = '<!-- TRENT SYSTEM SECTION -->'
+        section_end = '<!-- END TRENT SYSTEM SECTION -->'
+    elif filename.lower() == 'claude.md':
+        section_marker = '<!-- TRENT SYSTEM CONTEXT -->'
+        section_end = '<!-- END TRENT SYSTEM CONTEXT -->'
+    else:
+        return source_content
+    
+    # Check if destination already has trent section
+    if section_marker in dest_content:
+        # Replace existing trent section with new one
+        if section_marker in source_content:
+            start_idx = source_content.find(section_marker)
+            end_idx = source_content.find(section_end)
+            if end_idx == -1:
+                end_idx = len(source_content)
+            else:
+                end_idx += len(section_end)
+            new_section = source_content[start_idx:end_idx]
+            
+            dest_start = dest_content.find(section_marker)
+            dest_end = dest_content.find(section_end)
+            if dest_end == -1:
+                dest_end = len(dest_content)
+            else:
+                dest_end += len(section_end)
+            
+            return dest_content[:dest_start] + new_section + dest_content[dest_end:]
+    else:
+        # Destination doesn't have trent section - append it
+        if section_marker in source_content:
+            start_idx = source_content.find(section_marker)
+            end_idx = source_content.find(section_end)
+            if end_idx == -1:
+                end_idx = len(source_content)
+            else:
+                end_idx += len(section_end)
+            new_section = source_content[start_idx:end_idx]
+            
+            return dest_content.rstrip() + '\n\n' + new_section + '\n'
+        else:
+            return dest_content.rstrip() + '\n\n---\n\n' + source_content
+    
+    return dest_content
+
+
 async def execute(
     target_path: str,
     template_type: str = "full",
@@ -158,17 +211,49 @@ async def execute(
             logger.info(f"Processing: {item_name}")
 
             if source_item.is_file():
-                # Handle individual file copy
+                # Handle individual file copy (with merge support for agents.md/CLAUDE.md)
+                is_mergeable = item_name.lower() in ['agents.md', 'claude.md']
+                
                 if dry_run:
-                    result['copied_files'].append({
-                        'file': item_name,
-                        'action': 'would_copy',
-                        'source': str(source_item),
-                        'destination': str(dest_item)
-                    })
+                    if dest_item.exists() and is_mergeable:
+                        result['copied_files'].append({
+                            'file': item_name,
+                            'action': 'would_merge',
+                            'source': str(source_item),
+                            'destination': str(dest_item)
+                        })
+                    else:
+                        result['copied_files'].append({
+                            'file': item_name,
+                            'action': 'would_copy',
+                            'source': str(source_item),
+                            'destination': str(dest_item)
+                        })
                 else:
-                    if dest_item.exists() and not force_overwrite:
-                        result['skipped_files'].append(str(dest_item))
+                    if dest_item.exists():
+                        if is_mergeable:
+                            # Merge agents.md/CLAUDE.md with existing
+                            try:
+                                source_content = source_item.read_text(encoding='utf-8')
+                                dest_content = dest_item.read_text(encoding='utf-8')
+                                merged = _merge_markdown_files(source_content, dest_content, item_name)
+                                dest_item.write_text(merged, encoding='utf-8')
+                                result['copied_files'].append(f"{dest_item} (merged)")
+                                logger.info(f"Merged: {item_name}")
+                            except Exception as e:
+                                logger.warning(f"Failed to merge {item_name}: {e}")
+                                result['skipped_files'].append(str(dest_item))
+                        elif not force_overwrite:
+                            result['skipped_files'].append(str(dest_item))
+                        else:
+                            try:
+                                await asyncio.to_thread(
+                                    shutil.copy2, str(source_item), str(dest_item)
+                                )
+                                result['copied_files'].append(str(dest_item))
+                            except Exception as e:
+                                logger.warning(f"Failed to copy {source_item}: {e}")
+                                result['skipped_files'].append(str(dest_item))
                     else:
                         try:
                             await asyncio.to_thread(
