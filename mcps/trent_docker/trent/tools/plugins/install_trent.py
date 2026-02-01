@@ -29,7 +29,7 @@ TOOL_DESCRIPTION = (
 
 TOOL_PARAMS = {
     "target_path": "Target project directory to install templates to (required)",
-    "template_type": "Template type: 'full', 'claude', 'cursor', 'rules', 'trent' (default: 'full')",
+    "template_type": "Template type: 'full', 'cursor', 'trent', 'rules', 'skills', 'commands', 'minimal' (default: 'full')",
     "force_overwrite": "Overwrite existing files (default: False)",
     "dry_run": "Preview changes without applying (default: False)"
 }
@@ -121,33 +121,56 @@ async def execute(
                 "Symlinks will be converted to regular copies."
             )
 
-        # Process each directory
-        for dir_name in dirs_to_copy:
-            source_dir = template_source / dir_name
-            if not source_dir.exists():
-                result['warnings'].append(f"Template directory not found: {dir_name}")
+        # Process each directory or file
+        for item_name in dirs_to_copy:
+            source_item = template_source / item_name
+            if not source_item.exists():
+                result['warnings'].append(f"Template item not found: {item_name}")
                 continue
 
-            dest_dir = target / dir_name
-            logger.info(f"Processing: {dir_name}")
+            dest_item = target / item_name
+            logger.info(f"Processing: {item_name}")
 
-            if dry_run:
-                # Preview mode - just list files
-                file_count = _count_files(source_dir)
-                result['copied_files'].append({
-                    'directory': dir_name,
-                    'action': 'would_copy',
-                    'file_count': file_count,
-                    'source': str(source_dir),
-                    'destination': str(dest_dir)
-                })
+            if source_item.is_file():
+                # Handle individual file copy
+                if dry_run:
+                    result['copied_files'].append({
+                        'file': item_name,
+                        'action': 'would_copy',
+                        'source': str(source_item),
+                        'destination': str(dest_item)
+                    })
+                else:
+                    if dest_item.exists() and not force_overwrite:
+                        result['skipped_files'].append(str(dest_item))
+                    else:
+                        try:
+                            await asyncio.to_thread(
+                                shutil.copy2, str(source_item), str(dest_item)
+                            )
+                            result['copied_files'].append(str(dest_item))
+                        except Exception as e:
+                            logger.warning(f"Failed to copy {source_item}: {e}")
+                            result['skipped_files'].append(str(dest_item))
             else:
-                # Actual copy
-                copied = await _merge_directories(
-                    source_dir, dest_dir, force_overwrite, os_info
-                )
-                result['copied_files'].extend(copied['copied'])
-                result['skipped_files'].extend(copied['skipped'])
+                # Handle directory copy
+                if dry_run:
+                    # Preview mode - just list files
+                    file_count = _count_files(source_item)
+                    result['copied_files'].append({
+                        'directory': item_name,
+                        'action': 'would_copy',
+                        'file_count': file_count,
+                        'source': str(source_item),
+                        'destination': str(dest_item)
+                    })
+                else:
+                    # Actual copy
+                    copied = await _merge_directories(
+                        source_item, dest_item, force_overwrite, os_info
+                    )
+                    result['copied_files'].extend(copied['copied'])
+                    result['skipped_files'].extend(copied['skipped'])
 
         result['operation_time_seconds'] = round((datetime.now() - start_time).total_seconds(), 2)
         result['success'] = True
@@ -211,14 +234,15 @@ def _check_windows_symlink_capability() -> bool:
 
 
 def _get_template_dirs(template_type: str) -> List[str]:
-    """Get list of directories to copy based on template type."""
+    """Get list of directories/files to copy based on template type."""
     all_dirs = {
-        'full': ['.claude', '.cursor', '.trent', '.vscode', 'docs'],
-        'claude': ['.claude'],
+        'full': ['.cursor', '.trent', 'agents.md', 'CLAUDE.md'],
         'cursor': ['.cursor'],
-        'rules': ['.claude/rules', '.cursor/rules'],
         'trent': ['.trent'],
-        'ide': ['.claude', '.cursor', '.vscode']
+        'rules': ['.cursor/rules'],
+        'skills': ['.cursor/skills'],
+        'commands': ['.cursor/commands'],
+        'minimal': ['.trent', 'agents.md']  # Just task management + agents.md
     }
 
     return all_dirs.get(template_type.lower(), all_dirs['full'])
