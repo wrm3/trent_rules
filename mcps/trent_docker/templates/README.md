@@ -7,7 +7,7 @@ This directory contains templates for the `install_trent` MCP tool.
 ```
 templates/
 ├── .cursor/                    # Cursor IDE configuration
-│   ├── rules/                  # Trent rules (10-17)
+│   ├── rules/                  # Trent rules (10-18)
 │   ├── commands/               # Trent commands (@trent-*)
 │   └── skills/                 # Trent skills
 ├── .trent/                     # Task management data
@@ -20,7 +20,12 @@ templates/
 │   ├── phases/                 # Phase documentation
 │   └── templates/              # Task/phase templates
 ├── agents.md                   # Universal AI agent instructions
-└── CLAUDE.md                   # Claude Code project context
+├── CLAUDE.md                   # Claude Code project context
+├── AGENTS_INDEX.md             # Quick reference for agents
+├── SKILLS_INDEX.md             # Quick reference for skills
+├── COMMANDS_INDEX.md           # Quick reference for commands
+├── HOOKS_INDEX.md              # Quick reference for hooks
+└── RULES_INDEX.md              # Quick reference for rules
 ```
 
 ## Usage
@@ -43,13 +48,13 @@ install_trent(target_path="/path/to/project", dry_run=True)
 
 | Type | What's Installed |
 |------|------------------|
-| `full` | .cursor, .trent, agents.md, CLAUDE.md |
+| `full` | .cursor, .trent, agents.md, CLAUDE.md, *_INDEX.md files |
 | `cursor` | .cursor only |
 | `trent` | .trent only |
 | `rules` | .cursor/rules only |
 | `skills` | .cursor/skills only |
 | `commands` | .cursor/commands only |
-| `minimal` | .trent + agents.md |
+| `minimal` | .trent + agents.md + *_INDEX.md files |
 
 ## Updating Templates
 

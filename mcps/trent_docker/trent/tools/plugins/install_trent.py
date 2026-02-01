@@ -346,14 +346,17 @@ def _check_windows_symlink_capability() -> bool:
 
 def _get_template_dirs(template_type: str) -> List[str]:
     """Get list of directories/files to copy based on template type."""
+    # Index files to include with full/minimal installs
+    index_files = ['AGENTS_INDEX.md', 'SKILLS_INDEX.md', 'COMMANDS_INDEX.md', 'HOOKS_INDEX.md', 'RULES_INDEX.md']
+    
     all_dirs = {
-        'full': ['.cursor', '.trent', 'agents.md', 'CLAUDE.md'],
+        'full': ['.cursor', '.trent', 'agents.md', 'CLAUDE.md'] + index_files,
         'cursor': ['.cursor'],
         'trent': ['.trent'],
         'rules': ['.cursor/rules'],
         'skills': ['.cursor/skills'],
         'commands': ['.cursor/commands'],
-        'minimal': ['.trent', 'agents.md']  # Just task management + agents.md
+        'minimal': ['.trent', 'agents.md'] + index_files  # Task management + agents.md + indexes
     }
 
     return all_dirs.get(template_type.lower(), all_dirs['full'])

@@ -269,7 +269,31 @@ async def execute(
                 result['copied_files'].append(str(gitkeep))
             result['created_dirs'].append('temp_scripts/')
 
-        # 5. Handle agents.md and CLAUDE.md (merge or skip)
+        # 5. Copy index files
+        index_files = ['AGENTS_INDEX.md', 'SKILLS_INDEX.md', 'COMMANDS_INDEX.md', 'HOOKS_INDEX.md', 'RULES_INDEX.md']
+        for filename in index_files:
+            source_file = source / filename
+            dest_file = target / filename
+            
+            if source_file.exists():
+                if dry_run:
+                    result['copied_files'].append({
+                        'file': filename,
+                        'action': 'would_copy'
+                    })
+                else:
+                    if dest_file.exists() and not force_overwrite:
+                        result['skipped_files'].append(str(dest_file))
+                    else:
+                        try:
+                            shutil.copy2(str(source_file), str(dest_file))
+                            result['copied_files'].append(str(dest_file))
+                            logger.info(f"Copied: {filename}")
+                        except Exception as e:
+                            logger.warning(f"Failed to copy {filename}: {e}")
+                            result['skipped_files'].append(str(dest_file))
+
+        # 6. Handle agents.md and CLAUDE.md (merge or skip)
         if not skip_project_files:
             for filename in ['agents.md', 'CLAUDE.md']:
                 source_file = source / 'template' / filename
