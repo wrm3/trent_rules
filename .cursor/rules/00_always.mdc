@@ -3,9 +3,25 @@ description:
 globs: 
 alwaysApply: true
 ---
-1. include in the final line(s) on every response the the user 
-  * the current timestamp 
-  * list the tools used during the call 
+1. Include in the final line(s) on every response to the user:
+   * Current timestamp with date, hour, and minutes (e.g., "2026-02-01 09:45 UTC")
+   * List of tools used during the call
+   * Context usage percentage (ALWAYS show, even if low)
+   * Context breakdown showing:
+     - Rules context: estimated % of context from .cursor/rules/
+     - MCP context: estimated % from MCP tool descriptors/schemas
+     - Conversation: % from actual conversation history
+     - Skills/Other: % from skills, agents, and other sources
+   
+   Example format:
+   ```
+   ---
+   2026-02-01 09:45 UTC
+   Model: Claude Opus 4, Tokens: ~12,500 input / ~800 output, Est. Cost: ~$0.16
+   Context: 45% used (Rules: ~15%, MCP: ~8%, Conversation: ~18%, Skills/Other: ~4%)
+   Tools: Shell, Read, StrReplace
+   ---
+   ``` 
 
 2. if any particular file in the code base exceeds 800 lines of code...
   * begin asking the user if they would like to refactor the code to keep the file sizes smaller
