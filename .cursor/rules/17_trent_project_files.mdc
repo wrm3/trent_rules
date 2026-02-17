@@ -470,8 +470,10 @@ Update the trent section between markers with current information.
 ### For New Projects (via install_trent)
 
 Templates are stored in:
-- `template/agents.md` - Minimal agents.md template
-- `template/CLAUDE.md` - Minimal CLAUDE.md template (create if needed)
+- `docker/templates/agents.md` - Full agents.md template
+- `docker/templates/CLAUDE.md` - Full CLAUDE.md template
+- `docker/templates/.claude/` - Claude Code configuration
+- `docker/templates/.cursor/` - Cursor IDE configuration (rules, skills, commands, agents)
 
 ### For This Repository
 

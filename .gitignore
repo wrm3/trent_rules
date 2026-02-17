@@ -203,6 +203,10 @@ ftp_sites.json
 !.cursor/
 !.cursor/**/*
 
+# Cursor logs and metrics (session-specific, not for distribution)
+.cursor/logs/
+.cursor/metrics/
+
 # Other IDE configurations
 !.windsurf/
 !.windsurf/**/*

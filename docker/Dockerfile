@@ -1,0 +1,67 @@
+# trent_docker - Unified MCP Server
+# Combines RAG, Research, MediaWiki, Oracle, and Template Installation
+
+FROM python:3.11-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install system dependencies
+# - git: required for some pip installs
+# - libaio1t64: required for Oracle Instant Client thick mode
+# - unzip: for extracting Oracle Instant Client
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    build-essential \
+    libpq-dev \
+    curl \
+    git \
+    unzip \
+    libaio1t64 \
+    && rm -rf /var/lib/apt/lists/*
+
+# Debian Trixie renamed libaio.so.1 -> libaio.so.1t64 (64-bit time_t transition)
+# Oracle Instant Client requires the old name, so create a compat symlink
+RUN ln -sf /usr/lib/x86_64-linux-gnu/libaio.so.1t64 /usr/lib/x86_64-linux-gnu/libaio.so.1 \
+    && ldconfig
+
+# ============================================================
+# Oracle Instant Client 23.x (thick mode for Network Encryption)
+# ============================================================
+RUN mkdir -p /opt/oracle && \
+    curl -fSL https://download.oracle.com/otn_software/linux/instantclient/instantclient-basic-linuxx64.zip \
+         -o /tmp/instantclient-basic.zip && \
+    unzip -q /tmp/instantclient-basic.zip -d /opt/oracle && \
+    rm /tmp/instantclient-basic.zip && \
+    ln -s /opt/oracle/instantclient_* /opt/oracle/instantclient && \
+    echo /opt/oracle/instantclient > /etc/ld.so.conf.d/oracle-instantclient.conf && \
+    ldconfig
+
+# Oracle environment variables
+ENV ORACLE_HOME=/opt/oracle/instantclient
+ENV LD_LIBRARY_PATH=/opt/oracle/instantclient:${LD_LIBRARY_PATH}
+
+# Copy requirements first for better caching
+COPY requirements.txt pyproject.toml ./
+
+# Install Python dependencies
+RUN pip install --no-cache-dir -r requirements.txt
+
+# Copy application code
+COPY trent/ ./trent/
+COPY templates/ ./templates/
+COPY templates_full/ ./templates_full/
+
+# Create necessary directories
+RUN mkdir -p /app/data /app/logs /app/research_output
+
+# Environment variables (can be overridden)
+ENV PYTHONUNBUFFERED=1
+ENV PYTHONDONTWRITEBYTECODE=1
+ENV LOG_LEVEL=INFO
+
+# Expose port for HTTP/SSE transport
+EXPOSE 8082
+
+# Default command - stdio transport (for IDE integration)
+# Override with docker run command for HTTP transport
+CMD ["python", "-m", "trent.server"]
