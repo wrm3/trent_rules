@@ -5,11 +5,12 @@
 
 ## TL;DR - The Simple Truth
 
-**Three unique architectures, not six:**
+**Four unique architectures:**
 
 1. **Claude Code** = Unique (Skills + SubAgents + complex structure)
-2. **Gemini** = Unique (Hierarchical GEMINI.md cascade + 3 integrated systems)
-3. **Everyone Else** = Nearly identical (rules-based, simple structure)
+2. **Google Antigravity** = Unique (`.agent/` folder, Artifacts, Knowledge Items, Workflows as `/slash-commands`)
+3. **Gemini CLI** = Unique (Hierarchical GEMINI.md cascade + 3 integrated systems)
+4. **Everyone Else** = Nearly identical (rules-based, simple structure)
 
 **The ONLY real difference between Cursor/Windsurf/Cline/Roo-Code:**
 - Cursor uses `.mdc` file extension
@@ -29,19 +30,24 @@ rename 's/\.mdc$/.md/' *.mdc  # Rename extensions
 
 ## Quick Reference Table
 
-| Feature | Claude Code | Gemini | Cursor | Windsurf | Cline | Roo-Code |
-|---------|-------------|--------|---------|-----------|-------|----------|
-| **Type** | VSCode Ext | CLI + VSCode + Cloud | Standalone IDE | Standalone IDE | VSCode Ext | VSCode Ext |
-| **Rules File Format** | `.md` | `GEMINI.md` ⚠️ | `.mdc` ⚠️ | `.md` (?) | `.md` (?) | `.md` (?) |
-| **Rules Location** | `.claude/skills/` | Hierarchical cascade | `.cursor/rules/` | `.windsurf/` (?) | TBD | TBD |
-| **Skills Support** | ✅ Yes | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
-| **SubAgents** | ✅ Yes | ❌ No | ❌ No | ❌ No (?) | ❌ No (?) | ❌ No (?) |
-| **Hierarchical Context** | ❌ No | ✅ Yes ⚠️ | ❌ No | ❌ No | ❌ No | ❌ No |
-| **Commands** | ✅ `/command` | ✅ `/command` | ✅ `@command` | ❓ Unknown | ❓ Unknown | ❓ Unknown |
-| **MCP Integration** | ✅ Built-in | ❓ Unknown | ✅ Via VSCode | ❓ Unknown | ✅ Via VSCode | ✅ Via VSCode |
-| **YAML Frontmatter** | ✅ Required | ❌ Optional | ✅ Required | ❓ Unknown | ❓ Unknown | ❓ Unknown |
-| **Subfolder Support** | ✅ Yes | ✅ Yes | ✅ Yes | ❓ Unknown | ❓ Unknown | ❓ Unknown |
-| **Task Management** | ✅ Compatible | ✅ Compatible | ✅ Compatible | ❓ Needs Test | ❓ Needs Test | ❓ Needs Test |
+| Feature | Claude Code | Antigravity | Gemini CLI | Cursor | Windsurf | Cline | Roo-Code |
+|---------|-------------|-------------|------------|--------|-----------|-------|----------|
+| **Type** | VSCode Ext/CLI | Standalone IDE | CLI + VSCode + Cloud | Standalone IDE | Standalone IDE | VSCode Ext | VSCode Ext |
+| **Rules File Format** | `.md` | `.md` ✅ | `GEMINI.md` ⚠️ | `.mdc` ⚠️ | `.md` (?) | `.md` (?) | `.md` (?) |
+| **Rules Location** | `.claude/rules/` | `.agent/rules/` ✅ | Hierarchical cascade | `.cursor/rules/` | `.windsurf/` (?) | TBD | TBD |
+| **Skills** | ✅ `.claude/skills/` | ✅ `.agent/skills/` | ❌ No | ✅ `.cursor/skills/` | ❌ No | ❌ No | ❌ No |
+| **SubAgents** | ✅ Yes (34+ types) | ❌ No | ❌ No | ✅ Yes (34+ types) | ❌ No (?) | ❌ No (?) | ❌ No (?) |
+| **Hierarchical Context** | ❌ No | ✅ Global+Workspace | ✅ Yes ⚠️ | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Commands** | ✅ `/command` | ✅ `/workflow-name` | ✅ `/command` | ✅ `@command` | ❓ Unknown | ❓ Unknown | ❓ Unknown |
+| **Workflows** | ❌ No | ✅ `.agent/workflows/` | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Artifacts** | ❌ No | ✅ Unique feature | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Knowledge Items** | ⚠️ Memory (manual) | ✅ Auto-generated | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
+| **GUARDRAILS.md** | ❌ No | ✅ Unique feature | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
+| **Platform File** | `CLAUDE.md` | `GEMINI.md` | `GEMINI.md` | `CLAUDE.md` | ❓ Unknown | ❓ Unknown | ❓ Unknown |
+| **MCP Config** | `settings.local.json` | `mcp_config.json` | ❓ Unknown | `.cursor/mcp.json` | ❓ Unknown | VSCode | VSCode |
+| **Multi-model** | ❌ Claude only | ✅ Gemini+Claude+GPT | ❌ Gemini only | ✅ Multi-model | ❓ Unknown | ❓ Unknown | ❓ Unknown |
+| **AGENTS.md** | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes | ✅ Yes |
+| **Task Management** | ✅ Compatible | ✅ Compatible | ✅ Compatible | ✅ Compatible | ❓ Needs Test | ❓ Needs Test | ❓ Needs Test |
 
 **Legend**:
 - ✅ Confirmed working
@@ -51,15 +57,25 @@ rename 's/\.mdc$/.md/' *.mdc  # Rename extensions
 
 ## Platform Architecture Patterns
 
-### Two Main Architectures
+### Four Main Architectures
 
-**1. Claude Code (Unique Architecture)**
+**1. Claude Code (Unique)**
 - **Skills & SubAgents** - Sophisticated multi-agent system
-- **Directory**: `.claude/` with `skills/`, `agents/`, `commands/`
+- **Directory**: `.claude/` with `skills/`, `agents/`, `commands/`, `rules/`
 - **File Format**: `.md` with YAML frontmatter
 - **Commands**: `/command` prefix
 
-**2. Everyone Else (Similar Architecture)**
+**2. Google Antigravity (Unique)**
+- **Agent-First IDE** - Artifacts, Knowledge Items, multi-model
+- **Directory**: `.agent/` with `rules/`, `skills/`, and `workflows/`
+- **File Format**: `.md` (standard markdown)
+- **Commands**: `/workflow-name` (workflows as slash commands)
+- **Key Features**: Artifacts, auto Knowledge Items, `// turbo`, `GUARDRAILS.md`
+- **Platform File**: `GEMINI.md` (project root, like `CLAUDE.md`)
+- **MCP Config**: `mcp_config.json` (project root)
+- **Docs**: See `.architecture/ANTIGRAVITY.md`
+
+**3. Everyone Else (Similar Architecture)**
 - **Rules-Based** - Single AI with custom instructions
 - **Directory**: `.cursor/`, `.windsurf/`, `.cline/`, `.roo/` (platform-specific)
 - **File Format**: `.md` (except Cursor uses `.mdc`)
@@ -265,6 +281,70 @@ All platforms use file-based setup:
    - Uses `@` not `/`
 
 ## Migration Guides
+
+### Cursor → Antigravity
+
+```bash
+# 1. Create .agent/ directories
+mkdir -p .agent/rules .agent/workflows
+
+# 2. Copy rules (rename .mdc → .md)
+Copy-Item .cursor/rules/*.mdc .agent/rules/
+# Rename extensions in PowerShell:
+Get-ChildItem .agent/rules -Filter "*.mdc" | Rename-Item -NewName { $_.Name -replace '\.mdc$','.md' }
+
+# 3. Update YAML frontmatter in each rule
+# Change: alwaysApply: true → activation: "always_on"
+# Change: globs: [...] → keep for glob activation type
+
+# 4. Convert commands to workflows
+# Copy .cursor/commands/*.md → .agent/workflows/
+# Invocation: @command-name → /command-name
+
+# 5. Skills/Agents → @filename references or always_on rules
+# (No direct Skills/SubAgents equivalent in Antigravity)
+# Reference heavy content via @/path/to/file.md in rules
+```
+
+### Claude Code → Antigravity
+
+```bash
+# 1. Create .agent/ directories
+mkdir -p .agent/rules .agent/workflows
+
+# 2. Copy rules (already .md format!)
+Copy-Item .claude/rules/*.md .agent/rules/
+# Update YAML frontmatter:
+# Change: alwaysApply: true → activation: "always_on"
+
+# 3. Convert commands to workflows
+Copy-Item .claude/commands/*.md .agent/workflows/
+# Commands already use / prefix — compatible!
+# Update invocation: /command-name → /command-name (same!)
+
+# 4. Convert skills to always_on rules
+# Merge SKILL.md content into .agent/rules/*.md
+# Reference large files via @filename in rules
+```
+
+### Antigravity → Cursor
+
+```bash
+# 1. Create .cursor/rules/
+New-Item -ItemType Directory -Path .cursor/rules -Force
+
+# 2. Copy rules (rename .md → .mdc)
+Copy-Item .agent/rules/*.md .cursor/rules/
+Get-ChildItem .cursor/rules -Filter "*.md" | Rename-Item -NewName { $_.Name -replace '\.md$','.mdc' }
+
+# 3. Update YAML frontmatter
+# Change: activation: "always_on" → alwaysApply: true
+
+# 4. Convert workflows to commands
+Copy-Item .agent/workflows/*.md .cursor/commands/
+# Remove // turbo comments (not supported in Cursor)
+# Invocation: /workflow-name → @command-name
+```
 
 ### Claude Code → Cursor
 

@@ -12,20 +12,19 @@ This folder documents the architecture, features, and setup requirements for maj
 
 ### The Simple Truth About Platform Architectures
 
-**Three unique architectures, not six:**
+**Two primary architectures for this project:**
 
-1. **Claude Code** - Unique architecture with Skills & SubAgents
-2. **Gemini** - Unique hierarchical GEMINI.md cascade + 3 integrated systems (CLI, VSCode, GitHub)
-3. **Everyone Else** - Nearly identical rules-based architecture
+1. **Cursor IDE** - `.cursor/` with `.mdc` rules, `@` command prefix
+2. **Claude Code** - `.claude/` with `.md` rules, `/` command prefix
 
-**Key Insights**: 
-- Cursor, Windsurf, Cline, and Roo-Code all follow the same pattern
-- The ONLY significant difference is Cursor uses `.mdc` while others use `.md`
-- Migration between non-unique platforms is trivial!
+Both share agents, skills, commands, and hooks. Content is identical; only file extensions and invocation syntax differ.
+
+**Key Insight**: Cursor now supports agents, skills, and commands just like Claude Code. The only real differences are `.mdc` vs `.md` extensions and `@` vs `/` command prefix.
 
 ### Platforms Documented
-- **Claude Code** (Anthropic's VSCode extension) - Unique architecture with Skills/SubAgents
-- **Gemini** (Google's multi-system) - Unique hierarchical context cascade (CLI + VSCode + GitHub)
+- **Claude Code** (Anthropic's VSCode extension/CLI) - Unique architecture with Skills/SubAgents
+- **Google Antigravity** (Google's AI-first IDE) - Unique `.agent/` folder, Artifacts, Knowledge Items, Workflows
+- **Gemini CLI** (Google's multi-system) - Unique hierarchical context cascade (CLI + VSCode + GitHub)
 - **Cursor** (AI-first IDE) - Rules-based, uses `.mdc`
 - **Windsurf** (Codeium's IDE) - Rules-based, uses `.md`
 - **Cline** (VSCode extension) - Rules-based, uses `.md`
@@ -35,15 +34,15 @@ This folder documents the architecture, features, and setup requirements for maj
 
 | File/Folder | Description | Status |
 |-------------|-------------|--------|
-| [Claude_Code/](Claude_Code/) | **Comprehensive Claude Code documentation** | ✅ Complete |
-| ├─ [ARCHITECTURE.md](Claude_Code/ARCHITECTURE.md) | Deep dive: Skills, SubAgents, plugins, workflows | ✅ Complete |
-| ├─ [RESEARCH_TOPICS.md](Claude_Code/RESEARCH_TOPICS.md) | 23 research topics (CLI, web, mobile, etc.) | 🔍 Active |
-| ├─ [PLATFORM_OVERVIEW.md](Claude_Code/PLATFORM_OVERVIEW.md) | Quick reference guide | ✅ Complete |
-| [GEMINI.md](GEMINI.md) | Complete Gemini architecture (3 systems) | ✅ Complete |
+| [CLAUDE_CODE.md](CLAUDE_CODE.md) | **Claude Code architecture and config guide** | ✅ Updated 2026-02 |
+| [ANTIGRAVITY.md](ANTIGRAVITY.md) | **Google Antigravity architecture and config guide** | ✅ Added 2026-02 |
 | [CURSOR.md](CURSOR.md) | Complete Cursor architecture | ✅ Complete |
-| [WINDSURF.md](WINDSURF.md) | Windsurf architecture (preliminary) | ⚠️ Needs verification |
-| [CLINE_AND_ROO_CODE.md](CLINE_AND_ROO_CODE.md) | Cline & Roo-Code architecture | ⚠️ Needs research |
-| [PLATFORM_COMPARISON.md](PLATFORM_COMPARISON.md) | Cross-platform comparison | ✅ Active |
+| [PLATFORM_ARCHITECTURE.md](PLATFORM_ARCHITECTURE.md) | Cross-platform comparison and migration | ✅ Updated 2026-02 |
+| [ide-template/](ide-template/) | Generic IDE template for new platforms | ✅ Complete |
+| [Claude_Code/](Claude_Code/) | Detailed Claude Code research docs | ✅ Complete |
+| ├─ [ARCHITECTURE.md](Claude_Code/ARCHITECTURE.md) | Deep dive: Skills, SubAgents, plugins | ✅ Complete |
+| ├─ [RESEARCH_TOPICS.md](Claude_Code/RESEARCH_TOPICS.md) | Research topics | 🔍 Active |
+| ├─ [PLATFORM_OVERVIEW.md](Claude_Code/PLATFORM_OVERVIEW.md) | Quick reference guide | ✅ Complete |
 
 **Note**: Additional platform-specific folders (Gemini/, Cursor/, Windsurf/, Cline/, Roo_Code/) created for future detailed research.
 
@@ -63,7 +62,10 @@ If you're only using one platform, read your platform's doc:
   - Quick start: [PLATFORM_OVERVIEW.md](Claude_Code/PLATFORM_OVERVIEW.md)
   - Deep dive: [ARCHITECTURE.md](Claude_Code/ARCHITECTURE.md)
   - Research: [RESEARCH_TOPICS.md](Claude_Code/RESEARCH_TOPICS.md)
-- Using Gemini? → [GEMINI.md](GEMINI.md)
+- **Using Google Antigravity?** → [ANTIGRAVITY.md](ANTIGRAVITY.md) ← NEW
+  - Config directory: `.agent/rules/` and `.agent/workflows/`
+  - Working template: `.agent/` at project root
+- Using Gemini CLI? → [GEMINI.md](GEMINI.md)
 - Using Cursor? → [CURSOR.md](CURSOR.md)
 - Using Windsurf? → [WINDSURF.md](WINDSURF.md)
 - Using Cline/Roo-Code? → [CLINE_AND_ROO_CODE.md](CLINE_AND_ROO_CODE.md)
@@ -81,7 +83,19 @@ If you're only using one platform, read your platform's doc:
 ✅ Commands: /command prefix
 ```
 
-**Pattern 2: Non-Claude Platforms (Nearly Identical)**
+**Pattern 2: Google Antigravity (Unique)**
+```
+✅ Artifacts - task.md, implementation_plan.md, walkthrough.md
+✅ Knowledge Items - Auto-generated persistent memory
+✅ Workflows - Slash commands (/workflow-name)
+✅ Simple structure - .agent/rules/ + .agent/workflows/
+✅ File format: .md (standard markdown)
+✅ Global config: ~/.gemini/GEMINI.md
+✅ // turbo - Auto-execute workflow steps
+✅ Multi-model - Gemini + Claude + GPT
+```
+
+**Pattern 3: Non-Claude/Antigravity Platforms (Nearly Identical)**
 ```
 ✅ Rules-based - Custom instructions
 ✅ Simple structure - rules/ folder
@@ -246,7 +260,8 @@ See migration guides in [PLATFORM_COMPARISON.md](PLATFORM_COMPARISON.md):
 | Platform | Directory Structure | File Format | Commands | MCP | Skills/Agents |
 |----------|-------------------|-------------|-----------|-----|---------------|
 | Claude Code | ✅ Verified | ✅ `.md` | ✅ `/command` | ✅ Built-in | ✅ Yes |
-| Cursor | ✅ Verified | ✅ `.mdc` | ✅ `@command` | ✅ VSCode | ❌ No |
+| Google Antigravity | ✅ Verified | ✅ `.md` | ✅ `/workflow-name` | ✅ Yes | ❌ No (Workflows instead) |
+| Cursor | ✅ Verified | ✅ `.mdc` | ✅ `@command` | ✅ VSCode | ✅ Yes |
 | Windsurf | ❓ Unknown | ❓ Unknown | ❓ Unknown | ❓ Unknown | ❓ Unknown |
 | Cline | ❓ Unknown | ❓ Unknown | ❓ Unknown | ✅ Likely VSCode | ❌ Likely No |
 | Roo-Code | ❓ Unknown | ❓ Unknown | ❓ Unknown | ✅ Likely VSCode | ❌ Likely No |
@@ -259,12 +274,14 @@ Legend:
 
 ## Official Resources
 
-- **Claude Code**: https://docs.claude.com/en/docs/claude-code
+- **Claude Code**: https://docs.anthropic.com/en/docs/claude-code
+- **Google Antigravity**: https://antigravity.google/docs
 - **Cursor**: https://docs.cursor.com
 - **Windsurf**: https://codeium.com/windsurf
 - **Cline**: [Add link when found]
 - **Roo-Code**: [Add link when found]
 - **MCP Protocol**: https://modelcontextprotocol.io/
+- **Antigravity Community**: https://antigravity.codes
 
 ## Questions?
 
@@ -275,6 +292,13 @@ Legend:
 5. Update this documentation with answer
 
 ## Version History
+
+- **2026-02-19**: Added Google Antigravity support
+  - New `ANTIGRAVITY.md` architecture documentation
+  - Working `.agent/rules/` and `.agent/workflows/` template
+  - Updated `PLATFORM_ARCHITECTURE.md` with Antigravity comparison
+  - Added migration guides: Cursor ↔ Antigravity, Claude Code → Antigravity
+  - trent workflows as Antigravity slash commands (`/trent-*`)
 
 - **2025-10-26**: Initial documentation
   - Complete docs for Claude Code and Cursor
