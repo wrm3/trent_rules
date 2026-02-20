@@ -62,12 +62,11 @@ _DEFAULT_GITHUB_TOKEN = (
 # CONFIGURATION
 # ============================================================
 
-# Files and directories to copy from repo root
+# Files and directories to copy from repo root (verbatim, full path preserved)
 ITEMS_TO_COPY = [
     '.architecture',
     '.claude',
     '.cursor',
-    '.trent',
     'AGENTS_INDEX.md',
     'AGENTS.md',
     'CLAUDE.md',
@@ -75,6 +74,23 @@ ITEMS_TO_COPY = [
     'HOOKS_INDEX.md',
     'RULES_INDEX.md',
     'SKILLS_INDEX.md',
+]
+
+# Special .trent install: fetch these sub-paths from GitHub and write them
+# to a remapped destination so new projects get blank templates, not this
+# repo's live task data.
+#
+# Each entry: (github_path, dest_relative_to_target, strip_prefix)
+#   strip_prefix is removed from entry_path before joining with dest dir.
+TRENT_INSTALL_MAP = [
+    # Blank template files become the project's actual .trent/ root files
+    ('.trent/templates', '.trent', '.trent/templates'),
+    # Examples and reference are useful for new projects as-is
+    ('.trent/examples', '.trent/examples', '.trent/examples'),
+    ('.trent/reference', '.trent/reference', '.trent/reference'),
+    # Preserve the empty placeholder files for tasks/ and phases/
+    ('.trent/tasks/.gitkeep',  '.trent/tasks',  '.trent/tasks'),
+    ('.trent/phases/.gitkeep', '.trent/phases', '.trent/phases'),
 ]
 
 # Files that should be merged instead of overwritten
@@ -118,7 +134,8 @@ def _fetch_from_github(
     repo: str,
     path: str,
     target_dir: Path,
-    token: str
+    token: str,
+    strip_prefix: str = None,
 ) -> Dict[str, Any]:
     """
     Recursively fetch files from a GitHub repository path and write them
@@ -128,10 +145,14 @@ def _fetch_from_github(
       GET https://api.github.com/repos/{repo}/contents/{path}
 
     Args:
-        repo:       GitHub repo slug, e.g. "FSTrent/trent_rules"
-        path:       Path within the repo, e.g. ".cursor" or "AGENTS.md"
-        target_dir: Local directory to write files into
-        token:      GitHub personal access token
+        repo:          GitHub repo slug, e.g. "wrm3/trent_rules"
+        path:          Path within the repo, e.g. ".cursor" or "AGENTS.md"
+        target_dir:    Local directory to write files into
+        token:         GitHub personal access token
+        strip_prefix:  Optional repo-relative prefix to strip from entry_path
+                       before joining with target_dir. Used for path remapping,
+                       e.g. strip ".trent/templates" so files land at target_dir
+                       root rather than target_dir/.trent/templates/.
 
     Returns:
         {
@@ -177,12 +198,16 @@ def _fetch_from_github(
 
         # Use the full repo-relative path so folder structure is preserved.
         # entry_path is already relative to repo root, e.g. ".cursor/rules/file.mdc"
-        # Writing target_dir / entry_path gives: project_root/.cursor/rules/file.mdc
-        local_target = target_dir / entry_path if entry_path else target_dir / entry_name
+        # If strip_prefix is set, remove it before joining with target_dir so
+        # that path remapping works (e.g. ".trent/templates/X" → target_dir/"X").
+        rel_path = entry_path
+        if strip_prefix and rel_path.startswith(strip_prefix):
+            rel_path = rel_path[len(strip_prefix):].lstrip('/')
+        local_target = target_dir / rel_path if rel_path else target_dir / entry_name
 
         if entry_type == 'dir':
-            # Recurse into subdirectory
-            sub_result = _fetch_from_github(repo, entry_path, target_dir, token)
+            # Recurse into subdirectory (pass strip_prefix through)
+            sub_result = _fetch_from_github(repo, entry_path, target_dir, token, strip_prefix)
             result['files_fetched'].extend(sub_result['files_fetched'])
             result['errors'].extend(sub_result['errors'])
             if sub_result.get('error'):
@@ -431,20 +456,29 @@ async def execute(
 
     start_time = datetime.now()
 
+    total_items = len(ITEMS_TO_COPY) + len(TRENT_INSTALL_MAP)
+
     if dry_run:
         # Dry run - just report what would be copied
         result['success'] = True
-        result['message'] = f"Dry run: would install {len(ITEMS_TO_COPY)} items from {github_repo}"
+        result['message'] = f"Dry run: would install {total_items} items from {github_repo}"
         for item in ITEMS_TO_COPY:
             result['copied_files'].append({
                 'item': item,
                 'action': 'would_copy',
                 'source': f"https://github.com/{github_repo}/tree/main/{item}"
             })
+        for gh_path, dest_path, _ in TRENT_INSTALL_MAP:
+            result['copied_files'].append({
+                'item': gh_path,
+                'dest': dest_path,
+                'action': 'would_copy_remapped',
+                'source': f"https://github.com/{github_repo}/tree/main/{gh_path}"
+            })
         return result
 
-    # Fetch each item from GitHub
-    logger.info(f"Fetching {len(ITEMS_TO_COPY)} items from GitHub ({github_repo})")
+    # Fetch standard items from GitHub
+    logger.info(f"Fetching {len(ITEMS_TO_COPY)} standard items from GitHub ({github_repo})")
 
     for item_name in ITEMS_TO_COPY:
         logger.info(f"Fetching: {item_name}")
@@ -497,6 +531,26 @@ async def execute(
                 result['copied_files'].extend(gh_result['files_fetched'])
                 if gh_result['errors']:
                     result['warnings'].extend(gh_result['errors'])
+
+    # Install .trent/ using path remapping so new projects get blank templates,
+    # not this repo's live task/plan data.
+    logger.info(f"Installing .trent structure ({len(TRENT_INSTALL_MAP)} mapped paths)")
+    for gh_path, dest_subpath, strip_prefix in TRENT_INSTALL_MAP:
+        logger.info(f"Fetching: {gh_path} -> {dest_subpath}")
+        dest_dir = target / dest_subpath
+        gh_result = _fetch_from_github(
+            repo=github_repo,
+            path=gh_path,
+            target_dir=dest_dir,
+            token=github_token,
+            strip_prefix=strip_prefix,
+        )
+        if gh_result.get('error'):
+            result['warnings'].append(f"Failed to fetch {gh_path}: {gh_result['error']}")
+        else:
+            result['copied_files'].extend(gh_result['files_fetched'])
+            if gh_result['errors']:
+                result['warnings'].extend(gh_result['errors'])
 
     result['operation_time_seconds'] = round(
         (datetime.now() - start_time).total_seconds(), 2
