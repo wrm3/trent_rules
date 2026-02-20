@@ -64,33 +64,39 @@ _DEFAULT_GITHUB_TOKEN = (
 
 # Files and directories to copy from repo root (verbatim, full path preserved)
 ITEMS_TO_COPY = [
-    '.architecture',
-    '.claude',
-    '.cursor',
+    # Directories
+    '.agents',           # Google Antigravity (rules, skills, workflows)
+    '.architecture',    # Cross-platform architecture docs
+    '.claude',          # Claude Code config (agents, skills, rules, commands, hooks)
+    '.cursor',          # Cursor IDE config (rules, skills, agents, commands, hooks)
+    # Root files
+    'agents.md',        # Universal agent instructions (note: lowercase)
     'AGENTS_INDEX.md',
-    'AGENTS.md',
     'CLAUDE.md',
     'COMMANDS_INDEX.md',
+    'CURSOR_SETUP.md',
+    'GUARDRAILS.md',
     'HOOKS_INDEX.md',
     'RULES_INDEX.md',
     'SKILLS_INDEX.md',
+    '.env.example',
+    'mcp.txt',
 ]
 
-# Special .trent install: fetch these sub-paths from GitHub and write them
-# to a remapped destination so new projects get blank templates, not this
-# repo's live task data.
+# Special .trent install using path remapping.
+# Source: .trent_template/ (the dedicated install template folder in this repo)
+# Dest:   .trent/ in the target project
 #
-# Each entry: (github_path, dest_relative_to_target, strip_prefix)
-#   strip_prefix is removed from entry_path before joining with dest dir.
+# Each entry: (github_path, dest_subpath, strip_prefix, exclude_prefixes)
+#   strip_prefix    - stripped from entry_path before joining with dest_dir
+#   exclude_prefixes - repo-relative path prefixes to skip entirely
 TRENT_INSTALL_MAP = [
-    # Blank template files become the project's actual .trent/ root files
-    ('.trent/templates', '.trent', '.trent/templates'),
-    # Examples and reference are useful for new projects as-is
-    ('.trent/examples', '.trent/examples', '.trent/examples'),
-    ('.trent/reference', '.trent/reference', '.trent/reference'),
-    # Preserve the empty placeholder files for tasks/ and phases/
-    ('.trent/tasks/.gitkeep',  '.trent/tasks',  '.trent/tasks'),
-    ('.trent/phases/.gitkeep', '.trent/phases', '.trent/phases'),
+    (
+        '.trent_template',          # fetch this from GitHub
+        '.trent',                   # write into this dir in target project
+        '.trent_template',          # strip this prefix from fetched paths
+        ['.trent_template/templates'],  # skip this subfolder (internal only)
+    ),
 ]
 
 # Files that should be merged instead of overwritten
@@ -136,6 +142,7 @@ def _fetch_from_github(
     target_dir: Path,
     token: str,
     strip_prefix: str = None,
+    exclude_prefixes: list = None,
 ) -> Dict[str, Any]:
     """
     Recursively fetch files from a GitHub repository path and write them
@@ -145,14 +152,17 @@ def _fetch_from_github(
       GET https://api.github.com/repos/{repo}/contents/{path}
 
     Args:
-        repo:          GitHub repo slug, e.g. "wrm3/trent_rules"
-        path:          Path within the repo, e.g. ".cursor" or "AGENTS.md"
-        target_dir:    Local directory to write files into
-        token:         GitHub personal access token
-        strip_prefix:  Optional repo-relative prefix to strip from entry_path
-                       before joining with target_dir. Used for path remapping,
-                       e.g. strip ".trent/templates" so files land at target_dir
-                       root rather than target_dir/.trent/templates/.
+        repo:             GitHub repo slug, e.g. "wrm3/trent_rules"
+        path:             Path within the repo, e.g. ".cursor" or "AGENTS.md"
+        target_dir:       Local directory to write files into
+        token:            GitHub personal access token
+        strip_prefix:     Optional repo-relative prefix to strip from entry_path
+                          before joining with target_dir. Used for path remapping,
+                          e.g. strip ".trent_template" so files land at target_dir
+                          root rather than target_dir/.trent_template/.
+        exclude_prefixes: Optional list of repo-relative path prefixes to skip.
+                          Entries whose path starts with any of these are ignored.
+                          e.g. ['.trent_template/templates'] skips that subfolder.
 
     Returns:
         {
@@ -196,18 +206,26 @@ def _fetch_from_github(
         entry_path = entry.get('path', '')
         entry_name = entry.get('name', '')
 
+        # Skip excluded paths (e.g. .trent_template/templates)
+        if exclude_prefixes:
+            if any(entry_path == p or entry_path.startswith(p + '/') for p in exclude_prefixes):
+                logger.debug(f"Skipping excluded path: {entry_path}")
+                continue
+
         # Use the full repo-relative path so folder structure is preserved.
         # entry_path is already relative to repo root, e.g. ".cursor/rules/file.mdc"
         # If strip_prefix is set, remove it before joining with target_dir so
-        # that path remapping works (e.g. ".trent/templates/X" → target_dir/"X").
+        # that path remapping works (e.g. ".trent_template/X" → target_dir/"X").
         rel_path = entry_path
         if strip_prefix and rel_path.startswith(strip_prefix):
             rel_path = rel_path[len(strip_prefix):].lstrip('/')
         local_target = target_dir / rel_path if rel_path else target_dir / entry_name
 
         if entry_type == 'dir':
-            # Recurse into subdirectory (pass strip_prefix through)
-            sub_result = _fetch_from_github(repo, entry_path, target_dir, token, strip_prefix)
+            # Recurse into subdirectory (pass both params through)
+            sub_result = _fetch_from_github(
+                repo, entry_path, target_dir, token, strip_prefix, exclude_prefixes
+            )
             result['files_fetched'].extend(sub_result['files_fetched'])
             result['errors'].extend(sub_result['errors'])
             if sub_result.get('error'):
@@ -468,7 +486,7 @@ async def execute(
                 'action': 'would_copy',
                 'source': f"https://github.com/{github_repo}/tree/main/{item}"
             })
-        for gh_path, dest_path, _ in TRENT_INSTALL_MAP:
+        for gh_path, dest_path, _strip, _excl in TRENT_INSTALL_MAP:
             result['copied_files'].append({
                 'item': gh_path,
                 'dest': dest_path,
@@ -535,8 +553,8 @@ async def execute(
     # Install .trent/ using path remapping so new projects get blank templates,
     # not this repo's live task/plan data.
     logger.info(f"Installing .trent structure ({len(TRENT_INSTALL_MAP)} mapped paths)")
-    for gh_path, dest_subpath, strip_prefix in TRENT_INSTALL_MAP:
-        logger.info(f"Fetching: {gh_path} -> {dest_subpath}")
+    for gh_path, dest_subpath, strip_prefix, exclude_prefixes in TRENT_INSTALL_MAP:
+        logger.info(f"Fetching: {gh_path} -> {dest_subpath} (excluding: {exclude_prefixes})")
         dest_dir = target / dest_subpath
         gh_result = _fetch_from_github(
             repo=github_repo,
@@ -544,6 +562,7 @@ async def execute(
             target_dir=dest_dir,
             token=github_token,
             strip_prefix=strip_prefix,
+            exclude_prefixes=exclude_prefixes,
         )
         if gh_result.get('error'):
             result['warnings'].append(f"Failed to fetch {gh_path}: {gh_result['error']}")
