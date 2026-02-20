@@ -175,12 +175,10 @@ def _fetch_from_github(
         entry_path = entry.get('path', '')
         entry_name = entry.get('name', '')
 
-        # Compute relative path from the requested root
-        rel_to_root = entry_path
-        if rel_to_root.startswith(api_path):
-            rel_to_root = rel_to_root[len(api_path):].lstrip('/')
-
-        local_target = target_dir / rel_to_root if rel_to_root else target_dir / entry_name
+        # Use the full repo-relative path so folder structure is preserved.
+        # entry_path is already relative to repo root, e.g. ".cursor/rules/file.mdc"
+        # Writing target_dir / entry_path gives: project_root/.cursor/rules/file.mdc
+        local_target = target_dir / entry_path if entry_path else target_dir / entry_name
 
         if entry_type == 'dir':
             # Recurse into subdirectory
