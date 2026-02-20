@@ -73,7 +73,7 @@ rename 's/\.mdc$/.md/' *.mdc  # Rename extensions
 - **Key Features**: Artifacts, auto Knowledge Items, `// turbo`, `GUARDRAILS.md`
 - **Platform File**: `GEMINI.md` (project root, like `CLAUDE.md`)
 - **MCP Config**: `mcp_config.json` (project root)
-- **Docs**: See `.architecture/ANTIGRAVITY.md`
+- **Docs**: See `.platform_architecture/ANTIGRAVITY.md`
 
 **3. Everyone Else (Similar Architecture)**
 - **Rules-Based** - Single AI with custom instructions

@@ -746,8 +746,8 @@ This Skill is designed to work with Cursor's trent rules system. The system uses
 When maintaining this template or adding new features, consult the `.trent/` folder for architecture documentation.
 
 **Key Documentation:**
-- `.architecture/PLATFORM_ARCHITECTURE.md` - Platform architecture overview
-- `.architecture/CURSOR.md` - Cursor specific features
+- `.platform_architecture/PLATFORM_ARCHITECTURE.md` - Platform architecture overview
+- `.platform_architecture/CURSOR.md` - Cursor specific features
 
 ### When to Reference Documentation
 
@@ -774,7 +774,7 @@ When maintaining this template or adding new features, consult the `.trent/` fol
 **Quarterly Review (Every 3 Months):**
 - [ ] Check all platform official documentation for updates
 - [ ] Test template on each platform
-- [ ] Update `.architecture/` documentation
+- [ ] Update `.platform_architecture/` documentation
 - [ ] Update PLATFORM_COMPARISON.md comparison table
 - [ ] Document any breaking changes
 
@@ -802,19 +802,19 @@ When adding features, ensure compatibility:
 
 When maintaining this template:
 
-1. **Check platform docs** in `.architecture/`
+1. **Check platform docs** in `.platform_architecture/`
 2. **Identify compatibility requirements** from PLATFORM_ARCHITECTURE.md
 3. **Test in Cursor** to verify functionality
 4. **Update platform-specific folders** (.cursor/, .cursor/)
-5. **Update documentation** in `.architecture/`
+5. **Update documentation** in `.platform_architecture/`
 6. **Verify cross-platform** compatibility
 
 ### Resources
 
-- **Official Platform Docs**: See `.architecture/README.md` for links
-- **Comparison Table**: `.architecture/PLATFORM_COMPARISON.md`
+- **Official Platform Docs**: See `.platform_architecture/README.md` for links
+- **Comparison Table**: `.platform_architecture/PLATFORM_COMPARISON.md`
 - **Migration Guides**: In PLATFORM_COMPARISON.md
-- **Verification Status**: `.architecture/README.md` status table
+- **Verification Status**: `.platform_architecture/README.md` status table
 
 
 1. **Check docs** in `.trent/`

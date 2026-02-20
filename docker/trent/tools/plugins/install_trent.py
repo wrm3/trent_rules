@@ -31,7 +31,7 @@ TOOL_NAME = "install_trent"
 
 TOOL_DESCRIPTION = (
     "Install trent development environment to a project directory. "
-    "Fetches from GitHub repository root: .architecture, .cursor, .claude, .trent, "
+    "Fetches from GitHub repository root: .platform_architecture, .cursor, .claude, .trent, "
     "AGENTS.md, CLAUDE.md, and index files (AGENTS_INDEX.md, COMMANDS_INDEX.md, etc.). "
     "OS-aware: detects Windows Developer Mode for symlink handling. "
     "Merges directories without destroying existing content."
@@ -78,7 +78,7 @@ _DEFAULT_GITHUB_TOKEN = (
 INSTALL_MANIFEST = [
     # ── Directories (simple copy) ─────────────────────────────────────────────
     '.agent',           # Google Antigravity config (rules, skills, workflows)
-    '.architecture',    # Cross-platform architecture docs
+    '.platform_architecture',  # Cross-platform architecture docs
     '.claude',          # Claude Code config (agents, skills, rules, commands, hooks)
     '.cursor',          # Cursor IDE config  (rules, skills, agents, commands, hooks)
 
