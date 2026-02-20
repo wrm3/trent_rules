@@ -62,15 +62,28 @@ _DEFAULT_GITHUB_TOKEN = (
 # CONFIGURATION
 # ============================================================
 
-# Files and directories to copy from repo root (verbatim, full path preserved)
-ITEMS_TO_COPY = [
-    # Directories
-    '.agents',           # Google Antigravity (rules, skills, workflows)
+# Install manifest - everything that gets copied to a new project.
+#
+# Two formats:
+#   str   - simple verbatim copy: same path in source repo and target project
+#   tuple - remapped copy: (github_path, dest_subpath, strip_prefix, exclude_prefixes)
+#             github_path      path to fetch from source repo
+#             dest_subpath     destination dir relative to target root (None = target root)
+#             strip_prefix     stripped from entry_path before joining with dest_dir
+#             exclude_prefixes list of repo-relative paths to skip entirely (or None)
+#
+# Use a tuple when the source folder name differs from the target folder name,
+# or when parts of the source tree should be excluded.
+
+INSTALL_MANIFEST = [
+    # ── Directories (simple copy) ─────────────────────────────────────────────
+    '.agent',           # Google Antigravity config (rules, skills, workflows)
     '.architecture',    # Cross-platform architecture docs
     '.claude',          # Claude Code config (agents, skills, rules, commands, hooks)
-    '.cursor',          # Cursor IDE config (rules, skills, agents, commands, hooks)
-    # Root files
-    'agents.md',        # Universal agent instructions (note: lowercase)
+    '.cursor',          # Cursor IDE config  (rules, skills, agents, commands, hooks)
+
+    # ── Root files (simple copy) ──────────────────────────────────────────────
+    'agents.md',        # Universal agent instructions (lowercase - GitHub is case-sensitive)
     'AGENTS_INDEX.md',
     'CLAUDE.md',
     'COMMANDS_INDEX.md',
@@ -81,25 +94,20 @@ ITEMS_TO_COPY = [
     'SKILLS_INDEX.md',
     '.env.example',
     'mcp.txt',
-]
 
-# Special .trent install using path remapping.
-# Source: .trent_template/ (the dedicated install template folder in this repo)
-# Dest:   .trent/ in the target project
-#
-# Each entry: (github_path, dest_subpath, strip_prefix, exclude_prefixes)
-#   strip_prefix    - stripped from entry_path before joining with dest_dir
-#   exclude_prefixes - repo-relative path prefixes to skip entirely
-TRENT_INSTALL_MAP = [
+    # ── .trent (remapped) ─────────────────────────────────────────────────────
+    # Source: .trent_template/ (blank templates, not this repo's live task data)
+    # Dest:   .trent/  in the target project
+    # Exclude .trent_template/templates/ — that subfolder is for internal use only
     (
-        '.trent_template',          # fetch this from GitHub
-        '.trent',                   # write into this dir in target project
-        '.trent_template',          # strip this prefix from fetched paths
-        ['.trent_template/templates'],  # skip this subfolder (internal only)
+        '.trent_template',
+        '.trent',
+        '.trent_template',
+        ['.trent_template/templates'],
     ),
 ]
 
-# Files that should be merged instead of overwritten
+# Files that should be merged (trent section updated, other content preserved)
 MERGEABLE_FILES = ['agents.md', 'claude.md']
 
 _config = None
@@ -464,7 +472,7 @@ async def execute(
         'github_repo': github_repo,
         'os_info': os_info,
         'dry_run': dry_run,
-        'items_to_install': ITEMS_TO_COPY,
+        'items_to_install': [e if isinstance(e, str) else e[0] for e in INSTALL_MANIFEST],
         'copied_files': [],
         'skipped_files': [],
         'merged_files': [],
@@ -474,88 +482,66 @@ async def execute(
 
     start_time = datetime.now()
 
-    total_items = len(ITEMS_TO_COPY) + len(TRENT_INSTALL_MAP)
-
     if dry_run:
-        # Dry run - just report what would be copied
         result['success'] = True
-        result['message'] = f"Dry run: would install {total_items} items from {github_repo}"
-        for item in ITEMS_TO_COPY:
-            result['copied_files'].append({
-                'item': item,
-                'action': 'would_copy',
-                'source': f"https://github.com/{github_repo}/tree/main/{item}"
-            })
-        for gh_path, dest_path, _strip, _excl in TRENT_INSTALL_MAP:
+        result['message'] = f"Dry run: would install {len(INSTALL_MANIFEST)} items from {github_repo}"
+        for entry in INSTALL_MANIFEST:
+            gh_path = entry if isinstance(entry, str) else entry[0]
+            dest    = gh_path if isinstance(entry, str) else entry[1]
             result['copied_files'].append({
                 'item': gh_path,
-                'dest': dest_path,
-                'action': 'would_copy_remapped',
+                'dest': dest,
+                'action': 'would_copy',
                 'source': f"https://github.com/{github_repo}/tree/main/{gh_path}"
             })
         return result
 
-    # Fetch standard items from GitHub
-    logger.info(f"Fetching {len(ITEMS_TO_COPY)} standard items from GitHub ({github_repo})")
+    logger.info(f"Fetching {len(INSTALL_MANIFEST)} items from GitHub ({github_repo})")
 
-    for item_name in ITEMS_TO_COPY:
-        logger.info(f"Fetching: {item_name}")
+    import tempfile
 
-        # Determine if this is a mergeable file
-        is_mergeable = item_name.lower() in MERGEABLE_FILES
-        dest_item = target / item_name
+    for entry in INSTALL_MANIFEST:
+        # Normalize: str → simple copy; tuple → remapped copy
+        if isinstance(entry, str):
+            gh_path         = entry
+            dest_subpath    = None      # write relative to target root
+            strip_prefix    = None
+            exclude_prefixes = None
+        else:
+            gh_path, dest_subpath, strip_prefix, exclude_prefixes = entry
 
-        # Check if destination exists and we need to handle merging
+        dest_dir = (target / dest_subpath) if dest_subpath else target
+        logger.info(f"Fetching: {gh_path}" + (f" -> {dest_subpath}" if dest_subpath else ""))
+
+        # Mergeable files: fetch to temp dir first, then merge
+        is_mergeable = isinstance(entry, str) and gh_path.lower() in MERGEABLE_FILES
+        dest_item = target / gh_path
         if is_mergeable and dest_item.exists() and not force_overwrite:
-            # For mergeable files, fetch to temp location first
-            import tempfile
-            with tempfile.TemporaryDirectory() as temp_dir:
-                temp_path = Path(temp_dir)
+            with tempfile.TemporaryDirectory() as tmp:
+                tmp_path = Path(tmp)
                 gh_result = _fetch_from_github(
-                    repo=github_repo,
-                    path=item_name,
-                    target_dir=temp_path,
-                    token=github_token,
+                    repo=github_repo, path=gh_path,
+                    target_dir=tmp_path, token=github_token,
                 )
-
                 if gh_result.get('error'):
-                    result['warnings'].append(f"Failed to fetch {item_name}: {gh_result['error']}")
+                    result['warnings'].append(f"Failed to fetch {gh_path}: {gh_result['error']}")
                     continue
-
-                # Merge the files
-                source_file = temp_path / item_name
+                source_file = tmp_path / gh_path
                 if source_file.exists():
                     try:
-                        source_content = source_file.read_text(encoding='utf-8')
-                        dest_content = dest_item.read_text(encoding='utf-8')
-                        merged = _merge_markdown_files(source_content, dest_content, item_name)
+                        merged = _merge_markdown_files(
+                            source_file.read_text(encoding='utf-8'),
+                            dest_item.read_text(encoding='utf-8'),
+                            gh_path,
+                        )
                         dest_item.write_text(merged, encoding='utf-8')
                         result['merged_files'].append(str(dest_item))
-                        logger.info(f"Merged: {item_name}")
+                        logger.info(f"Merged: {gh_path}")
                     except Exception as e:
-                        result['warnings'].append(f"Failed to merge {item_name}: {e}")
-        else:
-            # Direct fetch to target
-            gh_result = _fetch_from_github(
-                repo=github_repo,
-                path=item_name,
-                target_dir=target,
-                token=github_token,
-            )
+                        result['warnings'].append(f"Failed to merge {gh_path}: {e}")
+            continue
 
-            if gh_result.get('error'):
-                result['warnings'].append(f"Failed to fetch {item_name}: {gh_result['error']}")
-            else:
-                result['copied_files'].extend(gh_result['files_fetched'])
-                if gh_result['errors']:
-                    result['warnings'].extend(gh_result['errors'])
-
-    # Install .trent/ using path remapping so new projects get blank templates,
-    # not this repo's live task/plan data.
-    logger.info(f"Installing .trent structure ({len(TRENT_INSTALL_MAP)} mapped paths)")
-    for gh_path, dest_subpath, strip_prefix, exclude_prefixes in TRENT_INSTALL_MAP:
-        logger.info(f"Fetching: {gh_path} -> {dest_subpath} (excluding: {exclude_prefixes})")
-        dest_dir = target / dest_subpath
+        # Standard fetch (with optional path remapping and exclusions)
         gh_result = _fetch_from_github(
             repo=github_repo,
             path=gh_path,
