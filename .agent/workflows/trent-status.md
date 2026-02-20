@@ -1,67 +1,81 @@
 ---
-description: "Show current project status - tasks, phases, and progress overview"
+description: "Trent Status"
 ---
 
-# Workflow: trent-status
+Generate project status overview: $ARGUMENTS
 
-Show current project status with tasks, phases, and progress.
+## What This Command Does
 
-## Steps
+Provides a comprehensive status update for your trent project.
 
-### Step 1: Read Core Files
+## Status Analysis
 
-// turbo
-Read:
-- `.trent/TASKS.md`
-- `.trent/PROJECT_CONTEXT.md`
+### 1. Task Analysis (from TASKS.md)
+I'll review:
+- Total tasks by phase
+- Tasks by status: `[ ]` Pending, `[📋]` Ready, `[🔄]` In-Progress, `[✅]` Completed, `[❌]` Failed
+- Tasks by priority: Critical, High, Medium, Low
+- Recently completed tasks
+- Blocked or stalled tasks
+- Task completion velocity
 
-### Step 2: Run Sync Validation
+### 2. Bug Analysis (from BUGS.md)
+I'll examine:
+- Total open bugs by severity
+- Critical/High priority bugs requiring attention
+- Bug resolution rate
+- Recently closed bugs
+- Long-standing bugs
 
-Check that task files match TASKS.md entries:
+### 3. Phase Progress
+I'll check:
+- Current active phase
+- Phase completion percentage
+- Remaining work in phase
+- Dependencies blocking progress
 
-```
-📋 TRENT SYNC VALIDATION
+### 4. Issue Identification
+I'll highlight:
+- **Blockers**: Tasks waiting on dependencies
+- **Risks**: High-priority tasks not started
+- **Delays**: Tasks taking longer than estimated
+- **Critical Bugs**: Urgent issues needing attention
 
-Task Sync Check:
-- Compare .trent/tasks/ files against TASKS.md entries
-- Report: X synced, Y mismatches, Z orphans
+## Status Report Format
 
-Phase Sync Check:
-- Compare .trent/phases/ files against TASKS.md headers
-- Report: X synced, Y mismatches, Z orphans
+### 📋 Task Summary
+- Total tasks: X (Y pending, Z in-progress, W completed)
+- Completion rate: X%
+- Recent completions: [List]
 
-Status: ALL SYNCED ✅ / ISSUES FOUND ⚠️
-```
+### 🐛 Bug Summary
+- Open bugs: X (Y critical, Z high)
+- Resolution rate: X bugs/week
+- Critical issues: [List]
 
-Fix any sync issues found.
+### 📊 Phase Progress
+- Current Phase: [Name]
+- Progress: X% complete
+- Remaining: Y tasks
 
-### Step 3: Display Status Report
+### ⚠️ Blockers & Risks
+- Blocked tasks: [List]
+- High-priority delays: [List]
+- Critical bugs: [List]
 
-Show a comprehensive status report:
+### 🚀 Next Priorities
+1. [Priority 1]
+2. [Priority 2]
+3. [Priority 3]
 
-```
-📋 PROJECT CONTEXT
-🎯 Mission: {from PROJECT_CONTEXT.md}
+## When to Use
+- Daily standup preparation
+- Weekly status reviews
+- Sprint retrospectives
+- Stakeholder updates
 
-📊 PHASE OVERVIEW
-Phase 0: {name} [{status}]
-Phase 1: {name} [{status}]
-...
+## What I Need From You
+- Specific areas to focus on (optional)
+- Time period for "recent" (default: last 7 days)
 
-📈 TASK SUMMARY
-Total Tasks: {N}
-✅ Completed: {N}
-🔄 In Progress: {N}
-📋 Ready: {N}
-⬜ Pending: {N}
-❌ Failed: {N}
-
-🔄 ACTIVE TASKS (In Progress)
-{list of [🔄] tasks}
-
-📋 NEXT UP (Ready to Start)
-{list of [📋] tasks}
-
-🐛 ACTIVE BUGS
-{list from BUGS.md if any}
-```
+Let's see where your project stands!

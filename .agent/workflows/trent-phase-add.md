@@ -1,50 +1,44 @@
 ---
-description: "Add a new project phase to TASKS.md and create the corresponding phase file"
+description: "Trent Phase Add"
 ---
 
-# Workflow: trent-phase-add
+Add a new phase: $ARGUMENTS
 
-Add a new project phase with atomic creation of both TASKS.md header and phase file.
+## What This Command Does
 
-## Steps
+Creates a new phase in the trent planning system with **atomic synchronization** (TASKS.md header AND phase file created together).
 
-### Step 1: Read Current Phases
+## Phase Creation Workflow
 
-// turbo
-Read `.trent/TASKS.md` to see existing phases and determine the next phase number.
-
-### Step 2: Gather Phase Information
-
-Ask the user for (if not already provided):
-- **Phase Name**: Descriptive name
-- **Phase Number**: Which phase (or suggest next available)
+### 1. Gather Phase Details
+I'll ask for:
+- **Phase Number**: Next available (or custom for pivots)
+- **Phase Name**: Descriptive name (e.g., "Core Development")
+- **Subsystems**: Which subsystems this phase affects
 - **Objectives**: What this phase accomplishes
-- **Deliverables**: Tangible outputs
-- **Acceptance Criteria**: How we know it's done
-- **Affected Subsystems**: Which components
+- **Prerequisites**: Prior phases that must complete first
 
-### Step 3: ATOMIC CREATION — Both Files in This Response
+### 2. ATOMIC: Create Both Files Together
 
-**3a. Add Phase Header to TASKS.md**
+**🚨 CRITICAL**: Both files MUST be created in the same response!
 
-Add under the appropriate location:
+#### A. Add Phase Header to TASKS.md
 ```markdown
 ### Phase {N}: {Phase Name}
-
-- [ ] Task {N×100}: {First task for this phase}
+- [ ] Task {N×100}: {First task placeholder}
 ```
 
-**3b. Create Phase File**
+#### B. Create Phase File
+**Filename**: `.trent/phases/phase{N}_{kebab-case-name}.md`
 
-Create `.trent/phases/phase{N}_{kebab-case-name}.md`:
-
+**Content**:
 ```yaml
 ---
 phase: {N}
 name: '{Phase Name}'
 status: planning
-subsystems: [{subsystems}]
-task_range: '{N×100}-{N×100+99}'
+subsystems: [{subsystem1}, {subsystem2}]
+task_range: '{N*100}-{N*100+99}'
 prerequisites: [{prior_phase_numbers}]
 started_date: ''
 completed_date: ''
@@ -55,7 +49,7 @@ pivot_reason: ''
 # Phase {N}: {Phase Name}
 
 ## Overview
-{Brief description}
+{Brief description of phase goals and scope}
 
 ## Objectives
 - {Objective 1}
@@ -68,18 +62,48 @@ pivot_reason: ''
 ## Acceptance Criteria
 - [ ] {Criterion 1}
 - [ ] {Criterion 2}
+
+## Notes
+{Additional context}
 ```
 
-### Step 4: Validate Sync
+### 3. Update Project Files (If Exists)
 
-Confirm BOTH were created:
+**Update CLAUDE.md** (if present):
+```markdown
+## Current Phase
+- **Phase {N}**: {Phase Name}
+- **Status**: Planning → In Progress
+- **Objectives**: {Key objectives from phase file}
+- **Subsystems**: {Affected subsystems}
 ```
-✅ Phase Sync Confirmation:
+
+### 4. Confirm Synchronization
+```markdown
+---
+**Phase Sync Confirmation:**
 - TASKS.md header: ### Phase {N}: {Name} ✅
-- Phase file: .trent/phases/phase{N}_{name}.md ✅
+- Phase file: phase{N}_{name}.md ✅
+- CLAUDE.md: {updated/not present}
 - Sync verified: ✅
+---
 ```
 
-### Step 5: Suggest Next Steps
+## Phase Numbering
+- **Phase 0**: Setup & Infrastructure (Task IDs 1-99)
+- **Phase 1**: Foundation (Task IDs 100-199)
+- **Phase 2**: Core Development (Task IDs 200-299)
+- **Phase N**: Custom scope (Task IDs N×100 to N×100+99)
 
-Recommend using `/trent-task-new` to populate this phase with initial tasks.
+## Phase Gaps Allowed
+You can skip phase numbers for pivots:
+- Phase 1 → Phase 2 → Phase 5 (skipping 3, 4) is valid
+
+## What I Need From You
+- Phase name and description
+- Which subsystems are affected
+- Primary objectives for this phase
+- Prerequisites (prior phases)
+- Key deliverables expected
+
+Let's create this phase!

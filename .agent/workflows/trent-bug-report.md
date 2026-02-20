@@ -1,73 +1,75 @@
 ---
-description: "Report and document a bug with proper tracking in BUGS.md and TASKS.md"
+description: "Trent Bug Report"
 ---
 
-# Workflow: trent-bug-report
+Report a bug: $ARGUMENTS
 
-Report and document a bug with full tracking integration.
+## What This Command Does
 
-## Steps
+Documents a bug in the trent QA system and creates a corresponding fix task.
 
-### Step 1: Read Current Bugs
+## Bug Reporting Workflow
 
-// turbo
-Read `.trent/BUGS.md` to determine the next BUG-{N} number and `.trent/TASKS.md` to determine the next task ID.
-
-### Step 2: Gather Bug Information
-
-Ask the user for (if not already provided):
-- **What happened**: Actual behavior observed
-- **What should happen**: Expected behavior
-- **Steps to reproduce**: How to trigger the bug
+### 1. Gather Bug Details
+I'll ask for:
 - **Severity**: Critical, High, Medium, or Low
-- **Environment**: OS, version, configuration
+- **Source**: User Reported, Development, Testing, or Production
+- **Reproduction Steps**: How to reproduce the bug
+- **Expected vs Actual**: What should happen vs what does happen
+- **Environment**: Browser, OS, version info (if applicable)
+- **Phase Impact**: Which project phases are affected
 
-### Step 3: Create BUGS.md Entry
-
-Add to `.trent/BUGS.md`:
-
+### 2. Create BUGS.md Entry
+I'll add to `.trent/BUGS.md`:
 ```markdown
-### Bug ID: BUG-{N}
-- **Title**: {Brief description}
-- **Severity**: {Critical/High/Medium/Low}
-- **Source**: {User Reported/Development/Testing/Production}
+### Bug ID: BUG-XXX
+- **Title**: [Brief description]
+- **Severity**: [Critical/High/Medium/Low]
+- **Source**: [User Reported/Development/Testing/Production]
+- **Phase Impact**: [Affected phases]
 - **Status**: Open
-- **Task Reference**: Task {task_id}
-- **Created**: {date}
-- **Description**: {what's wrong}
-- **Steps to Reproduce**:
-  1. {step}
-- **Expected**: {expected behavior}
-- **Actual**: {actual behavior}
+- **Task Reference**: task{ID}
+- **Created**: [Date]
+- **Assigned**: [Developer]
+
+**Description**: [Detailed description]
+
+**Reproduction Steps**:
+1. Step one
+2. Step two
+
+**Expected**: [What should happen]
+**Actual**: [What actually happens]
 ```
 
-### Step 4: Create Bug Task
+### 3. Create Bug Fix Task
+I'll generate a task file with:
+- Filename: `task{ID}_bug_fix_description.md`
+- Title prefix: `[BUG]`
+- Type: `bug_fix`
+- Priority: Matches severity
+- Bug reference linking to BUGS.md
 
-Create `.trent/tasks/task{NNN}_bug_{description}.md` with:
+### 4. Update TASKS.md
+I'll add the bug fix task under the appropriate phase.
 
-```yaml
----
-id: {NNN}
-title: '[BUG] {Brief description}'
-type: bug_fix
-status: pending
-priority: {severity}
-phase: {affected_phase}
-subsystems: [{affected_subsystems}]
-bug_reference: BUG-{N}
-severity: critical|high|medium|low
----
-```
+## Severity Guidelines
+- **Critical**: System crashes, data loss, security issues → Fix same day
+- **High**: Major feature broken, >50% performance loss → Fix 1-2 days
+- **Medium**: Minor issues, usability problems → Fix 3-7 days
+- **Low**: Cosmetic issues, enhancements → Fix next release
 
-### Step 5: Update TASKS.md
+## CRITICAL: Triple Update
+**I MUST update ALL THREE:**
+1. ✅ BUGS.md - Add bug entry
+2. ✅ Task file - Create bug fix task
+3. ✅ TASKS.md - Add task entry
 
-Add under the appropriate phase section:
-```
-- [ ] Task {NNN}: [BUG] {Brief description}
-```
+## What I Need From You
+- Description of the bug
+- How to reproduce it
+- What you expected vs what happened
+- Severity assessment
+- Which phase(s) are affected
 
-Then update to `[📋]` after creating the task file.
-
-### Step 6: Confirm
-
-Report the bug ID, task ID, and next recommended action (start investigation or fix).
+Let's document this bug!

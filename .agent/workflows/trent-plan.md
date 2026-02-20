@@ -1,69 +1,77 @@
 ---
-description: "Activate trent planning system - create PRD, define phases, validate scope"
+description: "Trent Plan"
 ---
 
-# Workflow: trent-plan
+Start project planning: $ARGUMENTS
 
-Activate the trent planning system to create or update project plans.
+## What This Command Does
 
-## Steps
+Guides you through creating a comprehensive project plan using the trent planning system.
 
-### Step 1: Load Project Context
+## Planning Workflow
 
-Read:
-- `.trent/PROJECT_CONTEXT.md` (if exists)
-- `.trent/PLAN.md` (if exists)
-- `.trent/SUBSYSTEMS.md` (if exists)
+### 1. Scope Validation (5 Essential Questions)
+Before creating any plan, I'll ask:
+- **User Context**: Personal use, small team, or broader deployment?
+- **Security Requirements**: Minimal, standard, enhanced, or enterprise?
+- **Scalability Expectations**: Basic, moderate, high, or enterprise?
+- **Feature Complexity**: Minimal, standard, feature-rich, or enterprise?
+- **Integration Requirements**: Standalone, basic, standard, or enterprise?
 
-### Step 2: Scope Validation Questions
+### 2. Create PLAN.md (Product Requirements Document)
+I'll generate a comprehensive PRD with:
+- Product overview (title, version, summary)
+- Goals (business, user, non-goals)
+- User personas and roles
+- Project phases with task ID ranges
+- User experience flows
+- Success metrics
+- Technical considerations
+- Milestones & sequencing
+- User stories with acceptance criteria
 
-Ask the user these essential scoping questions before creating PRD:
+### 3. Create PROJECT_CONTEXT.md
+- Project mission statement
+- Current phase and focus
+- Success criteria
+- Scope boundaries
+- Key constraints
 
-1. **User Context**: Personal use, small team (2-10), or broader deployment (10+)?
-2. **Security**: Minimal, standard, enhanced, or enterprise?
-3. **Scalability**: Basic, moderate, high, or enterprise?
-4. **Feature Complexity**: Minimal, standard, feature-rich, or enterprise?
-5. **Integration**: Standalone, basic, standard, or enterprise?
-6. **Timeline**: What's the delivery preference (quick prototype, phased, complete)?
+### 4. Create SUBSYSTEMS.md
+- Component registry
+- Subsystem descriptions
+- Dependencies between components
+- Ownership assignments
 
-### Step 3: Create/Update PRD
+### 5. Initial Phase Documents
+- Create phase files in `.trent/phases/`
+- Link phases to PLAN.md
+- Set up task ID ranges
 
-Create or update `.trent/PLAN.md` following the PRD template:
+## Phase-Based Task Organization
+- **Phase 0** (Task IDs: 1-99): Setup & Infrastructure
+- **Phase 1** (Task IDs: 100-199): Foundation
+- **Phase 2** (Task IDs: 200-299): Core Development
+- **Phase N** (Task IDs: N×100 to N×100+99): Custom phases
 
-```markdown
-# PRD: [Title]
+## Benefits
+- ✅ Prevents over-engineering
+- ✅ Clarifies scope and boundaries
+- ✅ Aligns team on goals
+- ✅ Provides clear success metrics
+- ✅ Organizes work into logical phases
 
-## 1. Product Overview
-## 2. Goals (Business, User, Non-goals)
-## 3. User Personas
-## 4. Phases (high-level)
-## 5. User Experience
-## 6. Narrative
-## 7. Success Metrics
-## 8. Technical Considerations
-## 9. Milestones & Sequencing
-## 10. User Stories
-```
+## For Existing Codebases
+If you have existing code, I'll:
+- Analyze current file structure
+- Extract existing functionality
+- Generate documentation from code
+- Create phase documents for remaining work
 
-### Step 4: Define Phases
+## What I Need From You
+- Brief project description
+- Primary goals
+- Target users
+- Key phases (high-level)
 
-For each project phase:
-1. Add phase header to TASKS.md: `### Phase N: Name`
-2. Create phase file: `.trent/phases/phase{N}_{name}.md`
-3. **BOTH must be created in this same response**
-
-### Step 5: Create Initial Tasks
-
-Create initial task files for Phase 0 (setup) and Phase 1 (foundation) based on the PRD.
-
-### Step 6: Update AGENTS.md
-
-Check if AGENTS.md exists. Update the trent section between markers with new phase and planning information.
-
-### Step 7: Summary
-
-Present a summary of:
-- Created PRD highlights
-- Phases defined
-- Initial tasks created
-- Recommended next workflow: `/trent-task-new` to add more tasks
+Let's build the right thing at the right complexity level!

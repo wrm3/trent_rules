@@ -1,62 +1,76 @@
 ---
-description: "Update a task status. Usage: /trent-task-update [task ID] [new status: pending|ready|in-progress|completed|failed|paused]"
+description: "Trent Task Update"
 ---
 
-# Workflow: trent-task-update
+Update task status: $ARGUMENTS
 
-Update a task's status with atomic sync between task file and TASKS.md.
+## What This Command Does
 
-## Steps
+Updates task status in the trent system, ensuring BOTH the task file AND TASKS.md are updated.
 
-### Step 1: Read Current State
+## Task Update Workflow
 
-Read the task file at `.trent/tasks/task{ID}_*.md` and current TASKS.md entry.
-Verify they are in sync before making changes.
+### 1. Identify Task
+I'll:
+- Find the task file in `.trent/tasks/`
+- Read current task details
+- Confirm task identity
 
-### Step 2: Validate Transition
+### 2. Update Status
+**Valid Status Transitions:**
+- `pending` → `in-progress` (starting work)
+- `in-progress` → `completed` (finished successfully)
+- `in-progress` → `failed` (blocked or abandoned)
+- `pending` → `completed` (retroactive documentation)
 
-Check the status transition is valid:
+### 3. CRITICAL: Update BOTH Files
+
+**Task File** (`.trent/tasks/task{ID}_name.md`):
+```yaml
+---
+status: completed  # Update this
+completed_date: '2026-01-26'  # Add if completing
+actual_effort: '2 hours'  # Add if completing
+---
 ```
-[ ] → [📋] = File must be created first
-[📋] → [🔄] = OK, start working
-[🔄] → [✅] = Run completion validation first
-[🔄] → [❌] = OK, mark as failed
-Any → [⏸️] = OK, pause
+
+**TASKS.md** (`.trent/TASKS.md`):
+```markdown
+# Before
+- [ ] Task 001: Setup environment
+
+# After starting
+- [🔄] Task 001: Setup environment
+
+# After completing
+- [✅] Task 001: Setup environment
 ```
 
-### Step 3: Update Task File
+### 4. Status Indicators in TASKS.md
+- `[ ]` → Task listed, NO file created yet (BLOCKED)
+- `[📋]` → Task file created, ready to start
+- `[🔄]` → In Progress (actively working)
+- `[✅]` → Completed
+- `[❌]` → Failed or cancelled
 
-Update the YAML frontmatter in the task file:
-- Change `status:` to the new value
-- Add `completed_date:` if completing
-- Add any relevant notes
+### 5. Completion Documentation
+When completing a task, I'll also:
+- Add completion notes to task file
+- Record actual effort vs estimated
+- Note any lessons learned
+- Check for dependent tasks that can now proceed
 
-### Step 4: Update TASKS.md (ATOMIC)
+## MANDATORY: Dual Update Rule
 
-Update the status indicator in TASKS.md to match:
+**I MUST update BOTH files in the SAME response:**
+1. ✅ Update task file YAML frontmatter (status, dates)
+2. ✅ Update TASKS.md entry (emoji indicator)
 
-| Status | TASKS.md Indicator |
-|--------|-------------------|
-| pending | `[ ]` |
-| ready | `[📋]` |
-| in-progress | `[🔄]` |
-| completed | `[✅]` |
-| failed | `[❌]` |
-| paused | `[⏸️]` |
+**Failure to update BOTH = System violation**
 
-### Step 5: Completion Actions (if completing)
+## What I Need From You
+- Task ID or title to update
+- New status (in-progress, completed, failed)
+- Completion notes (if finishing)
 
-If marking as completed:
-1. Run validation: code compiles, acceptance criteria met
-2. Update both files atomically
-3. Offer git commit
-4. Check if AGENTS.md needs updating (new tools/features added?)
-
-### Step 6: Confirm Sync
-
-```
-✅ Task Sync Confirmation:
-- Task {ID} file: status: {new_status} ✅
-- TASKS.md entry: [{indicator}] ✅
-- Sync verified: ✅
-```
+Let's update this task!

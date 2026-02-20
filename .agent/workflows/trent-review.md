@@ -1,88 +1,89 @@
 ---
-description: "Comprehensive code review - security, quality, performance, and maintainability"
+description: "Trent Review"
 ---
 
-# Workflow: trent-review
+Perform code review: $ARGUMENTS
 
-Perform a comprehensive code review covering security, quality, performance, and maintainability.
+## What This Command Does
 
-## Steps
+Performs a comprehensive code review focusing on quality, security, and best practices.
 
-### Step 1: Load Project Context
+## Review Focus Areas
 
-Read `.trent/PROJECT_CONTEXT.md` and `.trent/SUBSYSTEMS.md` to understand system boundaries and expectations.
+### 1. Code Quality
+- Readability and maintainability
+- Adherence to project conventions
+- Proper error handling
+- Code organization and structure
+- DRY principle compliance
+- Naming conventions
 
-### Step 2: Identify Changed Files
+### 2. Functionality
+- Logic correctness
+- Edge case handling
+- Input validation
+- Expected behavior verification
+- Null/undefined handling
 
-// turbo
-Run `git diff --name-only HEAD~1` or examine recently modified files.
+### 3. Performance
+- Algorithm efficiency (O notation)
+- Resource usage (memory, CPU)
+- Database query optimization
+- Caching opportunities
+- Unnecessary re-renders (React)
 
-### Step 3: Security Review
+### 4. Security
+- Input sanitization
+- Authentication/authorization
+- Sensitive data handling
+- SQL injection prevention
+- XSS prevention
+- CSRF protection
 
-Check each file for:
-- Hardcoded secrets, API keys, passwords
-- SQL injection vulnerabilities (raw string queries)
-- XSS vulnerabilities (unescaped user input)
-- Insecure direct object references
-- Missing authentication/authorization checks
-- Sensitive data in logs
+### 5. Testing
+- Test coverage adequacy
+- Test quality and meaningfulness
+- Missing test scenarios
+- Edge case tests
 
-### Step 4: Code Quality Review
+### 6. Documentation
+- Code comments for complex logic
+- API documentation
+- README updates if needed
+- Type definitions (TypeScript)
 
-Check for:
-- Functions/methods exceeding 50 lines (suggest breaking up)
-- Duplicate code patterns (DRY violations)
-- Missing error handling and edge cases
-- Unclear variable/function names
-- Missing type hints (Python) or TypeScript types
-- Dead code and unused imports
-- Files exceeding 800 lines (flag for refactoring)
+## Review Output Format
 
-### Step 5: Performance Review
-
-Check for:
-- N+1 query patterns in database code
-- Missing database indexes for frequently queried fields
-- Large data loaded into memory unnecessarily
-- Blocking I/O where async would be appropriate
-- Missing caching for expensive computations
-
-### Step 6: Maintainability Review
-
-Check for:
-- Missing docstrings on public functions/classes
-- Complex logic without explanatory comments
-- Tight coupling between components
-- Violation of SOLID principles
-- Missing or outdated tests
-
-### Step 7: trent Compliance Review
-
-Check:
-- Task files have complete YAML frontmatter
-- TASKS.md is in sync with task files
-- Phase files match TASKS.md headers
-- Documentation files are in `docs/` folder (not root)
-
-### Step 8: Generate Review Report
-
-Present findings organized by severity:
-
-```markdown
-## 🔍 Code Review Report
-
-### 🚨 Critical Issues (must fix)
-{list}
-
-### ⚠️ High Priority Issues
-{list}
-
-### 💡 Suggestions (optional improvements)
-{list}
-
-### ✅ What's Working Well
-{list}
-
-### 📋 Next Steps
-1. {action items in priority order}
+### 🔴 Critical Issues (Must Fix)
+Issues that could cause bugs, security vulnerabilities, or major problems.
 ```
+Location: file.py:42
+Issue: SQL injection vulnerability
+Fix: Use parameterized queries
+```
+
+### 🟡 Important Issues (Should Fix)
+Issues that impact maintainability or best practices.
+```
+Location: file.py:87
+Issue: Missing error handling
+Fix: Add try/catch block
+```
+
+### 🟢 Suggestions (Nice to Have)
+Improvements that would enhance code quality.
+```
+Location: file.py:123
+Suggestion: Extract to helper function
+Reason: Improves readability
+```
+
+### ✅ Positive Notes
+What was done well (to encourage good practices).
+
+## What I Need From You
+- File or directory to review
+- Specific concerns to focus on (optional)
+- Context about the changes (optional)
+
+Let's review this code!

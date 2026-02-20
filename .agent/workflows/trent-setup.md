@@ -1,53 +1,58 @@
 ---
-description: "Initialize the trent task management system for this project"
+description: "Trent Setup"
 ---
 
-# Workflow: trent-setup
+Initialize the trent system: $ARGUMENTS
 
-Initialize the trent task management system for this project.
+## What This Command Does
 
-## Steps
+Initializes or reinitializes the trent task management system in the current project.
 
-### Step 1: Check Existing Structure
+## Setup Workflow
 
-Check if `.trent/` folder already exists and read current state.
+### 1. Create Directory Structure
+I'll create these folders if they don't exist:
+- `.trent/` - Main working directory
+- `.trent/tasks/` - Individual task files
+- `.trent/phases/` - Phase documentation
+- `docs/` - Project documentation
+- `temp_scripts/` - Test scripts
 
-### Step 2: Create Required Directories
+### 2. Create Core Files
+I'll create these template files:
+- `.trent/PLAN.md` - Product Requirements Document
+- `.trent/TASKS.md` - Master task checklist
+- `.trent/BUGS.md` - Bug tracking
+- `.trent/PROJECT_CONTEXT.md` - Project mission and goals
+- `.trent/SUBSYSTEMS.md` - Component registry
+- `.trent/FILE_REGISTRY.md` - File documentation
+- `.trent/MCP_TOOLS_INVENTORY.md` - Available MCP tools
 
-// turbo
-Create the following directories if they don't exist:
-- `.trent/`
-- `.trent/tasks/`
-- `.trent/phases/`
-- `docs/`
-- `temp_scripts/`
+### 3. Verify MCP Tools
+I'll check available MCP tools and document them in MCP_TOOLS_INVENTORY.md
 
-### Step 3: Create Core Files
+### 4. Scan Existing Codebase (if applicable)
+For existing projects, I'll:
+- Analyze current file structure
+- Identify existing components/subsystems
+- Document in SUBSYSTEMS.md and FILE_REGISTRY.md
 
-Create these files if they don't exist (with blank templates):
-- `.trent/PLAN.md` — Product Requirements Document
-- `.trent/TASKS.md` — Master task checklist
-- `.trent/PROJECT_CONTEXT.md` — Project mission and goals
-- `.trent/SUBSYSTEMS.md` — Component registry
-- `.trent/BUGS.md` — Bug tracking
-- `.trent/FILE_REGISTRY.md` — File documentation
+## Phase-Based Task Organization
+- **Phase 0** (Task IDs: 1-99): Setup & Infrastructure
+- **Phase 1** (Task IDs: 100-199): Foundation
+- **Phase 2** (Task IDs: 200-299): Core Development
+- **Phase N** (Task IDs: N×100 to N×100+99): Additional phases
 
-### Step 4: Analyze Existing Codebase
+## Task Status Indicators
+- `[ ]` - Pending (no file created yet)
+- `[📋]` - Ready (task file created)
+- `[🔄]` - In Progress
+- `[✅]` - Completed
+- `[❌]` - Failed/Cancelled
 
-If this is an existing project:
-1. Scan directory structure for major components
-2. Identify tech stack from config files (package.json, requirements.txt, etc.)
-3. Populate `.trent/SUBSYSTEMS.md` with discovered components
-4. Create Phase 0 (Setup/Infrastructure) in TASKS.md
+## When to Use
+- Starting a new project
+- Adding trent to an existing project
+- Reinitializing after major changes
 
-### Step 5: Create AGENTS.md
-
-Check if `AGENTS.md` exists. If not, create it with:
-- Project name and description
-- Directory structure overview
-- Development commands
-- trent task management section (between markers)
-
-### Step 6: Report
-
-Report what was created and next steps for the user.
+Let me set up the trent system for you!

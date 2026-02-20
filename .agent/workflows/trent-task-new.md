@@ -1,67 +1,71 @@
 ---
-description: "Create a new trent task with proper file and TASKS.md entry. Usage: /trent-task-new [task title and description]"
+description: "Trent Task New"
 ---
 
-# Workflow: trent-task-new
+Create a new task: $ARGUMENTS
 
-Create a new trent task with the proper file and TASKS.md entry.
+## What This Command Does
 
-## Steps
+Creates a properly structured task in the trent system.
 
-### Step 1: Read Current State
+## Task Creation Workflow
 
-Read `.trent/TASKS.md` to:
-- Determine the next available task ID for the current phase
-- Identify which phase this task belongs to
-- Check for any dependencies
+### 1. Gather Information
+I'll determine:
+- **Task Type**: feature, bug_fix, refactor, documentation
+- **Priority**: critical, high, medium, low
+- **Target Phase**: Phase 0 (1-99), Phase 1 (100-199), Phase 2 (200-299), etc.
+- **Affected Subsystems**: Which components are involved
+- **Dependencies**: Other tasks that must complete first
 
-### Step 2: Assess Complexity
+### 2. Create Task File
+I'll generate a task file in `.trent/tasks/` with:
 
-Score the task complexity (1-10+):
-- >2-3 developer days: +4 pts
-- Multiple subsystems affected: +3 pts
-- Multiple unrelated modules: +3 pts
-- High uncertainty: +2 pts
+**Filename**: `task{ID}_{descriptive_name}.md`
 
-**If score ≥ 7**: Expand into sub-tasks before proceeding.
-
-### Step 3: Create Task File
-
-Create `.trent/tasks/task{NNN}_{descriptive_name}.md` with:
-
+**YAML Frontmatter**:
 ```yaml
 ---
-id: {NNN}
-title: '{Task Title}'
-type: feature|bug_fix|refactor|documentation
+id: {task_id}
+title: 'Task Title'
+type: feature
 status: pending
-priority: critical|high|medium|low
-phase: {phase_number}
-subsystems: [{affected_subsystems}]
-project_context: {brief connection to project goal}
+priority: medium
+phase: 0
+subsystems: [affected_subsystems]
+project_context: How this task relates to project goals
 dependencies: []
+created_date: '{date}'
 ---
-
-# Task: {Title}
-
-## Objective
-{Clear, actionable goal}
-
-## Acceptance Criteria
-- [ ] {Specific outcome 1}
-- [ ] {Specific outcome 2}
-
-## Implementation Notes
-{Technical details, constraints}
 ```
 
-### Step 4: Update TASKS.md
+**Content Sections**:
+- Objective: Clear, actionable goal
+- Acceptance Criteria: Specific, measurable outcomes
+- Implementation Notes: Technical details
+- Testing Plan: How to verify completion
 
-Add to `.trent/TASKS.md` under the appropriate phase section:
-```
-- [📋] Task {NNN}: {Title}
-```
+### 3. Update TASKS.md
+I'll add the task entry with:
+- Status indicator: `[ ]` (pending, no file yet) → `[📋]` (file created)
+- Task ID and title
+- Correct phase section
 
-### Step 5: Confirm
+### 4. CRITICAL: Dual Update
+**I MUST update BOTH:**
+1. ✅ Task file in `.trent/tasks/`
+2. ✅ Entry in `.trent/TASKS.md`
 
-Report the created task ID, file path, and any sub-tasks if complexity was high.
+## Phase-Based Task IDs
+- **Phase 0** (Setup): Task IDs 1-99
+- **Phase 1** (Foundation): Task IDs 100-199
+- **Phase 2** (Core Development): Task IDs 200-299
+- **Phase N**: Task IDs N×100 to N×100+99
+
+## What I Need From You
+- Brief description of what needs to be done
+- Which phase this task belongs to
+- Any specific requirements or constraints
+- Related subsystems or components
+
+Let's create this task!
