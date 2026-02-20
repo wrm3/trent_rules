@@ -362,7 +362,7 @@ actual_effort: '2 hours'
 
 ## Common Mistakes
 
-### ❌ Incorrect
+### Γ¥î Incorrect
 ```yaml
 ---
 id: 42.1  # Should be quoted for sub-tasks
@@ -373,7 +373,7 @@ subsystems: frontend, api  # Should be array format
 ---
 ```
 
-### ✅ Correct
+### Γ£à Correct
 ```yaml
 ---
 id: "42.1"

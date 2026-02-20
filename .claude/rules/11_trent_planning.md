@@ -1,0 +1,626 @@
+---
+description: Comprehensive planning system for PRD creation, phase management, subsystems registry, and scope validation
+globs: 
+alwaysApply: true
+---
+# Planning System
+
+This rule provides comprehensive planning functionality including PRD creation, phase management, subsystems registry, scope validation, and requirements gathering.
+
+## PRD Generation
+
+### PRD Structure
+**Location**: `.trent/PLAN.md` (single mandatory file)
+
+### PRD Template
+```markdown
+# PRD: [Project/Feature Title]
+
+## 1. Product overview
+### 1.1 Document title and version
+- PRD: [Project/Feature Title]
+- Version: 1.0
+
+### 1.2 Product summary
+[2-3 short paragraphs providing an overview of the project or feature.]
+
+## 2. Goals
+### 2.1 Business goals
+- [Bullet list of business objectives]
+
+### 2.2 User goals
+- [Bullet list of what users aim to achieve]
+
+### 2.3 Non-goals
+- [Bullet list of explicitly out-of-scope items]
+
+## 3. User personas
+### 3.1 Key user types
+- [Bullet list of primary user categories]
+
+### 3.2 Basic persona details
+- **[Persona Name 1]**: [Brief description]
+- **[Persona Name 2]**: [Brief description]
+
+### 3.3 Role-based access
+- **[Role Name 1]**: [Description of permissions/access]
+- **[Role Name 2]**: [Description of permissions/access]
+
+## 4. Phases
+*Note: Detailed phase management is in TASKS.md. This section provides high-level overview only.*
+
+### 4.1 Phase Overview
+- **Phase 0: Setup & Infrastructure** - [Brief description]
+- **Phase 1: Foundation** - [Brief description]
+- **Phase 2: Core Development** - [Brief description]
+
+### 4.2 Phase References
+- **Master Location**: TASKS.md (phase headers with task lists)
+- **Detail Files**: `.trent/phases/phase{N}_{name}.md`
+- **Template**: `.trent/templates/phase_template.md`
+
+## 5. User experience
+### 5.1 Entry points & first-time user flow
+- [How users access this feature/product initially]
+
+### 5.2 Core experience
+- **[Step 1]**: [Explanation of the step]
+- **[Step 2]**: [Explanation of the step]
+
+### 5.3 Advanced features & edge cases
+- [Bullet list of less common scenarios or advanced capabilities]
+
+### 5.4 UI/UX highlights
+- [Key design principles or user interface elements]
+
+## 6. Narrative
+[A single paragraph describing the user's journey and the benefit they receive.]
+
+## 7. Success metrics
+### 7.1 User-centric metrics
+- [e.g., Task completion rate, user satisfaction]
+
+### 7.2 Business metrics
+- [e.g., Conversion rate, revenue impact]
+
+### 7.3 Technical metrics
+- [e.g., Page load time, error rate]
+
+## 8. Technical considerations
+### 8.1 Affected subsystems
+- **Primary subsystems** (directly modified/extended):
+  - [Subsystem Name 1]: [Impact description]
+  - [Subsystem Name 2]: [Impact description]
+- **Secondary subsystems** (indirectly affected):
+  - [Subsystem Name 3]: [Dependency/integration description]
+
+### 8.2 Integration points
+- [Interaction with other systems/services]
+
+### 8.3 Data storage & privacy
+- [How data is handled, GDPR/CCPA compliance etc.]
+
+### 8.4 Scalability & performance
+- [Anticipated load, performance targets]
+
+### 8.5 Potential challenges
+- [Risks or technical hurdles]
+
+## 9. Milestones & sequencing
+### 9.1 Project estimate
+- [Small/Medium/Large]: [Rough time estimate, e.g., 2-4 weeks]
+
+### 9.2 Team size & composition
+- [e.g., Small Team: 1-2 people (1 PM, 1 Eng)]
+
+### 9.3 Suggested phases
+- **[Phase 1]**: [Description] ([Time estimate])
+  - Key deliverables: [List]
+- **[Phase 2]**: [Description] ([Time estimate])
+  - Key deliverables: [List]
+
+## 10. User stories
+### 10.1 [User Story Title 1]
+- **ID**: US-001
+- **Description**: As a [persona], I want to [action] so that [benefit].
+- **Acceptance Criteria**:
+  - [Criterion 1.1]
+  - [Criterion 1.2]
+
+### 10.2 [User Story Title 2]
+- **ID**: US-002
+- **Description**: As a [persona], I want to [action] so that [benefit].
+- **Acceptance Criteria**:
+  - [Criterion 2.1]
+  - [Criterion 2.2]
+```
+
+## Phase Management
+
+### Phase System Overview
+**Purpose**: Phases provide logical groupings of tasks within the overall project plan, allowing for iterative development, pivoting, and clear milestone tracking.
+
+**Key Principle**: TASKS.md is the master file for phases. Each phase header in TASKS.md MUST have a corresponding phase file.
+
+### Phase Structure
+- **Master Location**: TASKS.md contains phase headers with task lists
+- **Detail Files**: `.trent/phases/phase{N}_{name}.md` for detailed phase info
+- **Sync Required**: Phase headers in TASKS.md ↔ Phase files MUST match
+
+### Phase Numbering Convention
+| Phase | Task ID Range | Typical Purpose |
+|-------|---------------|-----------------|
+| Phase 0 | 1-99 | Setup, infrastructure, environment |
+| Phase 1 | 100-199 | Foundation, database, core handlers |
+| Phase 2 | 200-299 | Core development, main features |
+| Phase 3 | 300-399 | Enhancement, secondary features |
+| Phase N | N×100 to N×100+99 | Custom phase scope |
+
+### Phase File Format
+**Filename**: `phase{N}_{kebab-case-name}.md` (e.g., `phase0_setup.md`, `phase1_foundation.md`)
+
+**YAML Frontmatter** (required fields):
+```yaml
+---
+phase: 0
+name: 'Setup & Infrastructure'
+status: planning|in_progress|completed|cancelled|paused
+subsystems: [database, api, authentication]  # Affected subsystems
+task_range: '1-99'
+prerequisites: []  # Phase numbers that must complete first
+started_date: ''
+completed_date: ''
+pivoted_from: null  # Phase number if this is a pivot
+pivot_reason: ''    # Why the pivot occurred
+---
+```
+
+**Status Values**:
+- `planning` - Phase defined but not started
+- `in_progress` - Actively working on phase tasks
+- `completed` - All acceptance criteria met
+- `cancelled` - Phase abandoned, won't resume
+- `paused` - Work stopped, may resume later (often due to pivot)
+
+### Phase Document Template
+```markdown
+---
+phase: {N}
+name: '{Phase Name}'
+status: planning
+subsystems: [{subsystem1}, {subsystem2}]
+task_range: '{N*100}-{N*100+99}'
+prerequisites: []
+started_date: ''
+completed_date: ''
+pivoted_from: null
+pivot_reason: ''
+---
+
+# Phase {N}: {Phase Name}
+
+## Overview
+{Brief description of the phase goals and scope}
+
+## Objectives
+- {Objective 1}
+- {Objective 2}
+
+## Deliverables
+- [ ] {Deliverable 1}
+- [ ] {Deliverable 2}
+
+## Acceptance Criteria
+- [ ] {Criterion 1}
+- [ ] {Criterion 2}
+
+## Notes
+{Additional context}
+```
+
+### 🚨 MANDATORY: Phase Synchronization Enforcement
+
+**CRITICAL**: TASKS.md phase headers and phase files MUST always be in sync.
+
+#### Atomic Phase Creation (BOTH OR NEITHER)
+
+**🔴 CRITICAL: When adding a new phase, you MUST create ALL THREE in the SAME response:**
+
+```
+✅ CORRECT (Atomic):
+1. Add phase header to TASKS.md: "## Phase 2: Core Development [ ]"
+2. Create phase file: .trent/phases/phase2_core-development.md (with YAML frontmatter)
+3. Add phase description/context lines under the header in TASKS.md
+4. Confirm ALL THREE in response
+
+❌ WRONG (Split):
+Response 1: Add header to TASKS.md only
+Response 2: Create phase file later  ← VIOLATION! Missing phase files cause drift.
+
+❌ WRONG (No file):
+Add header to TASKS.md without creating phase file  ← VIOLATION! This is how we got
+phases 4-9 missing their files. ALWAYS create both atomically.
+```
+
+**Why this matters**: Missing phase files were discovered during the Phase Task Archival cleanup (Round 6, 2026-02-15). Phases 4-9 existed in TASKS.md for weeks without corresponding phase files, making archival harder and breaking sync checks.
+
+#### Status Mapping (MUST Match)
+
+| TASKS.md Header | Phase File YAML |
+|-----------------|-----------------|
+| `## Phase N: Name [ ]` | `status: planning` (default) |
+| `## Phase N: Name [🔄]` | `status: in_progress` |
+| `## Phase N: Name [✅]` | `status: completed` |
+| `## Phase N: Name [❌]` | `status: cancelled` |
+| `## Phase N: Name [⏸️]` | `status: paused` |
+
+**Note**: Phase headers in TASKS.md use `##` (H2 level), not `###`.
+
+#### Pre-Operation Validation
+
+**Before ANY phase operation:**
+1. Read TASKS.md - identify all phase headers
+2. List `.trent/phases/` - identify all phase files
+3. Verify each header has a matching file
+4. If mismatch: FIX IT FIRST
+
+#### Phase Sync Check
+
+```markdown
+📋 PHASE SYNC VALIDATION
+Phase 0: TASKS.md header ↔ phase0_setup.md ✅ SYNCED
+Phase 1: TASKS.md header ↔ phase1_foundation.md ✅ SYNCED
+Phase 2: TASKS.md header ↔ (NO FILE) ⚠️ MISSING - CREATING
+Sync Status: 2/3 synced, 1 created
+```
+
+#### Orphan & Phantom Detection
+
+**Orphan Phase Files** (files without TASKS.md header):
+```markdown
+📋 ORPHAN: phase5_experimental.md exists but no header in TASKS.md
+Action: Add header to TASKS.md or delete file
+```
+
+**Phantom Phase Headers** (headers without files):
+```markdown
+📋 PHANTOM: "## Phase 3: Enhancement" in TASKS.md but no file
+Action: Create phase file or remove header
+```
+
+### Dynamic Phase Management
+
+- **Adding Phases**: Create header in TASKS.md AND phase file atomically
+- **Pivoting**: Mark old phase as `paused`, create new phase with `pivoted_from` field
+- **Phase Gaps**: Allowed (e.g., Phase 0, 1, 2, then jump to 5)
+- **Completing Phases**: Update both TASKS.md header and phase file status
+
+### Pivot Workflow
+
+When pivoting to a new direction:
+
+1. **Update old phase file**: Set `status: paused` or `status: cancelled`
+2. **Update TASKS.md**: Add `[⏸️]` or `[❌]` to old phase header
+3. **Create new phase file**: Include `pivoted_from` and `pivot_reason`
+4. **Add new header to TASKS.md**: New phase section
+
+**Example Pivot**:
+```yaml
+# In phase5_new-direction.md
+---
+phase: 5
+name: 'New Direction'
+status: in_progress
+subsystems: [api, frontend]
+task_range: '500-599'
+prerequisites: [0, 1]
+pivoted_from: 2
+pivot_reason: 'User requirements changed - MVP focus instead of full feature set'
+---
+```
+
+## Subsystems Registry
+
+### Subsystems Overview
+**Purpose**: Track and document the major components/modules of the project. Subsystems provide a high-level architectural view that helps with:
+- Understanding system boundaries
+- Identifying cross-cutting concerns
+- Planning task impact analysis
+- Onboarding new team members
+
+**Location**: `.trent/SUBSYSTEMS.md` (single mandatory file)
+
+### SUBSYSTEMS.md Template
+```markdown
+# Subsystems Registry
+
+## Overview
+[Brief description of how the project is organized into subsystems]
+
+## Subsystem Index
+
+| ID | Name | Type | Status | Owner |
+|----|------|------|--------|-------|
+| SS-01 | [Name] | [core/support/integration] | [active/deprecated/planned] | [team/person] |
+| SS-02 | [Name] | [core/support/integration] | [active/deprecated/planned] | [team/person] |
+
+---
+
+## Detailed Subsystem Definitions
+
+### SS-01: [Subsystem Name]
+
+**Type**: core | support | integration
+**Status**: active | deprecated | planned | in-development
+**Owner**: [Team or person responsible]
+
+#### Purpose
+[2-3 sentences describing what this subsystem does and why it exists]
+
+#### Key Components
+- `path/to/component1/` - [Brief description]
+- `path/to/component2/` - [Brief description]
+- `filename.ext` - [Brief description]
+
+#### Dependencies
+- **Depends On**: [List of subsystem IDs this depends on, e.g., SS-02, SS-05]
+- **Depended By**: [List of subsystem IDs that depend on this]
+
+#### Interfaces
+- **Inputs**: [What data/requests this subsystem accepts]
+- **Outputs**: [What data/responses this subsystem produces]
+- **APIs**: [Public APIs or entry points]
+
+#### Technology Stack
+- [Language/Framework 1]
+- [Database/Storage]
+- [External services]
+
+#### Related Tasks
+- Tasks that modify this subsystem should include `subsystems: [SS-01]` in YAML frontmatter
+
+---
+
+### SS-02: [Next Subsystem Name]
+[Repeat structure for each subsystem]
+
+---
+
+## Subsystem Relationships
+
+### Dependency Graph
+```mermaid
+graph TD
+    SS-01[Subsystem 1] --> SS-02[Subsystem 2]
+    SS-01 --> SS-03[Subsystem 3]
+    SS-02 --> SS-04[Subsystem 4]
+```
+
+### Cross-Cutting Concerns
+| Concern | Affected Subsystems | Notes |
+|---------|---------------------|-------|
+| Logging | SS-01, SS-02, SS-03 | Centralized logging |
+| Authentication | SS-01, SS-04 | Shared auth module |
+| Error Handling | All | Standard error patterns |
+
+---
+
+## Maintenance Notes
+- **Last Updated**: [Date]
+- **Review Frequency**: [e.g., Monthly, Per Phase]
+- **Update Triggers**: New subsystem added, major refactoring, architecture changes
+```
+
+### Subsystem Types
+| Type | Description | Examples |
+|------|-------------|----------|
+| **core** | Essential business logic, primary functionality | Task Engine, Rule Processor |
+| **support** | Infrastructure, utilities, cross-cutting services | Logging, Configuration, Utils |
+| **integration** | External system connections, APIs | Database Connectors, MCP Tools |
+
+### When to Update SUBSYSTEMS.md
+- **New subsystem created**: Add entry immediately
+- **Subsystem deprecated**: Update status, add deprecation notes
+- **Architecture refactoring**: Update dependencies and relationships
+- **Phase completion**: Review and validate subsystem documentation
+- **Major feature addition**: Assess if new subsystem needed
+
+### Task-Subsystem Integration
+Tasks should reference affected subsystems in their YAML frontmatter:
+```yaml
+---
+id: 42
+title: 'Add caching to API layer'
+subsystems: [SS-01, SS-03]  # Reference subsystem IDs
+---
+```
+
+This enables:
+- **Impact analysis**: Quickly identify which tasks affect which subsystems
+- **Risk assessment**: Tasks touching multiple subsystems may need extra review
+- **Planning**: Group related tasks by subsystem for focused sprints
+
+### Auto-Discovery for Existing Projects
+When initializing trent in an existing project, analyze the codebase to identify subsystems:
+
+1. **Directory Analysis**: Major top-level directories often represent subsystems
+2. **Package/Module Boundaries**: Language-specific module systems indicate boundaries
+3. **Configuration Files**: Separate configs often indicate separate subsystems
+4. **Database Schemas**: Distinct schema areas may map to subsystems
+5. **API Routes**: Route groupings often align with subsystem boundaries
+
+## Scope Validation
+
+### Mandatory Scope Questions
+Before creating any PRD, ask these essential questions:
+
+1. **User Context & Deployment**
+   - "Intended for personal use, small team, or broader deployment?"
+   - Personal (1 user): Simple, file-based, minimal security
+   - Small team (2-10): Basic sharing, simple user management  
+   - Broader (10+): Full authentication, role management, scalability
+
+2. **Security Requirements**
+   - "Security expectations?"
+   - Minimal: Basic validation, no authentication
+   - Standard: User auth, session management, basic authorization
+   - Enhanced: Role-based access, encryption, audit trails
+   - Enterprise: SAML/SSO, compliance, advanced security
+
+3. **Scalability Expectations**
+   - "Performance and scalability expectations?"
+   - Basic: Works for expected load, simple architecture
+   - Moderate: Handles growth, some optimization
+   - High: Speed-optimized, caching, efficient queries
+   - Enterprise: Load balancing, clustering, horizontal scaling
+
+4. **Feature Complexity**
+   - "How much complexity comfortable with?"
+   - Minimal: Core functionality, keep simple
+   - Standard: Core plus reasonable conveniences
+   - Feature-Rich: Comprehensive with advanced options
+   - Enterprise: Full-featured with extensive configuration
+
+5. **Integration Requirements**
+   - "Integration needs?"
+   - Standalone: No external integrations
+   - Basic: File import/export, basic API
+   - Standard: REST API, webhooks, common integrations
+   - Enterprise: Comprehensive API, message queues, enterprise systems
+
+### Over-Engineering Prevention
+- **Authentication**: Don't add role permissions unless requested
+- **Database**: Use simple file-based unless DB explicitly requested
+- **API**: Don't add comprehensive REST beyond required
+- **Architecture**: Default monolith unless scale requires separation
+
+## Planning Questionnaire
+
+### 27-Question Framework
+
+#### Phase 1: Project Context (Q1-Q7)
+**Q1**: Primary problem this system solves? → Follow-up: Who experiences it, how handled today?
+**Q2**: What does success look like? → Follow-up: How measured, failure indicators?
+**Q3**: Replacing existing or creating new? → If replacing: pain points; If new: why needed now?
+**Q4**: Primary users? (End users, Admins, Stakeholders, External)
+**Q5**: User count? (Single, 2-10, 11-50, 51-200, 200+)
+**Q6**: Usage frequency? (Occasional, Daily, Continuous, Peak periods)
+**Q7**: Access locations? (Local, Office, Remote, Internet, Mobile)
+
+#### Phase 2: Technical Requirements (Q8-Q16)
+**Q8**: Deployment? (Local desktop, Local server, Cloud, Hybrid, No preference)
+**Q9**: Maintenance comfort? (Minimal, Basic, Intermediate, Advanced)
+**Q10**: Integration needs? (AD, Databases, Business apps, Monitoring, Backup)
+**Q11**: Data types? (Public, Internal, PII, Financial, Healthcare, Regulated)
+**Q12**: Security requirements? (Basic, Industry compliance, Government, Custom, None)
+**Q13**: Access control? (All see all, Role-based, Department, Individual, External)
+**Q14**: Performance expectations? (Basic seconds, Good <1s, High instant, Not critical)
+**Q15**: Data volume? (Thousands, Hundreds of thousands, Millions, Billions, Growing)
+**Q16**: Peak usage? (Consistent, Business hours, Month/quarter, Seasonal, Event-driven)
+
+#### Phase 3: Feature Scope (Q17-Q22)
+**Q17**: Essential features (MVP)? → List core features and deal-breakers
+**Q18**: Nice-to-have features? → List convenience and future enhancements
+**Q19**: Features to avoid? → Over-complexity, specific integrations, approaches
+**Q20**: Priority: ease vs power? (Ease, Power, Balanced, Depends on user)
+**Q21**: Interface examples you like? → Reference apps, patterns, accessibility
+**Q22**: User training investment? (Self-explanatory, Brief, Formal, Complex OK)
+
+#### Phase 4: Timeline & Resources (Q23-Q27)
+**Q23**: Timeline drivers? (Business deadline, Budget, Competition, Regulatory, Personal)
+**Q24**: Delivery preference? (Quick prototype, Phased, Complete, Iterative)
+**Q25**: Trade-offs? (Core over polish, Polish over features, Speed over performance)
+**Q26**: Available resources? (Dev time, Expertise, Budget, Third-party services)
+**Q27**: Hard constraints? (Specific tech, No cloud, Budget limits, Policies)
+
+## Project Instruction Files Initialization
+
+### When to Initialize
+
+**During project setup (`@trent-setup` or `@trent-plan`):**
+1. Check if `agents.md` exists
+2. Check if `CLAUDE.md` exists
+3. Create or update as needed
+
+### agents.md Initialization
+
+**If missing**: Create from template with project-specific content
+**If exists**: Add/update trent section between markers
+
+```markdown
+## agents.md Creation Checklist
+- [ ] Project name and description filled in
+- [ ] Project structure documented
+- [ ] Development commands listed
+- [ ] Code style guidelines included
+- [ ] Trent section added with markers
+- [ ] Version and date set
+```
+
+### CLAUDE.md Initialization
+
+**If missing**: Create from template (optional but recommended)
+**If exists**: Add/update trent section between markers
+
+```markdown
+## CLAUDE.md Creation Checklist
+- [ ] Project overview written
+- [ ] Tech stack documented
+- [ ] Key directories listed
+- [ ] Development commands included
+- [ ] Trent section added with markers
+```
+
+### Integration with Phase Management
+
+**On Phase Creation/Pivot:**
+- Update CLAUDE.md with new phase context
+- Add phase objectives to "Important Notes" section
+
+**Template for Phase Update in CLAUDE.md:**
+```markdown
+## Current Phase
+- **Phase {N}**: {Phase Name}
+- **Objectives**: {Key objectives}
+- **Focus Areas**: {Subsystems being worked on}
+```
+
+## Codebase Analysis for Existing Projects
+
+### Automatic Project Analysis
+When initializing in existing projects:
+1. **Scan codebase** for existing functionality and architecture
+2. **Generate PLAN.md** based on current code structure
+3. **Create phase documents** organizing work into logical stages
+4. **Identify subsystems** from code organization
+5. **Document current architecture** and integration points
+6. **Create/update agents.md** with discovered project info
+7. **Create/update CLAUDE.md** with tech stack and conventions
+
+### Analysis Process
+1. **File Structure Analysis**: Identify main components and modules
+2. **Dependency Mapping**: Map relationships between components
+3. **Phase Identification**: Group work into logical phases
+4. **Subsystem Identification**: Group related functionality
+5. **Integration Discovery**: Find external system connections
+
+## Integration Points
+
+### Task System Integration
+- Tasks reference their phase in YAML frontmatter (`phase: N`)
+- Phase completion tracked through task completion
+- Phase dependencies managed through task dependencies
+
+### Bug System Integration
+- Bugs reference affected phases
+- Phase impact assessment through bug analysis
+- Phase fixes tracked through bug resolution
+
+### File Organization Integration
+- Phases organized in dedicated phases/ folder
+- Phase documents follow consistent naming: `phase{N}_{name}.md`
+- Phase relationships documented in PLAN.md
+
+---
+
+*This comprehensive planning system provides all necessary functionality for project planning, feature management, and scope validation in a single, efficient rule.*

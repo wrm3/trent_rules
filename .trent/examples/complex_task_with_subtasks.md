@@ -50,7 +50,7 @@ This task has been broken down into manageable sub-tasks:
 
 ## Risk Mitigation
 - Full database backup before migration
-- Staged rollout (10% → 50% → 100%)
+- Staged rollout (10% ΓåÆ 50% ΓåÆ 100%)
 - Real-time monitoring dashboard
 - Automated rollback triggers
 - 24/7 on-call team during migration

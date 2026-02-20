@@ -86,6 +86,7 @@ Phase 2: task201_implement_api_endpoints.md
 ```
 CORRECT: [ ] → [📋] → [🔄] → [✅]
 WRONG:   [ ] → [🔄] (VIOLATION - no file created!)
+WRONG:   [ ] → [✅] (VIOLATION - no file, no audit trail!)
 ```
 
 **Before changing `[ ]` to `[📋]`**:
@@ -99,6 +100,96 @@ WRONG:   [ ] → [🔄] (VIOLATION - no file created!)
 - **Start**: Update status to `in-progress`, update TASKS.md to `[🔄]` (requires `[📋]` first)
 - **Complete**: Update status to `completed`, update TASKS.md to `[✅]`
 - **Fail**: Update status to `failed`, update TASKS.md to `[❌]`
+
+
+### � MANDATORY: Pre-Work File Verification (REGULATORY REQUIREMENT)
+
+**PURPOSE**: Financial regulatory compliance (SOC 2, FFIEC) requires audit trails for all work. Task files are the audit record.
+
+#### Pre-Flight Check (BEFORE ANY CODING)
+
+**Before writing ANY code for a task, you MUST verify:**
+
+```markdown
+## � PRE-FLIGHT CHECK: Task {ID}
+
+**File Verification:**
+- [ ] Task file exists: `.trent/tasks/task{ID}_{name}.md`
+- [ ] YAML frontmatter complete (id, title, status, priority, phase)
+- [ ] Acceptance criteria defined
+- [ ] TASKS.md shows [�] or [�] (NOT [ ])
+
+**Result**: [VERIFIED ✅ / BLOCKED ❌]
+```
+
+**If BLOCKED**: Create the task file FIRST, then proceed.
+
+#### Enforcement Rules
+
+1. **NEVER mark a task [✅] if no file exists** - This is a compliance violation
+2. **NEVER start coding if TASKS.md shows [ ]** - File must exist first
+3. **RETROACTIVE tasks get special handling** (see below)
+
+#### Retroactive Documentation (After-the-Fact)
+
+When documenting work that was already completed without a task file:
+
+**Use `[RETRO]` prefix in task title:**
+```yaml
+---
+id: 42
+title: '[RETRO] Fix encryption key derivation'
+type: retroactive_fix
+status: completed
+created_date: '2026-02-03'
+completed_date: '2026-02-03'
+retroactive: true
+retroactive_reason: 'Discovered and fixed during development session'
+---
+```
+
+**Retroactive tasks:**
+- ✅ CAN go directly from creation to [✅]
+- ✅ MUST include `retroactive: true` in YAML
+- ✅ MUST include `retroactive_reason` explaining why
+- ❌ Should be the EXCEPTION, not the rule
+
+#### Self-Check Before Task Completion
+
+**Before marking ANY task complete, verify in this order:**
+
+```
+□ Does .trent/tasks/task{ID}_*.md exist?
+  → NO: Create it NOW or mark as [RETRO]
+  → YES: Continue
+
+□ Does the file have complete YAML frontmatter?
+  → NO: Add missing fields
+  → YES: Continue
+
+□ Does TASKS.md status match file status?
+  → NO: Fix the mismatch
+  → YES: Proceed with completion
+```
+
+#### Violation Detection
+
+**At session start or when working on tasks, scan for violations:**
+
+```markdown
+� TASK FILE AUDIT
+
+Checking TASKS.md entries against .trent/tasks/ files...
+
+| Task | TASKS.md | File Exists | Status |
+|------|----------|-------------|--------|
+| 001 | [�] | ✅ task001_*.md | OK |
+| 002 | [✅] | ❌ NO FILE | ⚠️ VIOLATION |
+| 003 | [�] | ✅ task003_*.md | OK |
+
+**Violations Found**: 1
+**Action Required**: Create retroactive file for Task 002
+```
 
 ### 🚨 MANDATORY: Task Synchronization Enforcement
 
@@ -239,7 +330,22 @@ Action: Create file or remove from TASKS.md
 - ✅ Bug fixed and verified
 - ✅ All acceptance criteria satisfied
 
-#### Task Completion Workflow (4 Steps)
+#### Task Completion Workflow (5 Steps)
+
+**Step 0: File Existence Check (BLOCKING)**
+```markdown
+## � TASK FILE CHECK: Task {ID}
+
+**Searching for**: .trent/tasks/task{ID}_*.md
+**Result**: [FOUND ✅ / NOT FOUND ❌]
+
+If NOT FOUND:
+- Create task file NOW (or mark as [RETRO] if after-the-fact)
+- DO NOT PROCEED until file exists
+```
+
+**� STOP**: If file does not exist, you CANNOT mark the task complete. Create the file first.
+
 
 **Step 1: Validation Check**
 Before marking complete, verify the work:
@@ -361,14 +467,22 @@ Shall I update these files? (yes/no/skip)
 ---
 ```
 
+
 **Self-Check at END of Every Response**:
 ```
 □ Did I complete work for a task?
+  → FIRST: Verify task file exists in .trent/tasks/
+  → If no file: CREATE IT NOW (or mark [RETRO] if after-the-fact)
   → Run validation check
   → Update task file + TASKS.md (ATOMIC)
   → Offer git commit
   → Check project files impact
   → Confirm completion
+
+□ Does the task file exist? (BLOCKING CHECK - REGULATORY)
+  → If marking [✅] and no file exists: STOP, create file first
+  → Task files are the audit trail for compliance
+  → No file = No completion allowed
 
 □ Did I offer git commit? (MANDATORY CHECK)
   → If task completed and no commit offered, offer it NOW
@@ -381,29 +495,30 @@ Shall I update these files? (yes/no/skip)
 
 **Failure to Complete Workflow = SYSTEM VIOLATION**
 **Failure to Offer Git Commit = SYSTEM VIOLATION**
+**Marking [✅] Without Task File = COMPLIANCE VIOLATION**
 
-### 🚨 MANDATORY: Phase Completion Gate
+### � MANDATORY: Phase Completion Gate
 
 **Before starting ANY task in Phase N+1, you MUST:**
 
-1. **Verify Phase N Complete**: All tasks show [✅] (no [ ] or [🔄])
+1. **Verify Phase N Complete**: All tasks show [✅] (no [ ] or [�])
 2. **Generate Phase SWOT Analysis**:
 
 ```markdown
-# 📊 Phase {N} Completion Analysis: {Phase Name}
+# � Phase {N} Completion Analysis: {Phase Name}
 
 ## SWOT Analysis
 
-### 💪 Strengths
+### � Strengths
 - [What went well, code quality wins, good patterns]
 
 ### ⚠️ Weaknesses  
 - [Areas needing improvement, technical debt, gaps]
 
-### 🚀 Opportunities
+### � Opportunities
 - [Improvements for next phase, optimizations]
 
-### 🔴 Threats
+### � Threats
 - [Risks carrying forward, dependencies, security]
 
 ## Code Quality Assessment
@@ -422,7 +537,7 @@ Shall I update these files? (yes/no/skip)
 4. **Prompt for Git Commit** after user approves:
 
 ```markdown
-## 📦 Phase {N} Git Commit
+## � Phase {N} Git Commit
 
 Phase approved! Suggested commit:
 
@@ -494,7 +609,7 @@ git tag phase-{N}-complete
 - **temp_scripts/**: Test scripts and utility files
 - **NEVER** place task migration files, conversion summaries, or temporary documentation in `.trent/`
 
-### 🚨 NO PERMISSION REQUIRED - Direct Edit Policy
+### � NO PERMISSION REQUIRED - Direct Edit Policy
 
 **CRITICAL FOR Cursor AI IDE:**
 
@@ -571,12 +686,12 @@ When initializing or updating the system, automatically create:
 ### Project Context Display
 When starting tasks, display:
 ```
-📋 PROJECT CONTEXT OVERVIEW
-🎯 Mission: [Brief mission from PROJECT_CONTEXT.md]
-📍 Current Phase: [Phase and focus area]
+� PROJECT CONTEXT OVERVIEW
+� Mission: [Brief mission from PROJECT_CONTEXT.md]
+� Current Phase: [Phase and focus area]
 ✅ Success Criteria: [Key objectives for current phase]
-🔄 Current Status: [Active tasks, progress, blockers]
-🛡️ Scope Boundaries: [Key limitations and approved complexity]
+� Current Status: [Active tasks, progress, blockers]
+�️ Scope Boundaries: [Key limitations and approved complexity]
 ```
 
 ### Context Optimization
@@ -668,7 +783,7 @@ When maintaining this template or adding new features, **ALWAYS** consult the `.
 - YAML frontmatter in task files
 - Markdown documentation
 - Standard file organization
-- Task status indicators ([ ], [📋], [🔄], [✅])
+- Task status indicators ([ ], [�], [�], [✅])
 
 ### Periodic Verification
 

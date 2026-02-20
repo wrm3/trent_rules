@@ -98,7 +98,7 @@ else:
 
 # Initialize FastMCP server
 mcp = FastMCP(
-    "trent_docker",
+    "trent_rules_docker",
     instructions="""
 Unified MCP Server - trent
 
@@ -194,7 +194,7 @@ async def trent_server_status() -> dict:
     return {
         'success': True,
         'status': 'healthy',
-        'server': 'trent_docker',
+        'server': 'trent_rules_docker',
         'version': '1.0.0',
         'transport': os.getenv('MCP_TRANSPORT', 'stdio'),
         'features': features,

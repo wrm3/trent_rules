@@ -1,5 +1,5 @@
-# trent_docker - Unified MCP Server
-# Combines RAG, Research, MediaWiki, Oracle, and Template Installation
+# trent_rules_docker - Unified MCP Server
+# Combines RAG, Research, MediaWiki, Oracle, Template Installation, and Video Analysis
 
 FROM python:3.11-slim
 
@@ -10,6 +10,8 @@ WORKDIR /app
 # - git: required for some pip installs
 # - libaio1t64: required for Oracle Instant Client thick mode
 # - unzip: for extracting Oracle Instant Client
+# - ffmpeg: for video frame extraction
+# - libgl1, libglib2.0-0: for OpenCV
 RUN apt-get update && apt-get install -y --no-install-recommends \
     build-essential \
     libpq-dev \
@@ -17,6 +19,9 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     git \
     unzip \
     libaio1t64 \
+    ffmpeg \
+    libgl1 \
+    libglib2.0-0 \
     && rm -rf /var/lib/apt/lists/*
 
 # Debian Trixie renamed libaio.so.1 -> libaio.so.1t64 (64-bit time_t transition)
@@ -48,11 +53,14 @@ RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
 COPY trent/ ./trent/
-COPY templates/ ./templates/
-COPY templates_full/ ./templates_full/
+
+# Templates are mounted at runtime via docker-compose volumes
+# from the project root templates/ and templates_full/ directories
+# Create placeholder dirs so the app doesn't error on startup
+RUN mkdir -p /app/templates /app/templates_full
 
 # Create necessary directories
-RUN mkdir -p /app/data /app/logs /app/research_output
+RUN mkdir -p /app/data /app/logs /app/research_output /app/cache /app/frames
 
 # Environment variables (can be overridden)
 ENV PYTHONUNBUFFERED=1

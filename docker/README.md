@@ -1,6 +1,6 @@
-# trent_docker
+# trent_rules_docker
 
-Unified MCP (Model Context Protocol) server providing RAG, research, MediaWiki, and template installation tools.
+Unified MCP (Model Context Protocol) server providing RAG, research, MediaWiki, video analysis, and template installation tools.
 
 ## Features
 
@@ -8,8 +8,11 @@ Unified MCP (Model Context Protocol) server providing RAG, research, MediaWiki, 
 |----------|-------|-------------|
 | **RAG** | `rag_search`, `rag_ingest_text`, `rag_list_sources`, `rag_stats` | Semantic search over knowledge bases using pgvector |
 | **Research** | `research_search`, `research_scrape`, `research_comprehensive`, `research_deep` | Web research via Perplexity/Google (NO DuckDuckGo) |
+| **Video** | `video_analyze`, `video_extract_frames`, `video_extract_transcript`, `video_batch_process` | YouTube/video analysis with AI vision |
 | **MediaWiki** | `mediawiki_page`, `mediawiki_search` | Wiki page CRUD and search |
-| **Template** | `template_install` | Install trent to new projects |
+| **Template** | `install_trent` | Install trent to new projects (from GitHub) |
+| **Oracle** | `oracle_query`, `oracle_execute` | Oracle database read/write operations |
+| **Utility** | `md_to_html` | Convert markdown to styled HTML |
 
 ---
 
@@ -83,7 +86,7 @@ docker-compose down -v
 **Services:**
 | Service | Port | Description |
 |---------|------|-------------|
-| `trent` | 8082 | MCP server (SSE transport) |
+| `trent` | 8082 | MCP server (SSE transport) - includes video analysis |
 | `postgres` | 5433 | PostgreSQL with pgvector |
 | `pgadmin` | 8083 | Database admin UI (optional) |
 
@@ -192,14 +195,14 @@ Add to MCP settings:
 | `POSTGRES_HOST` | PostgreSQL host | `localhost` or `postgres` |
 | `POSTGRES_PASSWORD` | Database password | `your_secure_password` |
 
-### Optional: Research APIs
+### Optional: Research & Video APIs
 
 | Variable | Description |
 |----------|-------------|
 | `PERPLEXITY_API_KEY` | Perplexity API (best for research) |
 | `GOOGLE_SEARCH_API_KEY` | Google Custom Search API |
 | `GOOGLE_SEARCH_ENGINE_ID` | Google Search Engine ID |
-| `ANTHROPIC_API_KEY` | Anthropic API (for summaries) |
+| `ANTHROPIC_API_KEY` | Anthropic API (for summaries and video vision analysis) |
 
 ### Optional: MediaWiki
 
@@ -208,6 +211,21 @@ Add to MCP settings:
 | `MEDIAWIKI_URL` | Wiki base URL |
 | `MEDIAWIKI_USERNAME` | Bot username |
 | `MEDIAWIKI_PASSWORD` | Bot password |
+
+### Optional: Oracle Database
+
+| Variable | Description |
+|----------|-------------|
+| `ORACLE_SRC_HOST` | Source Oracle host (read-only queries) |
+| `ORACLE_SRC_PORT` | Source Oracle port (default: 1521) |
+| `ORACLE_SRC_USER` | Source database username |
+| `ORACLE_SRC_PASSWORD` | Source database password |
+| `ORACLE_SRC_SERVICE` | Source service name |
+| `ORACLE_TGT_HOST` | Target Oracle host (write operations) |
+| `ORACLE_TGT_PORT` | Target Oracle port (default: 1521) |
+| `ORACLE_TGT_USER` | Target database username |
+| `ORACLE_TGT_PASSWORD` | Target database password |
+| `ORACLE_TGT_SERVICE` | Target service name |
 
 ---
 
@@ -260,16 +278,16 @@ docker-compose up -d
 
 ```bash
 # Connect to PostgreSQL
-docker exec -it trent_postgres psql -U trent -d rag_knowledge
+docker exec -it trent_rules_postgres psql -U trent -d rag_knowledge
 
 # Run SQL file
-docker exec -i trent_postgres psql -U trent -d rag_knowledge < your_script.sql
+docker exec -i trent_rules_postgres psql -U trent -d rag_knowledge < your_script.sql
 
 # Backup database
-docker exec trent_postgres pg_dump -U trent rag_knowledge > backup.sql
+docker exec trent_rules_postgres pg_dump -U trent rag_knowledge > backup.sql
 
 # Restore database
-docker exec -i trent_postgres psql -U trent -d rag_knowledge < backup.sql
+docker exec -i trent_rules_postgres psql -U trent -d rag_knowledge < backup.sql
 ```
 
 ### Reset Everything
@@ -301,7 +319,7 @@ Response:
 {
   "success": true,
   "status": "healthy",
-  "server": "trent_docker",
+  "server": "trent_rules_docker",
   "version": "2.0.0",
   "features": ["rag", "research", "template_installer"],
   "plugins": [...]
@@ -331,7 +349,7 @@ docker-compose logs trent
 docker-compose ps postgres
 
 # Test connection
-docker exec -it trent_postgres pg_isready -U trent
+docker exec -it trent_rules_postgres pg_isready -U trent
 
 # Check PostgreSQL logs
 docker-compose logs postgres
@@ -348,10 +366,10 @@ docker-compose logs postgres
 
 ```bash
 # Check if data exists
-docker exec -it trent_postgres psql -U trent -d rag_knowledge -c "SELECT COUNT(*) FROM sources;"
+docker exec -it trent_rules_postgres psql -U trent -d rag_knowledge -c "SELECT COUNT(*) FROM sources;"
 
 # Check embeddings exist
-docker exec -it trent_postgres psql -U trent -d rag_knowledge -c "SELECT COUNT(*) FROM content_chunks WHERE embedding IS NOT NULL;"
+docker exec -it trent_rules_postgres psql -U trent -d rag_knowledge -c "SELECT COUNT(*) FROM content_chunks WHERE embedding IS NOT NULL;"
 ```
 
 ---
@@ -359,7 +377,7 @@ docker exec -it trent_postgres psql -U trent -d rag_knowledge -c "SELECT COUNT(*
 ## File Structure
 
 ```
-trent_docker/
+trent_rules_docker/
 ├── docker-compose.yml      # Docker Compose configuration
 ├── Dockerfile              # Container build instructions
 ├── requirements.txt        # Python dependencies
@@ -387,7 +405,9 @@ trent_docker/
 │       ├── rag_*.py       # RAG tools
 │       ├── research_*.py  # Research tools
 │       ├── mediawiki_*.py # MediaWiki tools
-│       └── template_*.py  # Template tools
+│       ├── oracle_*.py    # Oracle database tools
+│       ├── install_*.py   # Template installation tools
+│       └── md_to_html.py  # Markdown to HTML converter
 │
 └── templates/             # Installation templates
 ```

@@ -1,7 +1,8 @@
 # agents.md - trent
 
-> **AI Development System for Cursor IDE**  
+> **AI Development System for Cursor IDE & Claude Code**
 > This file follows the agents.md format for AI agent instructions.
+> Compatible with both Cursor (`.cursor/`) and Claude Code (`.claude/`).
 
 ---
 
@@ -9,14 +10,15 @@
 
 **trent** - A comprehensive AI-powered development system
 
-**Purpose**: Provide a unified development environment for Cursor IDE with extensive agent capabilities, skills, and task management.
+**Purpose**: Provide a unified development environment for **Cursor IDE** and **Claude Code** with extensive agent capabilities, skills, and task management.
 
 **Core Features**:
 - **Task Management**: Create, track, and complete tasks with status tracking
 - **Project Planning**: PRD creation, feature specifications, scope management
 - **Quality Assurance**: Bug tracking, severity classification, resolution tracking
-- **Specialized Agents**: 18+ agents for different development roles
-- **Development Skills**: 25+ skills covering databases, DevOps, research, and more
+- **Specialized Agents**: 50+ agents for different development roles
+- **Development Skills**: 49+ skills covering databases, DevOps, research, and more
+- **Dual IDE Support**: Full parity between `.cursor/` and `.claude/` configurations
 
 ---
 
@@ -33,20 +35,29 @@
 └── templates/                 # Task/plan templates
 
 .cursor/                       # Cursor IDE configuration
-├── skills/                    # 35+ AI Skills
-├── agents/                    # 25+ Specialized agents
+├── skills/                    # 49+ AI Skills
+├── agents/                    # 52+ Specialized agents
 │   └── sdk/                   # Agent SDK & primitives
 ├── rules/                     # .mdc format rules (trent core: 10-19)
-├── commands/                  # 19 @trent-* commands
+├── commands/                  # 25 @trent-* and @sv-* commands
 └── hooks/                     # PowerShell automation hooks
 
-.claude/                       # Claude Code configuration
+.claude/                       # Claude Code configuration (parity with .cursor/)
+├── skills/                    # 49+ AI Skills (same as .cursor/)
+├── agents/                    # 52+ Specialized agents (same as .cursor/)
+├── rules/                     # .md format rules (same content, .md extension)
+├── commands/                  # 25 /trent-* and /sv-* commands
+├── hooks/                     # PowerShell automation hooks
+├── hooks.json                 # Hook event configuration
 └── settings.local.json        # MCP and permissions config
 
 docker/                        # MCP Server (Docker)
 ├── trent/                     # Main server code + plugins
 ├── fstrent_mcp_video_analyzer/ # Video analysis MCP
-└── templates*/                # Installation templates
+└── docker-compose.yml
+
+templates/                     # Install templates (trent-only, canonical source)
+templates_full/                # Full install templates (all skills/agents)
 
 docs/                          # Project documentation
 ```
@@ -69,6 +80,7 @@ docs/                          # Project documentation
 
 | Agent | Description | Best For |
 |-------|-------------|----------|
+| `cloud-engineer` | Cloud architecture and services | Cloud infrastructure |
 | `devops-engineer` | CI/CD, infrastructure as code | Deployment automation |
 | `docker-specialist` | Containerization, Docker Compose | Container optimization |
 | `kubernetes-specialist` | K8s cluster management, Helm | Kubernetes operations |
@@ -90,12 +102,23 @@ docs/                          # Project documentation
 
 | Agent | Description | Best For |
 |-------|-------------|----------|
-| `technical-writer` | Documentation, API docs | Technical documentation |
 | `orchestrator` | Multi-agent coordination | Complex multi-agent tasks |
+| `agent-creator` | Create new agent definitions | Meta/system |
+| `skill-creator` | Create new skill definitions | Meta/system |
+| `trent-project-initializer` | Project setup | Scaffolding |
 | `trent-task-expander` | Task breakdown, complexity assessment | Task decomposition |
 | `codebase-analyst` | Deep merge your own projects | Project integration |
 | `harvest-analyst` | Harvest ideas from external sources | Selective improvements |
+| `claude-cli` | Claude CLI operations | IDE automation |
+| `cursor-cli` | Cursor CLI operations | IDE automation |
+| `accounting-finance-specialist` | Financial operations | Accounting |
+| `mlops-engineer` | ML operations | ML pipelines |
+| `sales-marketing-specialist` | Sales and marketing | Go-to-market |
 | `silicon-valley-superfan` | HBO Silicon Valley expert | Show trivia and references |
+| `startup-formation-specialist` | Business formation | Entity setup |
+| `startup-operations-specialist` | Operations | Business ops |
+| `technical-writer` | Documentation, API docs | Technical documentation |
+| `video-producer` | Video production | Media content |
 
 ---
 
@@ -112,18 +135,32 @@ docs/                          # Project documentation
 
 ### Research & Documentation
 - `research-methodology` - Systematic research approaches
+- `deep-research` - Comprehensive research with analysis
 
 ### Integration & Tools
 - `github-integration` - GitHub workflows and automation
 - `atlassian-integration` - Jira/Confluence integration
 - `web-tools` - Web browsing and search
 - `mcp-builder` - MCP server development
+- `rag-mcp-server` - RAG knowledge base integration
 
 ### Business & Startup
 - `startup-resource-access` - Grants, accelerators, resources
 - `startup-vc-fundraising` - Fundraising and pitch decks
 - `startup-product-development` - Product development lifecycle
 - `patent-filing-ai` - Patent documentation assistance
+
+### DevOps & Infrastructure
+- `cicd-pipelines` - CI/CD pipeline creation and management
+- `cloud-engineering` - Cloud architecture and IaC
+- `kubernetes-operations` - K8s cluster management
+- `portainer-management` - Container management UI
+
+### Document Skills
+- `document-skills/docx` - Word document creation and editing
+- `document-skills/pdf` - PDF manipulation and analysis
+- `document-skills/pptx` - Presentation creation
+- `document-skills/xlsx` - Spreadsheet operations
 
 ### Codebase Analysis
 - `codebase-integration-analysis` - Deep project merging and architecture mapping
@@ -132,9 +169,24 @@ docs/                          # Project documentation
 ### Utilities
 - `project-setup` - Project initialization
 - `skill-creator` - Create new skills
+- `agent-creator` - Create new agent definitions
 - `template-skill` - Skill creation template
 - `internal-comms` - Internal communications
+- `computer-use-agent` - Desktop automation
+- `artifacts-builder` - Complex HTML artifact creation
+- `automatic-rag-checking` - Automatic RAG validation
 - `silicon-valley-superfan` - HBO Silicon Valley knowledge base
+
+---
+
+## MCP Tools (Docker Server)
+
+| Tool | Description |
+|------|-------------|
+| `oracle_query` | Read-only SQL on Oracle (SELECT, DESCRIBE) |
+| `oracle_execute` | Write SQL on Oracle (INSERT, UPDATE, DDL) |
+| `md_to_html` | Convert markdown to styled HTML |
+| `trent_server_status` | Health check |
 
 ---
 
@@ -218,19 +270,20 @@ Commands use the `trent-` prefix.
 | `trent-plan` | Create PRD and project planning |
 | `trent-qa` | Quality assurance activation |
 | `trent-qa-report` | Generate quality metrics |
+| `trent-plan` | Create PRD and project planning |
 | `trent-review` | Comprehensive code review |
 | `trent-setup` | Initialize trent system |
 | `trent-status` | Project status overview |
 | `trent-task-new` | Create a new task |
-| `trent-task-update` | Update task status |
 | `trent-task-sync-check` | Validate task synchronization |
+| `trent-task-update` | Update task status |
 | `trent-workflow` | Task expansion, sprint planning |
 | `trent-analyze-codebase` | Deep merge your own projects |
 | `trent-harvest` | Harvest ideas from external sources |
 
 ### Usage
-- **Cursor**: `@trent-setup`, `@trent-task-new`, etc.
-- **Claude Code**: Commands work via CLAUDE.md context
+- **Cursor**: `@trent-setup`, `@trent-task-new`, etc. (commands in `.cursor/commands/`)
+- **Claude Code**: `/trent-setup`, `/trent-task-new`, etc. (commands in `.claude/commands/`)
 
 ---
 
@@ -259,17 +312,8 @@ Commands use the `trent-` prefix.
 ### File Location Rules
 
 - **docs/** - All documentation except core planning
-- **Project root** - Only README.md, LICENSE, CHANGELOG.md, agents.md
+- **Project root** - Only README.md, LICENSE, CHANGELOG.md, AGENTS.md, CLAUDE.md
 - **.trent/** - Only core planning documents
-
----
-
-## 🔒 Security
-
-- Never commit API keys, tokens, or passwords
-- Use environment variables for secrets
-- Always use parameterized queries for databases
-- Validate all user input
 
 ---
 
@@ -295,10 +339,21 @@ Commands use the `trent-` prefix.
 
 <!-- NOTE: This is the SOURCE REPOSITORY for trent -->
 <!-- The entire file documents the trent system itself -->
-<!-- For projects USING trent, see docker/templates/agents.md -->
+<!-- For projects USING trent, templates are in /templates/ and /templates_full/ -->
+<!-- Both .cursor/ and .claude/ directories maintain full parity -->
 
 ---
 
-**Version**: 4.0.0  
-**Last Updated**: 2026-02-16  
-**Supported IDEs**: Cursor, Claude Code
+## 🔒 Security
+
+- Never commit API keys, tokens, or passwords
+- Use environment variables for secrets
+- Always use parameterized queries for databases
+- Validate all user input
+
+---
+
+**Version**: 4.1.0
+**Last Updated**: 2026-02-19
+**Supported IDEs**: Cursor IDE (`.cursor/`), Claude Code (`.claude/`)
+**Platform Parity**: Agents, skills, commands, and hooks are identical between both IDEs

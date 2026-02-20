@@ -13,7 +13,7 @@ import logging
 logger = logging.getLogger(__name__)
 
 # Default secrets file location (Windows path)
-DEFAULT_SECRETS_PATH = Path(r"C:\secrets\trent_docker.env")
+DEFAULT_SECRETS_PATH = Path(r"C:\secrets\trent_rules_docker.env")
 
 # Allow override via environment variable for multi-project isolation
 SECRETS_PATH = Path(os.getenv('trent_ENV_PATH', str(DEFAULT_SECRETS_PATH)))
@@ -33,7 +33,7 @@ def load_config() -> dict:
     Load configuration from secrets file or local .env.
 
     Priority:
-    1. C:\\secrets\\trent_docker.env (Docker deployment)
+    1. C:\\secrets\\trent_rules_docker.env (Docker deployment)
     2. Local .env file (development)
     3. Environment variables already set
 

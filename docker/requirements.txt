@@ -1,4 +1,4 @@
-# trent_docker - Python Dependencies
+# trent_rules_docker - Python Dependencies
 # Unified MCP Server: RAG, Research, MediaWiki, Template Installation
 
 # ==============================================================
@@ -53,3 +53,11 @@ markdown>=3.5
 # Template Installer Utilities
 # ==============================================================
 platformdirs>=4.0.0
+
+# ==============================================================
+# Video Analyzer Tools
+# ==============================================================
+yt-dlp>=2024.1.0
+opencv-python-headless>=4.8.0
+Pillow>=10.0.0
+aiofiles>=23.0.0

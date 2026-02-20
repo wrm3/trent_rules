@@ -1,10 +1,56 @@
 {
-  "enableAllProjectMcpServers": true,
-  "enabledMcpjsonServers": [
-    "trent"
-  ],
-  "defaultMode": "bypassPermissions",
   "env": {
     "CLAUDE_CODE_EXPERIMENTAL_AGENTS_TEAMS": "true"
-  }
+  },
+  "permissions": {
+    "allow": [
+      "Bash(claude mcp add:*)",
+      "Bash(claude mcp list:*)",
+      "Bash(claude mcp get:*)",
+      "Bash(claude mcp remove:*)",
+      "Bash(where:*)",
+      "Bash(echo:*)",
+      "Bash(dir:*)",
+      "Bash(ls:*)",
+      "Bash(npx tsc:*)",
+      "Bash(python -c:*)",
+      "Bash(python3:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git checkout:*)",
+      "Bash(powershell -Command:*)",
+      "Bash(powershell -ExecutionPolicy Bypass:*)",
+      "mcp__blender__get_scene_info",
+      "mcp__blender__execute_blender_code",
+      "mcp__blender__get_hyper3d_status",
+      "mcp__blender__get_sketchfab_status",
+      "mcp__blender__get_polyhaven_status",
+      "mcp__blender__search_sketchfab_models",
+      "mcp__blender__get_sketchfab_model_preview",
+      "mcp__blender__generate_hyper3d_model_via_text",
+      "mcp__blender__poll_rodin_job_status",
+      "mcp__blender__import_generated_asset",
+      "mcp__blender__get_viewport_screenshot",
+      "mcp__blender__get_hunyuan3d_status",
+      "mcp__blender__download_sketchfab_model",
+      "mcp__blender__generate_hyper3d_model_via_images",
+      "mcp__elevenlabs__check_subscription",
+      "mcp__elevenlabs__list_models",
+      "mcp__elevenlabs__search_voices",
+      "mcp__elevenlabs__search_voice_library",
+      "mcp__elevenlabs__text_to_voice",
+      "mcp__elevenlabs__create_voice_from_preview",
+      "Bash(docker compose build:*)",
+      "Bash(docker compose up:*)",
+      "Bash(docker ps:*)",
+      "Bash(docker stop:*)",
+      "Bash(docker rm:*)"
+    ]
+  },
+  "enableAllProjectMcpServers": true,
+  "enabledMcpjsonServers": [
+    "trent_rules_docker",
+    "blender"
+  ],
+  "defaultMode": "bypassPermissions"
 }

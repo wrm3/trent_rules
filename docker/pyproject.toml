@@ -1,5 +1,5 @@
 [project]
-name = "trent_docker"
+name = "trent_rules_docker"
 version = "2.0.0"
 description = "Unified MCP Server: RAG, Research, MediaWiki, and Template Installation"
 readme = "README.md"

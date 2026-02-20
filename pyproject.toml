@@ -1,7 +1,7 @@
 [project]
-name = "fstrent-trent"
+name = "trent_rules"
 version = "1.1.0"
-description = "AI development framework with task management for Cursor IDE"
+description = "AI development framework with task management for Cursor IDE & Claude Code"
 readme = "README.md"
 license = { text = "MIT" }
 requires-python = ">=3.10"

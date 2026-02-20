@@ -1,4 +1,4 @@
-# CLAUDE.md - trent
+# CLAUDE.md - trent 
 
 ## Project Overview
 trent is a comprehensive AI-powered task management and development system for Cursor IDE and Claude Code. It provides structured task tracking, project planning, quality assurance, and workflow management through a file-based system with enforced synchronization.
@@ -35,6 +35,7 @@ docker/                 # MCP server (Docker)
 ├── trent/              # Main MCP server code
 ├── fstrent_mcp_video_analyzer/  # Video analysis MCP
 └── templates*/         # Installation templates
+└── docker-compose.yml
 
 docs/                   # Project documentation
 temp_scripts/           # Test and utility scripts
@@ -46,13 +47,13 @@ temp_scripts/           # Test and utility scripts
 cd docker && docker-compose up -d
 
 # Check MCP server status
-docker ps | grep trent
+docker ps | grep trent_rules_docker
 
 # View MCP logs
-docker logs trent -f
+docker logs trent_rules_docker -f
 
 # Rebuild after changes
-cd docker && docker-compose up -d --build trent
+cd docker && docker-compose up -d --build trent_rules_docker
 ```
 
 ## MCP Tools Available
@@ -71,6 +72,7 @@ cd docker && docker-compose up -d --build trent
 | `md_to_html` | Convert markdown to HTML |
 | `video_analyze` | Full YouTube video analysis |
 | `video_extract_transcript` | Extract video transcripts |
+| `trent_server_status` | Health check |
 
 ---
 
@@ -87,9 +89,9 @@ Tools: Shell, Read, StrReplace
 ```
 
 **File Size Warnings:**
-- 800+ lines: Suggest refactoring
-- 900+ lines: Insist on refactoring  
-- 1000+ lines: Strongly insist on refactoring
+- 1000+ lines: Suggest refactoring
+- 1100+ lines: Insist on refactoring  
+- 1500+ lines: Strongly insist on refactoring
 
 **Python Projects:** Always use UV for virtual environment management
 
@@ -127,7 +129,7 @@ WRONG:   [ ] → [🔄]  (VIOLATION - no file created!)
 1. Create detailed task file in `.trent/tasks/`
 2. Include YAML frontmatter
 3. Complete all required sections
-4. File naming: `taskXXX_description.md` (NO underscore after "task")
+4. File naming: `task{phase_nbrXX}{task_nbrXX}[.{subtaskXX}]_{task_description}.md` (NO underscore after "task")
 
 ### Phase-Based Task Numbering
 | Phase | Task ID Range | Purpose |
@@ -446,6 +448,25 @@ Use markers to protect trent-managed sections:
 <!-- END TRENT SYSTEM SECTION -->
 ```
 
+
+## Scope Validation Questions
+
+Before creating any PRD, ask:
+
+1. **User Context**: Personal use, small team, or broader deployment?
+2. **Security Requirements**: Minimal, standard, enhanced, or enterprise?
+3. **Scalability**: Basic, moderate, high, or enterprise?
+4. **Feature Complexity**: Minimal, standard, feature-rich, or enterprise?
+5. **Integration Needs**: Standalone, basic, standard, or enterprise?
+
+### Over-Engineering Prevention
+- **Authentication**: Don't add role permissions unless requested
+- **Database**: Use simple file-based unless DB explicitly requested
+- **API**: Don't add comprehensive REST beyond required
+- **Architecture**: Default monolith unless scale requires separation
+
+---
+
 ### Update Triggers
 **Update agents.md when:**
 - New MCP tools added
@@ -603,13 +624,42 @@ When you identify issues with the trent system:
 ```
 
 ---
-
 ## Security
+
 - Never commit API keys, tokens, or passwords
-- Use environment variables for secrets
-- Always use parameterized queries for databases
 - Oracle credentials passed per-query (not stored)
+- Use environment variables for secrets
+- Always use parameterized queries
 - Validate all user input
+
+---
+
+## Important Notes
+- **Direct Edit Policy**: Edit `.trent/` files without asking permission
+- **Atomic Updates**: Always update TASKS.md AND task files together
+- **Phase IDs**: Phase N uses task IDs N*100 to N*100+99
+- **No API Keys Required**: MCP server needs no external API keys
+- **Oracle credentials**: Passed per-query via tool parameters
+
+---
+
+<!-- TRENT SYSTEM CONTEXT - DO NOT EDIT MANUALLY -->
+## Task Management (Trent)
+
+This project uses trent for task management. Key points:
+
+- **Task data**: `.trent/` folder contains all task files
+- **Master list**: `.trent/TASKS.md` is the source of truth
+- **Status flow**: [ ] -> [�] -> [�] -> [✅]
+- **Phase IDs**: Phase N uses task IDs N*100 to N*100+99
+- **Direct edits**: Edit `.trent/` files without asking permission
+- **Sync required**: Always update both TASKS.md and task files together
+
+When working on tasks:
+1. Check `.trent/TASKS.md` for current status
+2. Read task file in `.trent/tasks/` for details
+3. Update both files atomically when changing status
+<!-- END TRENT SYSTEM CONTEXT -->
 
 ---
 

@@ -8,7 +8,7 @@ The trent system uses Windows-safe emojis for task status indicators. This docum
 
 ### The Problem
 Many emojis don't render correctly on Windows systems, appearing as:
-- Empty boxes (□)
+- Empty boxes (Γûí)
 - Question marks (?)
 - Garbled characters
 - Missing symbols
@@ -29,16 +29,16 @@ Use a carefully selected set of emojis that:
 
 ## Status Indicator Emojis
 
-### ✅ Completed (✅)
+### Γ£à Completed (Γ£à)
 - **Unicode**: U+2705
 - **Name**: White Heavy Check Mark
 - **Usage**: Task successfully completed
-- **Windows Support**: ✅ Excellent
-- **Alternatives**: ☑️ (U+2611), ✔️ (U+2714)
+- **Windows Support**: Γ£à Excellent
+- **Alternatives**: Γÿæ∩╕Å (U+2611), Γ£ö∩╕Å (U+2714)
 
 **Example:**
 ```markdown
-- [✅] Task 001: Implement user authentication
+- [Γ£à] Task 001: Implement user authentication
 ```
 
 **Why This Emoji:**
@@ -47,16 +47,16 @@ Use a carefully selected set of emojis that:
 - Clear visual distinction from pending
 - Green color conveys success
 
-### 🔄 In Progress (🔄)
+### ≡ƒöä In Progress (≡ƒöä)
 - **Unicode**: U+1F504
 - **Name**: Counterclockwise Arrows Button
 - **Usage**: Task currently being worked on
-- **Windows Support**: ✅ Excellent
-- **Alternatives**: ⟳ (U+27F3), ↻ (U+21BB)
+- **Windows Support**: Γ£à Excellent
+- **Alternatives**: Γƒ│ (U+27F3), Γå╗ (U+21BB)
 
 **Example:**
 ```markdown
-- [🔄] Task 002: Create fstrent-planning Skill
+- [≡ƒöä] Task 002: Create fstrent-planning Skill
 ```
 
 **Why This Emoji:**
@@ -65,16 +65,16 @@ Use a carefully selected set of emojis that:
 - Blue color indicates active state
 - Distinct from completed/pending
 
-### ❌ Failed (❌)
+### Γ¥î Failed (Γ¥î)
 - **Unicode**: U+274C
 - **Name**: Cross Mark
 - **Usage**: Task attempted but failed
-- **Windows Support**: ✅ Excellent
-- **Alternatives**: ✖️ (U+2716), ⨯ (U+2A2F)
+- **Windows Support**: Γ£à Excellent
+- **Alternatives**: Γ£û∩╕Å (U+2716), Γ¿» (U+2A2F)
 
 **Example:**
 ```markdown
-- [❌] Task 003: Deploy to production
+- [Γ¥î] Task 003: Deploy to production
 ```
 
 **Why This Emoji:**
@@ -87,8 +87,8 @@ Use a carefully selected set of emojis that:
 - **Unicode**: N/A (ASCII characters)
 - **Name**: Empty Checkbox
 - **Usage**: Task not yet started
-- **Windows Support**: ✅ Perfect (ASCII)
-- **Alternatives**: ☐ (U+2610)
+- **Windows Support**: Γ£à Perfect (ASCII)
+- **Alternatives**: ΓÿÉ (U+2610)
 
 **Example:**
 ```markdown
@@ -103,41 +103,41 @@ Use a carefully selected set of emojis that:
 
 ## Additional Emojis Used
 
-### 🔵 Blue Circle
+### ≡ƒö╡ Blue Circle
 - **Unicode**: U+1F535
 - **Usage**: Information, neutral status
-- **Windows Support**: ✅ Excellent
+- **Windows Support**: Γ£à Excellent
 
-### 🟢 Green Circle
+### ≡ƒƒó Green Circle
 - **Unicode**: U+1F7E2
 - **Usage**: Success, healthy status
-- **Windows Support**: ✅ Good (Windows 10+)
+- **Windows Support**: Γ£à Good (Windows 10+)
 
-### 🔴 Red Circle
+### ≡ƒö┤ Red Circle
 - **Unicode**: U+1F534
 - **Usage**: Error, critical status
-- **Windows Support**: ✅ Excellent
+- **Windows Support**: Γ£à Excellent
 
-### ⚠️ Warning Sign
+### ΓÜá∩╕Å Warning Sign
 - **Unicode**: U+26A0
 - **Name**: Warning Sign
 - **Usage**: Caution, attention needed
-- **Windows Support**: ✅ Excellent
+- **Windows Support**: Γ£à Excellent
 
 ## Emojis to AVOID
 
-### ❌ Don't Use These on Windows
+### Γ¥î Don't Use These on Windows
 
 | Emoji | Issue | Windows Display |
 |-------|-------|-----------------|
-| 🚀 | Rocket | May show as box |
-| 💡 | Light Bulb | Inconsistent rendering |
-| 🎯 | Dart | May not display |
-| 📝 | Memo | Can appear garbled |
-| 🔧 | Wrench | Unreliable on older Windows |
-| 🐛 | Bug | May show as box |
-| 🎉 | Party Popper | Inconsistent |
-| 👍 | Thumbs Up | May not render |
+| ≡ƒÜÇ | Rocket | May show as box |
+| ≡ƒÆí | Light Bulb | Inconsistent rendering |
+| ≡ƒÄ» | Dart | May not display |
+| ≡ƒô¥ | Memo | Can appear garbled |
+| ≡ƒöº | Wrench | Unreliable on older Windows |
+| ≡ƒÉ¢ | Bug | May show as box |
+| ≡ƒÄë | Party Popper | Inconsistent |
+| ≡ƒæì | Thumbs Up | May not render |
 
 **Why They Fail:**
 - Require newer emoji fonts
@@ -155,9 +155,9 @@ Use a carefully selected set of emojis that:
 
 ## Active Tasks
 - [ ] Task 001: Implement feature
-- [🔄] Task 002: Fix bug
-- [✅] Task 003: Write documentation
-- [❌] Task 004: Deploy to staging
+- [≡ƒöä] Task 002: Fix bug
+- [Γ£à] Task 003: Write documentation
+- [Γ¥î] Task 004: Deploy to staging
 ```
 
 **Incorrect:**
@@ -165,10 +165,10 @@ Use a carefully selected set of emojis that:
 # Project Tasks
 
 ## Active Tasks
-- 🚀 Task 001: Implement feature  # Don't use rocket
-- ⏳ Task 002: Fix bug  # Hourglass may not render
-- 👍 Task 003: Write documentation  # Thumbs up unreliable
-- 💥 Task 004: Deploy to staging  # Explosion may fail
+- ≡ƒÜÇ Task 001: Implement feature  # Don't use rocket
+- ΓÅ│ Task 002: Fix bug  # Hourglass may not render
+- ≡ƒæì Task 003: Write documentation  # Thumbs up unreliable
+- ≡ƒÆÑ Task 004: Deploy to staging  # Explosion may fail
 ```
 
 ### In Task Files
@@ -184,11 +184,11 @@ status: failed
 **Markdown Content:**
 ```markdown
 ## Status
-Current status: 🔄 In Progress
+Current status: ≡ƒöä In Progress
 
 ## Acceptance Criteria
-- [✅] Completed criterion
-- [🔄] In progress criterion
+- [Γ£à] Completed criterion
+- [≡ƒöä] In progress criterion
 - [ ] Pending criterion
 ```
 
@@ -196,7 +196,7 @@ Current status: 🔄 In Progress
 
 **Good:**
 ```
-✅ Task 001: Complete user authentication
+Γ£à Task 001: Complete user authentication
 
 - Implemented login/logout
 - Added session management
@@ -205,19 +205,19 @@ Current status: 🔄 In Progress
 
 **Avoid:**
 ```
-🚀 Task 001: Launch user authentication  # Rocket may not show
+≡ƒÜÇ Task 001: Launch user authentication  # Rocket may not show
 
-- Implemented login/logout 💪  # Muscle emoji unreliable
-- Added session management 🔥  # Fire emoji may fail
-- Tests passing 🎉  # Party popper inconsistent
+- Implemented login/logout ≡ƒÆ¬  # Muscle emoji unreliable
+- Added session management ≡ƒöÑ  # Fire emoji may fail
+- Tests passing ≡ƒÄë  # Party popper inconsistent
 ```
 
 ## Platform Compatibility
 
 ### Windows 10/11
-- ✅ All recommended emojis work
-- 🔄 Renders correctly in terminals
-- ❌ Displays properly in Git
+- Γ£à All recommended emojis work
+- ≡ƒöä Renders correctly in terminals
+- Γ¥î Displays properly in Git
 - [ ] ASCII always works
 
 ### Windows Terminal
@@ -293,15 +293,15 @@ Create a test file and check if emojis render:
 
 Status Indicators:
 - [ ] Pending (ASCII)
-- [🔄] In Progress
-- [✅] Completed
-- [❌] Failed
+- [≡ƒöä] In Progress
+- [Γ£à] Completed
+- [Γ¥î] Failed
 
 Additional:
-- 🔵 Blue Circle
-- 🟢 Green Circle
-- 🔴 Red Circle
-- ⚠️ Warning
+- ≡ƒö╡ Blue Circle
+- ≡ƒƒó Green Circle
+- ≡ƒö┤ Red Circle
+- ΓÜá∩╕Å Warning
 ```
 
 **Expected Result:**
@@ -363,28 +363,28 @@ Additional:
 Task Status Emojis (Windows-Safe):
 
 [ ]  Pending      - Not started
-[🔄] In Progress  - Currently working
-[✅] Completed    - Successfully done
-[❌] Failed       - Attempted but failed
+[≡ƒöä] In Progress  - Currently working
+[Γ£à] Completed    - Successfully done
+[Γ¥î] Failed       - Attempted but failed
 
 Additional:
-🔵 Info/Neutral
-🟢 Success/Healthy
-🔴 Error/Critical
-⚠️ Warning/Caution
+≡ƒö╡ Info/Neutral
+≡ƒƒó Success/Healthy
+≡ƒö┤ Error/Critical
+ΓÜá∩╕Å Warning/Caution
 
-AVOID: 🚀 💡 🎯 📝 🔧 🐛 🎉 👍
+AVOID: ≡ƒÜÇ ≡ƒÆí ≡ƒÄ» ≡ƒô¥ ≡ƒöº ≡ƒÉ¢ ≡ƒÄë ≡ƒæì
 (These may not render on Windows)
 ```
 
 ## Summary
 
 The trent system uses a carefully curated set of Windows-safe emojis that:
-- ✅ Render correctly on all Windows versions
-- ✅ Display properly in terminals and IDEs
-- ✅ Work reliably in Git
-- ✅ Provide clear visual indicators
-- ✅ Are universally understood
+- Γ£à Render correctly on all Windows versions
+- Γ£à Display properly in terminals and IDEs
+- Γ£à Work reliably in Git
+- Γ£à Provide clear visual indicators
+- Γ£à Are universally understood
 
 Stick to the recommended emoji set for the best cross-platform experience.
 

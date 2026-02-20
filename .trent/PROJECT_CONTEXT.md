@@ -1,7 +1,7 @@
 # Project Context: trent MCP Consolidation
 
 ## Mission
-Consolidate multiple standalone MCP servers into a unified `trent_docker` server with modular plugin architecture, providing RAG, database, research, and template installation capabilities.
+Consolidate multiple standalone MCP servers into a unified `trent_rules_docker` server with modular plugin architecture, providing RAG, database, research, and template installation capabilities.
 
 ## Current Phase
 **Phase 0: Setup & Infrastructure**
@@ -11,7 +11,7 @@ Building the unified MCP server from fstrent_mcp_rag_docker base, integrating to
 ## Success Criteria
 
 ### Primary Objectives
-- [🔄] Rename and restructure fstrent_mcp_rag_docker to trent_docker
+- [🔄] Rename and restructure fstrent_mcp_rag_docker to trent_rules_docker
 - [ ] Integrate Oracle database tools (thick client support)
 - [ ] Integrate deep research tools (NO DuckDuckGo)
 - [ ] Integrate MediaWiki tools
@@ -40,7 +40,7 @@ Building the unified MCP server from fstrent_mcp_rag_docker base, integrating to
 - Task tracking initialized
 
 ### Upcoming
-- Create trent_docker folder structure
+- Create trent_rules_docker folder structure
 - Migrate RAG core components
 - Add Oracle tools plugin
 - Add research tools plugin (no DuckDuckGo)
@@ -102,7 +102,7 @@ Building the unified MCP server from fstrent_mcp_rag_docker base, integrating to
 ## Next Steps
 
 ### Immediate
-1. Create trent_docker folder structure
+1. Create trent_rules_docker folder structure
 2. Copy and rename RAG core from fstrent_mcp_rag_docker
 3. Create task files for each integration step
 4. Begin tool migrations

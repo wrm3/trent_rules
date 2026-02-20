@@ -95,16 +95,10 @@ INSTALL_MANIFEST = [
     '.env.example',
     'mcp.txt',
 
-    # ── .trent (remapped) ─────────────────────────────────────────────────────
-    # Source: .trent_template/ (blank templates, not this repo's live task data)
-    # Dest:   .trent/  in the target project
-    # Exclude .trent_template/templates/ — that subfolder is for internal use only
-    (
-        '.trent_template',
-        '.trent',
-        '.trent_template',
-        ['.trent_template/templates'],
-    ),
+    # ── .trent (simple copy) ──────────────────────────────────────────────────
+    # .trent/ in this repo IS the template — blank root files, empty tasks/phases,
+    # examples/ and reference/ included, no live task data, no templates/ subfolder.
+    '.trent',
 ]
 
 # Files that should be merged (trent section updated, other content preserved)

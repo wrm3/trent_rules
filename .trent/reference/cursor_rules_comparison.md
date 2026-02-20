@@ -60,8 +60,8 @@ dependencies: []
 
 ## Phase 0: Setup & Infrastructure
 - [ ] Task 001: Task Title
-- [🔄] Task 002: In Progress Task
-- [✅] Task 003: Completed Task
+- [≡ƒöä] Task 002: In Progress Task
+- [Γ£à] Task 003: Completed Task
 ```
 
 ## Task Management Workflow
@@ -80,62 +80,62 @@ dependencies: []
 ### Updating Task Status
 1. User: "Mark task 001 as in-progress"
 2. Updates task file status field
-3. Updates TASKS.md emoji to `[🔄]`
+3. Updates TASKS.md emoji to `[≡ƒöä]`
 
 ## Directory Structure
 
 ```
 .cursor/
-├── commands/
-│   ├── trent-setup.md
-│   ├── trent-plan.md
-│   ├── trent-task-new.md
-│   └── ... (15 total trent-* commands)
-├── rules/
-│   └── trent/
-│       └── rules/
-│           ├── _index.mdc
-│           ├── rules.mdc
-│           ├── plans.mdc
-│           ├── qa.mdc
-│           └── workflow.mdc
-├── skills/
-│   ├── trent-task-management/
-│   │   ├── SKILL.md
-│   │   └── reference/
-│   ├── trent-planning/
-│   │   ├── SKILL.md
-│   │   └── reference/
-│   └── trent-qa/
-│       ├── SKILL.md
-│       └── reference/
-└── agents/
-    └── trent-task-expander.md
+Γö£ΓöÇΓöÇ commands/
+Γöé   Γö£ΓöÇΓöÇ trent-setup.md
+Γöé   Γö£ΓöÇΓöÇ trent-plan.md
+Γöé   Γö£ΓöÇΓöÇ trent-task-new.md
+Γöé   ΓööΓöÇΓöÇ ... (15 total trent-* commands)
+Γö£ΓöÇΓöÇ rules/
+Γöé   ΓööΓöÇΓöÇ trent/
+Γöé       ΓööΓöÇΓöÇ rules/
+Γöé           Γö£ΓöÇΓöÇ _index.mdc
+Γöé           Γö£ΓöÇΓöÇ rules.mdc
+Γöé           Γö£ΓöÇΓöÇ plans.mdc
+Γöé           Γö£ΓöÇΓöÇ qa.mdc
+Γöé           ΓööΓöÇΓöÇ workflow.mdc
+Γö£ΓöÇΓöÇ skills/
+Γöé   Γö£ΓöÇΓöÇ trent-task-management/
+Γöé   Γöé   Γö£ΓöÇΓöÇ SKILL.md
+Γöé   Γöé   ΓööΓöÇΓöÇ reference/
+Γöé   Γö£ΓöÇΓöÇ trent-planning/
+Γöé   Γöé   Γö£ΓöÇΓöÇ SKILL.md
+Γöé   Γöé   ΓööΓöÇΓöÇ reference/
+Γöé   ΓööΓöÇΓöÇ trent-qa/
+Γöé       Γö£ΓöÇΓöÇ SKILL.md
+Γöé       ΓööΓöÇΓöÇ reference/
+ΓööΓöÇΓöÇ agents/
+    ΓööΓöÇΓöÇ trent-task-expander.md
 
 .trent/
-├── PLAN.md
-├── TASKS.md
-├── PROJECT_CONTEXT.md
-├── tasks/
-│   └── taskXXX_description.md
-└── phases/
-    └── phaseN_name.md
+Γö£ΓöÇΓöÇ PLAN.md
+Γö£ΓöÇΓöÇ TASKS.md
+Γö£ΓöÇΓöÇ PROJECT_CONTEXT.md
+Γö£ΓöÇΓöÇ tasks/
+Γöé   ΓööΓöÇΓöÇ taskXXX_description.md
+ΓööΓöÇΓöÇ phases/
+    ΓööΓöÇΓöÇ phaseN_name.md
 ```
 
 ## Feature Matrix
 
 | Feature | Supported | Notes |
 |---------|-----------|-------|
-| Task Creation | ✅ | Via skill or command |
-| Task Status Update | ✅ | Emoji indicators |
-| Sub-task Creation | ✅ | task42.1, 42.2 format |
-| Task Dependencies | ✅ | Array in frontmatter |
-| YAML Frontmatter | ✅ | Standard format |
-| Windows-safe Emojis | ✅ | 🔄 ✅ ❌ |
-| Auto-folder Creation | ✅ | Silent operation |
-| Phase Organization | ✅ | Phase-based task IDs |
-| Bug References | ✅ | Links to BUGS.md |
-| Retroactive Tasks | ✅ | Document past work |
+| Task Creation | Γ£à | Via skill or command |
+| Task Status Update | Γ£à | Emoji indicators |
+| Sub-task Creation | Γ£à | task42.1, 42.2 format |
+| Task Dependencies | Γ£à | Array in frontmatter |
+| YAML Frontmatter | Γ£à | Standard format |
+| Windows-safe Emojis | Γ£à | ≡ƒöä Γ£à Γ¥î |
+| Auto-folder Creation | Γ£à | Silent operation |
+| Phase Organization | Γ£à | Phase-based task IDs |
+| Bug References | Γ£à | Links to BUGS.md |
+| Retroactive Tasks | Γ£à | Document past work |
 
 ## Best Practices
 

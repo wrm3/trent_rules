@@ -5,7 +5,7 @@ Shared utilities for oracle_query and oracle_execute plugins.
 Handles connection management, DSN construction, SQL classification,
 Oracle data type conversion, error categorization, and parameter validation.
 
-Ported from fstrent_mcp_oracle standalone server into trent_docker plugin system.
+Ported from fstrent_mcp_oracle standalone server into trent_rules_docker plugin system.
 """
 import logging
 import os
