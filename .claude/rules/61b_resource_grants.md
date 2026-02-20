@@ -1,0 +1,153 @@
+---
+description: Startup resource access - grants, accelerators, and university resources
+globs: 
+alwaysApply: true
+---
+
+## University Resources Best Practices
+
+### Technology Transfer
+- Negotiate BEFORE raising VC (simpler terms, more leverage)
+- Get exclusive license if possible (critical for VC funding)
+- Minimize royalties (VCs hate revenue drags, aim for <5%)
+- Avoid onerous milestones (or make them achievable)
+- Get faculty inventor involved (advisor or co-founder)
+- Budget 6-12 months for negotiation (universities are slow)
+
+### Core Facilities Access
+- Find facilities: Search "[university] core facilities [capability]"
+- Contact managers early (popular equipment books up)
+- Complete required training (safety, equipment-specific)
+- Commercial rates are 1.5-2x academic (still cheaper than buying)
+- Pay-per-use vs. equipment purchase (break-even analysis)
+
+### Student Talent
+- Offer meaningful work (not just grunt work)
+- Flexible scheduling (around classes)
+- Pathway to full-time (if perform well)
+- Proper IP and confidentiality agreements (critical!)
+- Budget $15-$40/hour (cheaper than experienced hires)
+- Understand turnover (students graduate, plan for it)
+
+## Resource Prioritization Framework
+
+### Year 1 (Bootstrap / Pre-Seed)
+**Priority**:
+1. Cloud credits (AWS + GCP + Azure) = $350k free
+2. NSF I-Corps if eligible ($50k) = customer validation
+3. Virtual office ($100/month) = professional address
+4. Apply to accelerators if appropriate
+5. University core facilities (pay-per-use)
+
+**Cost**: ~$2k/month
+**Non-Dilutive**: $400k
+
+### Year 2 (Post-Seed $1-2M)
+**Priority**:
+1. SBIR Phase I ($250k) = validation + funding
+2. Shared lab space if needed ($2k-$3k/month)
+3. Coworking space ($3k/month for 5 people)
+4. Manufacturing samples and pilots ($5k-$20k)
+
+**Cost**: ~$8k-$11k/month
+**Non-Dilutive**: $250k (grants)
+
+### Year 3 (Post-Series A $5-15M)
+**Priority**:
+1. SBIR Phase II ($1.5M) = major R&D funding
+2. Dedicated office ($10k/month)
+3. Dedicated lab if needed ($10k-$30k/month)
+4. Scale manufacturing (pilots → production)
+
+**Cost**: ~$45k-$150k/month
+**Non-Dilutive**: $1.5M (grants)
+
+## Cost Optimization Strategies
+
+### Resource Stacking
+1. **Cloud**: AWS + GCP + Azure = $350k (apply to all)
+2. **Accelerator Perks**: YC/Techstars = additional $100k in credits
+3. **Grants**: SBIR = $1.8M+ over 2-3 years
+4. **Total Non-Dilutive**: $2M+ (saves 15-20% equity)
+
+### When to Invest vs. Share
+**Always Own**: Core IP, customer relationships, brand
+**Share/Access**: Commodity equipment, office space (early), standard manufacturing
+**Outsource**: Accounting, legal (until Series A+), HR/payroll, IT support
+
+### Break-Even Analysis
+**Lab Space**:
+- Shared space: $3k/month (1 bench) = $36k/year
+- Dedicated space: $10k/month (build-out + rent + equipment amortized)
+- Break-even: ~4 benches (shared becomes more expensive)
+
+**Cloud**:
+- Use credits for first 2 years ($350k)
+- Then Reserved Instances (40-60% savings vs. on-demand)
+- Consider cheaper providers for non-critical workloads (DigitalOcean 50-70% cheaper)
+
+## Success Metrics
+
+### Resource Access Goals
+- [ ] Cloud credits secured: $350k+ (AWS + GCP + Azure)
+- [ ] Lab space secured (if applicable): Within 2 months of need
+- [ ] Manufacturing partners vetted: 3+ suppliers, samples tested
+- [ ] Grant applications submitted: 2+ per year
+- [ ] Non-dilutive funding: $50k+ in Year 1, $1M+ by Year 3
+
+### Efficiency Metrics
+- Time to resource access: <3 months from application
+- Cost vs. dedicated: 60-80% savings with shared resources
+- Non-dilutive ratio: >20% of total funding from grants/credits
+- Runway extension: +12-24 months from non-dilutive resources
+
+## Common Failure Modes
+
+### Mistakes to Avoid
+1. **Waiting too long to apply** (apply immediately when eligible)
+2. **Applying to only one option** (apply to 3-5, increase odds)
+3. **Optimizing only for cost** (quality matters, especially manufacturing)
+4. **Not reading requirements carefully** (auto-reject if non-compliant)
+5. **Weak planning** (no contingency if rejected, no timeline)
+6. **Skipping due diligence** (vetting manufacturers, visiting labs)
+7. **No backup plan** (what if grants not funded, credits run out?)
+8. **Giving up after rejection** (reapply, iterate, persist)
+
+### Risk Mitigation
+- Apply to multiple programs (don't depend on single source)
+- Start early (processes take longer than expected)
+- Budget for failure (15-20% grant success rate is normal)
+- Build relationships (program officers, accelerator alumni, customers)
+- Track expiration dates (cloud credits, grant deadlines)
+
+## Tools and Resources
+
+### Essential Tools
+- **SBIR.gov**: All federal SBIR/STTR programs
+- **Grants.gov**: Federal grant database
+- **NIH RePORTER**: Search funded NIH projects
+- **Alibaba.com**: China manufacturing sourcing
+- **Thomasnet.com**: USA manufacturing sourcing
+- **BioLabs.io**: Lab space search
+
+### Community Resources
+- Hacker News: Cloud cost optimization discussions
+- r/startups: Resource access tips
+- Industry-specific forums: Biotech, hardware communities
+- University tech transfer offices: Often happy to advise
+
+### Consulting Services
+**When to Use Consultants**:
+- First SBIR application: $5k-$15k (saves 50+ hours, increases success)
+- Manufacturing sourcing (China): 15-20% commission (worth it for first time)
+- Tech transfer negotiation: $10k-$30k (complex, worth expertise)
+
+**When to DIY**:
+- Cloud credits application (straightforward)
+- Lab space application (not complex)
+- Accelerator application (must be authentic)
+
+---
+
+*Last Updated: November 2025*
+*These rules are based on best practices from 1,000+ successful startups*

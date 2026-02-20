@@ -1,0 +1,136 @@
+---
+description: Planning questionnaire, project file initialization, and codebase analysis
+globs: 
+alwaysApply: true
+---
+
+## Planning Questionnaire
+
+### 27-Question Framework
+
+#### Phase 1: Project Context (Q1-Q7)
+**Q1**: Primary problem this system solves? → Follow-up: Who experiences it, how handled today?
+**Q2**: What does success look like? → Follow-up: How measured, failure indicators?
+**Q3**: Replacing existing or creating new? → If replacing: pain points; If new: why needed now?
+**Q4**: Primary users? (End users, Admins, Stakeholders, External)
+**Q5**: User count? (Single, 2-10, 11-50, 51-200, 200+)
+**Q6**: Usage frequency? (Occasional, Daily, Continuous, Peak periods)
+**Q7**: Access locations? (Local, Office, Remote, Internet, Mobile)
+
+#### Phase 2: Technical Requirements (Q8-Q16)
+**Q8**: Deployment? (Local desktop, Local server, Cloud, Hybrid, No preference)
+**Q9**: Maintenance comfort? (Minimal, Basic, Intermediate, Advanced)
+**Q10**: Integration needs? (AD, Databases, Business apps, Monitoring, Backup)
+**Q11**: Data types? (Public, Internal, PII, Financial, Healthcare, Regulated)
+**Q12**: Security requirements? (Basic, Industry compliance, Government, Custom, None)
+**Q13**: Access control? (All see all, Role-based, Department, Individual, External)
+**Q14**: Performance expectations? (Basic seconds, Good <1s, High instant, Not critical)
+**Q15**: Data volume? (Thousands, Hundreds of thousands, Millions, Billions, Growing)
+**Q16**: Peak usage? (Consistent, Business hours, Month/quarter, Seasonal, Event-driven)
+
+#### Phase 3: Feature Scope (Q17-Q22)
+**Q17**: Essential features (MVP)? → List core features and deal-breakers
+**Q18**: Nice-to-have features? → List convenience and future enhancements
+**Q19**: Features to avoid? → Over-complexity, specific integrations, approaches
+**Q20**: Priority: ease vs power? (Ease, Power, Balanced, Depends on user)
+**Q21**: Interface examples you like? → Reference apps, patterns, accessibility
+**Q22**: User training investment? (Self-explanatory, Brief, Formal, Complex OK)
+
+#### Phase 4: Timeline & Resources (Q23-Q27)
+**Q23**: Timeline drivers? (Business deadline, Budget, Competition, Regulatory, Personal)
+**Q24**: Delivery preference? (Quick prototype, Phased, Complete, Iterative)
+**Q25**: Trade-offs? (Core over polish, Polish over features, Speed over performance)
+**Q26**: Available resources? (Dev time, Expertise, Budget, Third-party services)
+**Q27**: Hard constraints? (Specific tech, No cloud, Budget limits, Policies)
+
+## Project Instruction Files Initialization
+
+### When to Initialize
+
+**During project setup (`@trent-setup` or `@trent-plan`):**
+1. Check if `agents.md` exists
+2. Check if `CLAUDE.md` exists
+3. Create or update as needed
+
+### agents.md Initialization
+
+**If missing**: Create from template with project-specific content
+**If exists**: Add/update trent section between markers
+
+```markdown
+## agents.md Creation Checklist
+- [ ] Project name and description filled in
+- [ ] Project structure documented
+- [ ] Development commands listed
+- [ ] Code style guidelines included
+- [ ] Trent section added with markers
+- [ ] Version and date set
+```
+
+### CLAUDE.md Initialization
+
+**If missing**: Create from template (optional but recommended)
+**If exists**: Add/update trent section between markers
+
+```markdown
+## CLAUDE.md Creation Checklist
+- [ ] Project overview written
+- [ ] Tech stack documented
+- [ ] Key directories listed
+- [ ] Development commands included
+- [ ] Trent section added with markers
+```
+
+### Integration with Phase Management
+
+**On Phase Creation/Pivot:**
+- Update CLAUDE.md with new phase context
+- Add phase objectives to "Important Notes" section
+
+**Template for Phase Update in CLAUDE.md:**
+```markdown
+## Current Phase
+- **Phase {N}**: {Phase Name}
+- **Objectives**: {Key objectives}
+- **Focus Areas**: {Subsystems being worked on}
+```
+
+## Codebase Analysis for Existing Projects
+
+### Automatic Project Analysis
+When initializing in existing projects:
+1. **Scan codebase** for existing functionality and architecture
+2. **Generate PLAN.md** based on current code structure
+3. **Create phase documents** organizing work into logical stages
+4. **Identify subsystems** from code organization
+5. **Document current architecture** and integration points
+6. **Create/update agents.md** with discovered project info
+7. **Create/update CLAUDE.md** with tech stack and conventions
+
+### Analysis Process
+1. **File Structure Analysis**: Identify main components and modules
+2. **Dependency Mapping**: Map relationships between components
+3. **Phase Identification**: Group work into logical phases
+4. **Subsystem Identification**: Group related functionality
+5. **Integration Discovery**: Find external system connections
+
+## Integration Points
+
+### Task System Integration
+- Tasks reference their phase in YAML frontmatter (`phase: N`)
+- Phase completion tracked through task completion
+- Phase dependencies managed through task dependencies
+
+### Bug System Integration
+- Bugs reference affected phases
+- Phase impact assessment through bug analysis
+- Phase fixes tracked through bug resolution
+
+### File Organization Integration
+- Phases organized in dedicated phases/ folder
+- Phase documents follow consistent naming: `phase{N}_{name}.md`
+- Phase relationships documented in PLAN.md
+
+---
+
+*This comprehensive planning system provides all necessary functionality for project planning, feature management, and scope validation in a single, efficient rule.*
