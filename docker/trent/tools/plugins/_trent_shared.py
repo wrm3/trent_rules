@@ -303,6 +303,153 @@ def resolve_target_path(target_path: str) -> Path:
 
 
 # ============================================================
+# BACKUP UTILITIES
+# ============================================================
+
+def backup_trent_dir(trent_dir: Path, target_dir: Path) -> dict:
+    """
+    Create a timestamped zip backup of .trent/ before destructive operations.
+
+    The backup is saved as .trent_backup_YYYYMMDD_HHMMSS.zip in target_dir.
+    Also ensures .gitignore excludes the backup pattern (if .gitignore exists).
+
+    Returns:
+        {
+            'success': bool,
+            'backup_path': str | None,
+            'backup_name': str | None,
+            'file_count': int,
+            'backup_size_bytes': int,
+            'skipped': bool,          # True if nothing to back up
+            'error': str | None,
+        }
+    """
+    import zipfile
+    from datetime import datetime
+
+    if not trent_dir.exists():
+        return {
+            'success': True,
+            'backup_path': None,
+            'backup_name': None,
+            'file_count': 0,
+            'backup_size_bytes': 0,
+            'skipped': True,
+            'skip_reason': '.trent/ does not exist — nothing to back up',
+            'error': None,
+        }
+
+    timestamp = datetime.now().strftime('%Y%m%d_%H%M%S')
+    backup_name = f'.trent_backup_{timestamp}.zip'
+    backup_path = target_dir / backup_name
+
+    try:
+        files_added = []
+        with zipfile.ZipFile(str(backup_path), 'w', zipfile.ZIP_DEFLATED) as zf:
+            for file_path in sorted(trent_dir.rglob('*')):
+                if file_path.is_file():
+                    # Store path relative to target_dir (e.g., .trent/TASKS.md)
+                    arcname = file_path.relative_to(target_dir)
+                    zf.write(str(file_path), str(arcname))
+                    files_added.append(str(arcname))
+
+        backup_size = backup_path.stat().st_size
+
+        # Keep .gitignore clean — exclude backup zips from commits
+        _ensure_gitignore_pattern(target_dir, '.trent_backup_*.zip')
+
+        logger.info(
+            f"Backed up .trent/ → {backup_name} "
+            f"({len(files_added)} files, {backup_size} bytes)"
+        )
+        return {
+            'success': True,
+            'backup_path': str(backup_path),
+            'backup_name': backup_name,
+            'file_count': len(files_added),
+            'backup_size_bytes': backup_size,
+            'skipped': False,
+            'error': None,
+        }
+
+    except Exception as e:
+        # Clean up an incomplete zip if it was partially written
+        try:
+            if backup_path.exists():
+                backup_path.unlink()
+        except Exception:
+            pass
+        logger.error(f"backup_trent_dir failed: {e}")
+        return {
+            'success': False,
+            'backup_path': None,
+            'backup_name': None,
+            'file_count': 0,
+            'backup_size_bytes': 0,
+            'skipped': False,
+            'error': str(e),
+        }
+
+
+def _ensure_gitignore_pattern(target_dir: Path, pattern: str) -> None:
+    """
+    Append pattern to .gitignore in target_dir if not already present.
+    Does nothing if .gitignore does not exist (we don't create it).
+    """
+    gitignore = target_dir / '.gitignore'
+    if not gitignore.exists():
+        return
+    try:
+        content = gitignore.read_text(encoding='utf-8')
+        if pattern not in content:
+            with open(str(gitignore), 'a', encoding='utf-8') as f:
+                f.write(f'\n# trent backup archives\n{pattern}\n')
+            logger.info(f"Added '{pattern}' to .gitignore")
+    except Exception as e:
+        logger.warning(f"Could not update .gitignore with backup pattern: {e}")
+
+
+def trent_dir_has_user_data(trent_dir: Path) -> bool:
+    """
+    Return True if .trent/ appears to contain real user task data
+    (i.e. it has been used, not just installed as a blank template).
+
+    Checks for:
+      - Any task*.md files in .trent/tasks/
+      - Any phase*.md files in .trent/phases/
+      - Any task list items (- [ ], - [x], etc.) in TASKS.md
+    """
+    if not trent_dir.exists():
+        return False
+
+    tasks_dir = trent_dir / 'tasks'
+    phases_dir = trent_dir / 'phases'
+
+    if tasks_dir.exists():
+        task_files = [f for f in tasks_dir.glob('task*.md') if f.name != '.gitkeep']
+        if task_files:
+            return True
+
+    if phases_dir.exists():
+        phase_files = [f for f in phases_dir.glob('phase*.md') if f.name != '.gitkeep']
+        if phase_files:
+            return True
+
+    tasks_md = trent_dir / 'TASKS.md'
+    if tasks_md.exists():
+        try:
+            for line in tasks_md.read_text(encoding='utf-8').splitlines():
+                stripped = line.strip()
+                # Any markdown task list item indicates user has started populating
+                if stripped.startswith('- [') and len(stripped) > 6:
+                    return True
+        except Exception:
+            pass
+
+    return False
+
+
+# ============================================================
 # OS INFO
 # ============================================================
 
