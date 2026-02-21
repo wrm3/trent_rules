@@ -68,7 +68,9 @@ cd docker && docker-compose up -d --build trent_rules_docker
 | `oracle_execute` | Write SQL on Oracle |
 | `mediawiki_page` | MediaWiki CRUD operations |
 | `mediawiki_search` | Search MediaWiki |
-| `install_trent` | Install trent templates |
+| `trent_install` | Install full trent environment to a project |
+| `trent_rules_update` | Update IDE configs/rules (preserves .trent/ task data) |
+| `trent_plan_reset` | Reset .trent/ to blank template (destroys task data!) |
 | `md_to_html` | Convert markdown to HTML |
 | `video_analyze` | Full YouTube video analysis |
 | `video_extract_transcript` | Extract video transcripts |

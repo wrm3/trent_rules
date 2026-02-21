@@ -78,6 +78,35 @@ class PluginLoader:
         self._context.update(kwargs)
         logger.info(f"Plugin context set with keys: {list(self._context.keys())}")
 
+    def _preload_utils(self) -> None:
+        """
+        Preload utility modules (files starting with _ but not __).
+
+        These are shared helper modules imported by plugins via relative
+        imports (e.g. ``from ._trent_shared import ...``). They must be
+        registered in sys.modules as ``trent.plugins.<stem>`` *before* any
+        plugin that imports them is loaded, and their __package__ must be set
+        so that relative imports resolve correctly.
+        """
+        for file_path in self.tools_dir.glob("_*.py"):
+            if file_path.name.startswith("__"):
+                continue
+            module_name = f"trent.plugins.{file_path.stem}"
+            if module_name in sys.modules:
+                continue  # already loaded
+            try:
+                spec = importlib.util.spec_from_file_location(module_name, file_path)
+                if spec is None or spec.loader is None:
+                    logger.warning(f"Could not create spec for utility: {file_path.name}")
+                    continue
+                mod = importlib.util.module_from_spec(spec)
+                mod.__package__ = "trent.plugins"
+                sys.modules[module_name] = mod
+                spec.loader.exec_module(mod)
+                logger.info(f"Preloaded utility module: {file_path.name} as {module_name}")
+            except Exception as e:
+                logger.error(f"Failed to preload utility {file_path.name}: {e}")
+
     def discover_plugins(self) -> List[str]:
         """
         Scan the tools directory and load all valid plugins.
@@ -90,6 +119,10 @@ class PluginLoader:
             self.tools_dir.mkdir(parents=True, exist_ok=True)
             logger.info(f"Created plugins directory: {self.tools_dir}")
             return []
+
+        # Preload shared utility modules (_*.py) before any plugin that might
+        # import them via relative imports
+        self._preload_utils()
 
         loaded = []
 
@@ -131,6 +164,7 @@ class PluginLoader:
             return None
 
         module = importlib.util.module_from_spec(spec)
+        module.__package__ = "trent.plugins"  # enables relative imports (e.g. from ._trent_shared import ...)
         sys.modules[module_name] = module
 
         try:

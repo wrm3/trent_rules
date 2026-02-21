@@ -186,6 +186,9 @@ docs/                          # Project documentation
 | `oracle_query` | Read-only SQL on Oracle (SELECT, DESCRIBE) |
 | `oracle_execute` | Write SQL on Oracle (INSERT, UPDATE, DDL) |
 | `md_to_html` | Convert markdown to styled HTML |
+| `trent_install` | Install full trent environment to a project |
+| `trent_rules_update` | Update IDE configs/rules (preserves .trent/ task data) |
+| `trent_plan_reset` | Reset .trent/ to blank template (requires confirm=True) |
 | `trent_server_status` | Health check |
 
 ---

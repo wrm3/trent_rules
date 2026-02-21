@@ -261,7 +261,7 @@ Update the trent section between markers with current information.
 
 ## Template Locations
 
-### For New Projects (via install_trent)
+### For New Projects (via trent_install)
 
 Templates are stored in:
 - `docker/templates/agents.md` - Full agents.md template
