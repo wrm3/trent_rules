@@ -5,9 +5,13 @@ Install or upgrade Claude Code configuration only.
 Does NOT touch .cursor/, .agent/, or .trent/.
 
 Installs and UPGRADES (overwrites):
-  - .claude/    Rules, skills, agents, commands, hooks
-  - CLAUDE.md   (merged — trent section updated, user content preserved)
-  - GUARDRAILS.md
+  - .claude/          Rules, skills, agents, commands, hooks
+  - agents.md         (merged — compatible with both Cursor and Claude Code)
+  - CLAUDE.md         (merged — trent section updated, user content preserved)
+  - AGENTS_INDEX.md, COMMANDS_INDEX.md, HOOKS_INDEX.md, RULES_INDEX.md,
+    SKILLS_INDEX.md, GUARDRAILS.md, .env.example, mcp.txt
+
+NOTE: CURSOR_SETUP.md is intentionally excluded (Cursor-specific).
 
 Use this when:
   - You want to pull the latest Claude rules/skills without touching other platforms
@@ -38,10 +42,13 @@ from ._trent_shared import (
 TOOL_NAME = "fstrent_install_claude"
 
 TOOL_DESCRIPTION = (
-    "Install or upgrade Claude Code configuration only (.claude/, CLAUDE.md, GUARDRAILS.md). "
+    "Install or upgrade Claude Code configuration only. "
+    "Installs: .claude/, agents.md (merged), CLAUDE.md (merged), AGENTS_INDEX.md, "
+    "COMMANDS_INDEX.md, HOOKS_INDEX.md, RULES_INDEX.md, SKILLS_INDEX.md, "
+    "GUARDRAILS.md, .env.example, mcp.txt. "
     "Always overwrites existing files — safe to run on existing installations. "
     "Does NOT touch .cursor/, .agent/, or .trent/ task data. "
-    "CLAUDE.md is merged (user content preserved). "
+    "CURSOR_SETUP.md excluded (Cursor-specific). "
     "Use fstrent_install for a full all-platforms install."
 )
 

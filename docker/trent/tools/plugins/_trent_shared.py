@@ -77,13 +77,14 @@ FULL_MANIFEST: List[str] = [
 # ── IDE-only manifests (platform-specific installs, never touch .trent/) ──────
 
 # Cursor IDE — rules, skills, agents, commands, hooks + shared root files
+# NOTE: CLAUDE.md is NOT included — it is Claude Code-specific, not read by Cursor.
 CURSOR_MANIFEST: List[str] = [
     '.cursor',
     '.platform_architecture',
-    'agents.md',                # merged
+    'agents.md',                # universal agent instructions (merged)
     'AGENTS_INDEX.md',
     'COMMANDS_INDEX.md',
-    'CURSOR_SETUP.md',
+    'CURSOR_SETUP.md',          # Cursor-specific setup guide
     'GUARDRAILS.md',
     'HOOKS_INDEX.md',
     'RULES_INDEX.md',
@@ -92,18 +93,39 @@ CURSOR_MANIFEST: List[str] = [
     'mcp.txt',
 ]
 
-# Claude Code — rules, skills, agents, commands, hooks + CLAUDE.md
+# Claude Code — rules, skills, agents, commands, hooks + root files
+# agents.md: explicitly says "Compatible with both Cursor and Claude Code"
+# CURSOR_SETUP.md: intentionally excluded — Cursor-specific
 CLAUDE_MANIFEST: List[str] = [
     '.claude',
-    'CLAUDE.md',                # merged
+    'agents.md',                # universal agent instructions (merged)
+    'AGENTS_INDEX.md',
+    'CLAUDE.md',                # Claude-specific context (merged)
+    'COMMANDS_INDEX.md',
     'GUARDRAILS.md',
+    'HOOKS_INDEX.md',
+    'RULES_INDEX.md',
+    'SKILLS_INDEX.md',
+    '.env.example',
+    'mcp.txt',
 ]
 
-# Google Antigravity / Gemini — rules, skills, workflows + GEMINI.md
+# Google Antigravity / Gemini — rules, skills, workflows + root files
+# agents.md: GEMINI.md explicitly says "See AGENTS.md for universal instructions"
+# CURSOR_SETUP.md: excluded — Cursor-specific
+# HOOKS_INDEX.md: excluded — Gemini has no hooks system
+# CLAUDE.md: excluded — Claude Code-specific
 GEMINI_MANIFEST: List[str] = [
     '.agent',
+    'agents.md',                # universal agent instructions (merged)
+    'AGENTS_INDEX.md',
+    'COMMANDS_INDEX.md',
     'GEMINI.md',
     'GUARDRAILS.md',
+    'RULES_INDEX.md',
+    'SKILLS_INDEX.md',
+    '.env.example',
+    'mcp.txt',
 ]
 
 # .trent-only manifest — for plan reset

@@ -5,9 +5,15 @@ Install or upgrade Google Antigravity / Gemini configuration only.
 Does NOT touch .cursor/, .claude/, or .trent/.
 
 Installs and UPGRADES (overwrites):
-  - .agent/     Rules, skills, workflows
-  - GEMINI.md   Gemini-specific project context
-  - GUARDRAILS.md
+  - .agent/           Rules, skills, workflows
+  - agents.md         (merged — GEMINI.md explicitly says "See AGENTS.md for
+                        universal instructions")
+  - GEMINI.md         Gemini-specific project context
+  - AGENTS_INDEX.md, COMMANDS_INDEX.md, RULES_INDEX.md, SKILLS_INDEX.md,
+    GUARDRAILS.md, .env.example, mcp.txt
+
+NOTE: CURSOR_SETUP.md and CLAUDE.md excluded (platform-specific to Cursor/Claude).
+NOTE: HOOKS_INDEX.md excluded — Gemini Antigravity has no hooks system.
 
 Use this when:
   - You want to pull the latest Gemini rules/skills without touching other platforms
@@ -38,10 +44,13 @@ from ._trent_shared import (
 TOOL_NAME = "fstrent_install_gemini"
 
 TOOL_DESCRIPTION = (
-    "Install or upgrade Google Antigravity / Gemini configuration only "
-    "(.agent/, GEMINI.md, GUARDRAILS.md). "
+    "Install or upgrade Google Antigravity / Gemini configuration only. "
+    "Installs: .agent/, agents.md (merged), GEMINI.md, AGENTS_INDEX.md, "
+    "COMMANDS_INDEX.md, RULES_INDEX.md, SKILLS_INDEX.md, "
+    "GUARDRAILS.md, .env.example, mcp.txt. "
     "Always overwrites existing files — safe to run on existing installations. "
     "Does NOT touch .cursor/, .claude/, or .trent/ task data. "
+    "CURSOR_SETUP.md, CLAUDE.md, and HOOKS_INDEX.md excluded (not applicable to Gemini). "
     "Use fstrent_install for a full all-platforms install."
 )
 
