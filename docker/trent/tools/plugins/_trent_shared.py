@@ -137,6 +137,19 @@ RULES_MANIFEST: List[str] = [item for item in FULL_MANIFEST if item != '.trent']
 # .trent-only manifest — for plan reset
 TRENT_MANIFEST: List[str] = ['.trent']
 
+# Paths that are NEVER extracted to a target project, regardless of manifest.
+# Protects internal implementation details from leaking into user projects.
+NEVER_EXTRACT: List[str] = [
+    'docker',           # MCP server source code — internal only
+    'docs',             # Internal project documentation
+    'research',         # Internal research files
+    'logs',             # Log files
+    '.git',             # Git internals
+    'temp_scripts',     # Internal test scripts
+    '.trent_backup',    # Backup archives
+    '.env',             # Environment secrets (any .env file)
+]
+
 # Files where user content is preserved via section-marker merging
 MERGEABLE_FILES = {'agents.md', 'claude.md'}
 
@@ -219,6 +232,15 @@ def extract_manifest_from_zip(
                     continue
                 rel_path = member.filename[len(top_prefix):]
                 if not rel_path:
+                    continue
+
+                # Hard-block protected paths — never extract these regardless of manifest
+                first_segment = rel_path.split('/')[0]
+                if any(
+                    first_segment == blocked or rel_path.startswith(blocked + '/')
+                    for blocked in NEVER_EXTRACT
+                ):
+                    logger.debug(f"Blocked (protected path): {rel_path}")
                     continue
 
                 # Check if this file matches any manifest entry
