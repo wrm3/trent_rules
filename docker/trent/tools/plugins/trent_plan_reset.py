@@ -45,8 +45,10 @@ from ._trent_shared import (
     get_github_repo,
     get_os_info,
     resolve_target_path,
-    fetch_from_github,
+    download_repo_zip,
+    extract_manifest_from_zip,
     backup_trent_dir,
+    TRENT_MANIFEST,
 )
 
 # ============================================================
@@ -272,34 +274,40 @@ async def execute(
         result['deleted'] = 'would_delete (dry_run)'
         logger.info(f"trent_plan_reset: dry_run — would delete {trent_dir}")
 
-    # Step 3: Download fresh .trent/ from GitHub
+    # Step 3: Download fresh .trent/ from GitHub (ZIP approach — fast, no timeouts)
     if not dry_run:
         target.mkdir(parents=True, exist_ok=True)
 
-    gh_result = fetch_from_github(
-        repo=repo,
-        path='.trent',
+    try:
+        zip_bytes = download_repo_zip(repo=repo, token=token)
+    except Exception as exc:
+        result['error'] = f"Failed to download repo ZIP: {exc}"
+        if result['backup_result'] and result['backup_result'].get('backup_path'):
+            result['error'] += (
+                f" Your backup is at: {result['backup_result']['backup_path']}."
+            )
+        return result
+
+    gh_result = extract_manifest_from_zip(
+        zip_bytes=zip_bytes,
+        manifest=TRENT_MANIFEST,
         target_dir=target,
-        token=token,
         overwrite=True,
     )
 
-    if gh_result.get('error'):
-        result['error'] = f"Failed to download .trent/ from GitHub: {gh_result['error']}"
+    if not gh_result.get('success') or gh_result['errors']:
         backup_note = ''
         if result['backup_result'] and result['backup_result'].get('backup_path'):
             backup_note = (
                 f" Your backup is at: {result['backup_result']['backup_path']}. "
-                "Run trent_plan_reset again to retry the download."
+                "Run trent_plan_reset again to retry."
             )
-        result['warnings'].append(
-            "WARNING: .trent/ was deleted but the re-download failed." + backup_note
-        )
-        return result
+        if not gh_result.get('success'):
+            result['error'] = f"Failed to extract .trent/ from ZIP.{backup_note}"
+            return result
+        result['warnings'].extend(gh_result['errors'])
 
     result['downloaded_files'] = gh_result['files_fetched']
-    if gh_result['errors']:
-        result['warnings'].extend(gh_result['errors'])
 
     result['operation_time_seconds'] = round(
         (datetime.now() - start_time).total_seconds(), 2

@@ -142,8 +142,126 @@ MERGEABLE_FILES = {'agents.md', 'claude.md'}
 
 
 # ============================================================
-# GITHUB API
+# GITHUB API — ZIP-BASED (fast: 1 request vs 300+ sequential calls)
 # ============================================================
+
+def download_repo_zip(repo: str, token: str, ref: str = 'main') -> bytes:
+    """
+    Download the entire GitHub repository as a ZIP archive in a single request.
+
+    Much faster than the Contents API for bulk installs — one network round-trip
+    instead of hundreds of sequential calls.
+
+    Returns raw ZIP bytes.
+    Raises urllib.error.URLError / HTTPError on failure.
+    """
+    url = f'https://api.github.com/repos/{repo}/zipball/{ref}'
+    req = urllib.request.Request(url)
+    req.add_header('Authorization', f'Bearer {token}')
+    req.add_header('Accept', 'application/vnd.github.v3+json')
+    req.add_header('X-GitHub-Api-Version', '2022-11-28')
+    req.add_header('User-Agent', 'trent-tools/3.0')
+    # Generous timeout — repo ZIP can be several MB
+    with urllib.request.urlopen(req, timeout=120) as response:
+        return response.read()
+
+
+def extract_manifest_from_zip(
+    zip_bytes: bytes,
+    manifest: List[str],
+    target_dir: Path,
+    overwrite: bool = True,
+) -> Dict[str, Any]:
+    """
+    Extract files matching manifest paths from a repo ZIP to target_dir.
+
+    GitHub ZIP archives have a top-level directory like:
+      wrm3-trent_rules-abc123/
+    This function strips that prefix automatically.
+
+    Args:
+        zip_bytes:   Raw bytes of the GitHub ZIP download.
+        manifest:    List of repo-relative paths to extract, e.g. ['.cursor', 'agents.md'].
+                     Both individual files and directories are supported.
+        target_dir:  Local directory to write files into.
+        overwrite:   If False, skip files that already exist locally.
+
+    Returns:
+        {'success': bool, 'files_fetched': [str], 'files_skipped': [str], 'errors': [str]}
+    """
+    import zipfile
+    import io
+
+    result: Dict[str, Any] = {
+        'success': False,
+        'files_fetched': [],
+        'files_skipped': [],
+        'errors': [],
+    }
+
+    try:
+        with zipfile.ZipFile(io.BytesIO(zip_bytes)) as zf:
+            all_names = zf.namelist()
+            if not all_names:
+                result['errors'].append("ZIP archive is empty")
+                return result
+
+            # Identify and strip the top-level directory prefix (e.g. "wrm3-trent_rules-abc123/")
+            top_prefix = all_names[0].split('/')[0] + '/'
+
+            for member in zf.infolist():
+                # Skip directories themselves (we create them on demand)
+                if member.filename.endswith('/'):
+                    continue
+
+                # Strip repo prefix → repo-relative path
+                if not member.filename.startswith(top_prefix):
+                    continue
+                rel_path = member.filename[len(top_prefix):]
+                if not rel_path:
+                    continue
+
+                # Check if this file matches any manifest entry
+                matched = False
+                for entry in manifest:
+                    entry_norm = entry.lstrip('/')
+                    if rel_path == entry_norm or rel_path.startswith(entry_norm + '/'):
+                        matched = True
+                        break
+                if not matched:
+                    continue
+
+                local_target = target_dir / rel_path
+
+                # Honour overwrite flag
+                if not overwrite and local_target.exists():
+                    result['files_skipped'].append(str(local_target))
+                    logger.debug(f"Skipped (exists): {local_target}")
+                    continue
+
+                try:
+                    local_target.parent.mkdir(parents=True, exist_ok=True)
+                    with zf.open(member) as src:
+                        local_target.write_bytes(src.read())
+                    result['files_fetched'].append(str(local_target))
+                    logger.debug(f"Extracted: {rel_path} → {local_target}")
+                except Exception as exc:
+                    msg = f"Failed to write {rel_path}: {exc}"
+                    logger.warning(msg)
+                    result['errors'].append(msg)
+
+    except zipfile.BadZipFile as exc:
+        result['errors'].append(f"Bad ZIP archive: {exc}")
+        return result
+    except Exception as exc:
+        result['errors'].append(f"ZIP extraction error: {exc}")
+        return result
+
+    result['success'] = True
+    return result
+
+
+# ── Legacy Contents API (kept for fetch_from_github callers in trent_plan_reset) ──
 
 def github_api_request(url: str, token: str) -> Any:
     """Make a single GitHub API GET request and return parsed JSON."""
@@ -167,23 +285,13 @@ def fetch_from_github(
     overwrite: bool = True,
 ) -> Dict[str, Any]:
     """
-    Recursively fetch files from a GitHub repository path and write to target_dir.
+    Recursively fetch files from a GitHub repository path via the Contents API.
 
-    Uses the GitHub Contents API:
-      GET https://api.github.com/repos/{repo}/contents/{path}
+    NOTE: This is the legacy per-file approach. For bulk installs use
+    download_repo_zip() + extract_manifest_from_zip() instead — it is
+    dramatically faster (1 request vs hundreds).
 
-    Args:
-        repo:             GitHub repo slug, e.g. "wrm3/trent_rules"
-        path:             Path within the repo, e.g. ".cursor" or "AGENTS.md"
-        target_dir:       Local directory to write files into
-        token:            GitHub personal access token
-        strip_prefix:     Optional prefix to strip from entry_path before
-                          joining with target_dir (for path remapping).
-        exclude_prefixes: Optional list of repo-relative path prefixes to skip.
-        overwrite:        If False, skip files that already exist locally.
-
-    Returns:
-        {'success': bool, 'files_fetched': [str], 'files_skipped': [str], 'errors': [str], 'error': str|None}
+    Kept here because trent_plan_reset uses it for targeted .trent/ downloads.
     """
     result: Dict[str, Any] = {
         'success': False,
@@ -215,13 +323,11 @@ def fetch_from_github(
         entry_path = entry.get('path', '')
         entry_name = entry.get('name', '')
 
-        # Skip excluded paths
         if exclude_prefixes:
             if any(entry_path == p or entry_path.startswith(p + '/') for p in exclude_prefixes):
                 logger.debug(f"Skipping excluded: {entry_path}")
                 continue
 
-        # Compute local destination path
         rel_path = entry_path
         if strip_prefix and rel_path.startswith(strip_prefix):
             rel_path = rel_path[len(strip_prefix):].lstrip('/')
@@ -238,7 +344,6 @@ def fetch_from_github(
                 result['errors'].append(sub['error'])
 
         elif entry_type == 'file':
-            # Skip existing files if overwrite is disabled
             if not overwrite and local_target.exists():
                 result['files_skipped'].append(str(local_target))
                 logger.debug(f"Skipped (exists): {local_target}")
@@ -535,10 +640,14 @@ def run_install(
     original_target_path: str,
 ) -> dict:
     """
-    Core install logic: fetch each item in manifest from GitHub to target.
+    Core install logic: download repo ZIP once, extract manifest items to target.
 
-    Handles mergeable files (agents.md, CLAUDE.md) separately to preserve
-    user content outside the trent-managed section markers.
+    Uses download_repo_zip() + extract_manifest_from_zip() for speed — one HTTP
+    request instead of hundreds of sequential GitHub Contents API calls.
+
+    Mergeable files (agents.md, CLAUDE.md) are handled separately: the source
+    content is extracted from the ZIP to a temp buffer, then merged with the
+    existing local file to preserve user content outside the trent markers.
 
     Returns a result dict suitable for returning from an MCP tool execute().
     """
@@ -574,53 +683,79 @@ def run_install(
 
     start_time = datetime.now()
 
-    for gh_path in manifest:
-        logger.info(f"Fetching: {gh_path}")
+    # ── Step 1: Download repo ZIP (single HTTP request) ───────────────────────
+    logger.info(f"Downloading repo ZIP from {github_repo}...")
+    try:
+        zip_bytes = download_repo_zip(github_repo, github_token)
+        logger.info(f"ZIP downloaded: {len(zip_bytes):,} bytes")
+    except Exception as exc:
+        result['error'] = f"Failed to download repo ZIP from {github_repo}: {exc}"
+        return result
 
-        # Mergeable file handling: fetch to temp, then merge to preserve user content
-        is_mergeable = gh_path.lower() in MERGEABLE_FILES
-        dest_item = target / gh_path
+    # ── Step 2: Identify mergeable files that exist locally ───────────────────
+    mergeable_in_manifest = [
+        p for p in manifest if p.lower() in MERGEABLE_FILES
+    ]
+    non_mergeable_manifest = [
+        p for p in manifest if p.lower() not in MERGEABLE_FILES
+    ]
 
-        if is_mergeable and dest_item.exists() and not force_overwrite:
-            with tempfile.TemporaryDirectory() as tmp:
-                tmp_path = Path(tmp)
-                gh_result = fetch_from_github(
-                    repo=github_repo, path=gh_path,
-                    target_dir=tmp_path, token=github_token, overwrite=True,
-                )
-                if gh_result.get('error'):
-                    result['warnings'].append(f"Failed to fetch {gh_path}: {gh_result['error']}")
-                    continue
-                source_file = tmp_path / gh_path
-                if source_file.exists():
-                    try:
-                        merged = merge_markdown_file(
-                            source_file.read_text(encoding='utf-8'),
-                            dest_item.read_text(encoding='utf-8'),
-                            gh_path,
-                        )
-                        dest_item.write_text(merged, encoding='utf-8')
-                        result['merged_files'].append(str(dest_item))
-                        logger.info(f"Merged: {gh_path}")
-                    except Exception as e:
-                        result['warnings'].append(f"Failed to merge {gh_path}: {e}")
-            continue
-
-        # Standard fetch
-        gh_result = fetch_from_github(
-            repo=github_repo,
-            path=gh_path,
+    # ── Step 3: Extract non-mergeable files ───────────────────────────────────
+    if non_mergeable_manifest:
+        extract_result = extract_manifest_from_zip(
+            zip_bytes=zip_bytes,
+            manifest=non_mergeable_manifest,
             target_dir=target,
-            token=github_token,
             overwrite=force_overwrite,
         )
-        if gh_result.get('error'):
-            result['warnings'].append(f"Failed to fetch {gh_path}: {gh_result['error']}")
-        else:
-            result['copied_files'].extend(gh_result['files_fetched'])
-            result['skipped_files'].extend(gh_result['files_skipped'])
-            if gh_result['errors']:
-                result['warnings'].extend(gh_result['errors'])
+        result['copied_files'].extend(extract_result['files_fetched'])
+        result['skipped_files'].extend(extract_result['files_skipped'])
+        if extract_result['errors']:
+            result['warnings'].extend(extract_result['errors'])
+
+    # ── Step 4: Handle mergeable files ────────────────────────────────────────
+    for gh_path in mergeable_in_manifest:
+        dest_item = target / gh_path
+
+        # Extract just this file from the ZIP to a temp buffer
+        with tempfile.TemporaryDirectory() as tmp:
+            tmp_path = Path(tmp)
+            tmp_result = extract_manifest_from_zip(
+                zip_bytes=zip_bytes,
+                manifest=[gh_path],
+                target_dir=tmp_path,
+                overwrite=True,
+            )
+            source_file = tmp_path / gh_path
+
+            if not source_file.exists():
+                result['warnings'].append(
+                    f"Mergeable file {gh_path} not found in ZIP"
+                )
+                continue
+
+            if dest_item.exists() and not force_overwrite:
+                # Merge: update trent section, keep user content
+                try:
+                    merged = merge_markdown_file(
+                        source_file.read_text(encoding='utf-8'),
+                        dest_item.read_text(encoding='utf-8'),
+                        gh_path,
+                    )
+                    dest_item.write_text(merged, encoding='utf-8')
+                    result['merged_files'].append(str(dest_item))
+                    logger.info(f"Merged: {gh_path}")
+                except Exception as e:
+                    result['warnings'].append(f"Failed to merge {gh_path}: {e}")
+            else:
+                # Destination doesn't exist or force_overwrite — just copy
+                try:
+                    dest_item.parent.mkdir(parents=True, exist_ok=True)
+                    dest_item.write_bytes(source_file.read_bytes())
+                    result['copied_files'].append(str(dest_item))
+                    logger.info(f"Copied: {gh_path}")
+                except Exception as e:
+                    result['warnings'].append(f"Failed to copy {gh_path}: {e}")
 
     result['operation_time_seconds'] = round(
         (datetime.now() - start_time).total_seconds(), 2
