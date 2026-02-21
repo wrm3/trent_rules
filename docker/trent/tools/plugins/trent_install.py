@@ -1,5 +1,5 @@
 """
-fstrent_install Plugin
+trent_install Plugin
 
 Install or upgrade the full trent development environment to a project directory.
 Works for both first-time installs and upgrades of existing installations.
@@ -22,9 +22,9 @@ Installs and UPGRADES (overwrites):
 agents.md / CLAUDE.md: trent section is updated; all other user content preserved.
 
 See also:
-  fstrent_install_cursor  — Cursor IDE only
-  fstrent_install_claude  — Claude Code only
-  fstrent_install_gemini  — Google Antigravity / Gemini only
+  trent_install_cursor  — Cursor IDE only
+  trent_install_claude  — Claude Code only
+  trent_install_gemini  — Google Antigravity / Gemini only
   trent_plan_reset        — Reset .trent/ to blank template (destroys task data!)
 """
 import logging
@@ -46,7 +46,7 @@ from ._trent_shared import (
 # PLUGIN METADATA (Required)
 # ============================================================
 
-TOOL_NAME = "fstrent_install"
+TOOL_NAME = "trent_install"
 
 TOOL_DESCRIPTION = (
     "Install or upgrade the full trent development environment to a project directory. "
@@ -56,7 +56,7 @@ TOOL_DESCRIPTION = (
     "If .trent/ contains user task data, a backup zip is created automatically before "
     "writing anything. "
     "agents.md and CLAUDE.md are merged (user content preserved). "
-    "Use fstrent_install_cursor / fstrent_install_claude / fstrent_install_gemini "
+    "Use trent_install_cursor / trent_install_claude / trent_install_gemini "
     "to update a single platform."
 )
 
@@ -108,7 +108,7 @@ async def execute(
             'hint': "On Windows paths like 'G:\\Project', ensure Docker has access to the drive.",
         }
 
-    logger.info(f"fstrent_install: target={target}, repo={repo}, dry={dry_run}")
+    logger.info(f"trent_install: target={target}, repo={repo}, dry={dry_run}")
 
     # ── Backup .trent/ if it contains user task data ──────────────────────────
     backup_result = None
@@ -116,12 +116,12 @@ async def execute(
 
     if backup_trent and not dry_run:
         if trent_dir_has_user_data(trent_dir):
-            logger.info("fstrent_install: user task data detected — creating .trent backup")
+            logger.info("trent_install: user task data detected — creating .trent backup")
             backup_result = backup_trent_dir(trent_dir, target)
             if not backup_result['success']:
                 return {
                     'success': False,
-                    'tool': 'fstrent_install',
+                    'tool': 'trent_install',
                     'target_path': original_path,
                     'error': (
                         f"Backup of .trent/ failed: {backup_result['error']}. "
@@ -142,7 +142,7 @@ async def execute(
     )
 
     if not ide_result.get('success'):
-        ide_result['tool'] = 'fstrent_install'
+        ide_result['tool'] = 'trent_install'
         ide_result['phase'] = 'ide_configs'
         ide_result['backup_result'] = backup_result
         return ide_result
@@ -179,7 +179,7 @@ async def execute(
 
     result = {
         'success': True,
-        'tool': 'fstrent_install',
+        'tool': 'trent_install',
         'target_path': original_path,
         'target_path_resolved': str(target),
         'source': f'github:{repo}',
@@ -198,7 +198,7 @@ async def execute(
         'warnings': all_warnings,
         'operation_time_seconds': total_time,
         'message': (
-            f"fstrent_install complete: {total_copied} files installed/upgraded, "
+            f"trent_install complete: {total_copied} files installed/upgraded, "
             f"{total_skipped} skipped, {total_merged} merged "
             f"in {total_time}s.{backup_summary}"
         ),

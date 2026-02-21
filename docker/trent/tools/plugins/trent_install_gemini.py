@@ -1,5 +1,5 @@
 """
-fstrent_install_gemini Plugin
+trent_install_gemini Plugin
 
 Install or upgrade Google Antigravity / Gemini configuration only.
 Does NOT touch .cursor/, .claude/, or .trent/.
@@ -22,9 +22,9 @@ Use this when:
   - You want to refresh only the Gemini config after a trent update
 
 See also:
-  fstrent_install        — All platforms (Cursor + Claude + Gemini + .trent)
-  fstrent_install_cursor — Cursor IDE only
-  fstrent_install_claude — Claude Code only
+  trent_install        — All platforms (Cursor + Claude + Gemini + .trent)
+  trent_install_cursor — Cursor IDE only
+  trent_install_claude — Claude Code only
 """
 import logging
 from pathlib import Path
@@ -42,7 +42,7 @@ from ._trent_shared import (
 # PLUGIN METADATA (Required)
 # ============================================================
 
-TOOL_NAME = "fstrent_install_gemini"
+TOOL_NAME = "trent_install_gemini"
 
 TOOL_DESCRIPTION = (
     "Install or upgrade Google Antigravity / Gemini configuration only. "
@@ -52,7 +52,7 @@ TOOL_DESCRIPTION = (
     "Always overwrites existing files — safe to run on existing installations. "
     "Does NOT touch .cursor/, .claude/, or .trent/ task data. "
     "CURSOR_SETUP.md, CLAUDE.md, and HOOKS_INDEX.md excluded (not applicable to Gemini). "
-    "Use fstrent_install for a full all-platforms install."
+    "Use trent_install for a full all-platforms install."
 )
 
 TOOL_PARAMS = {
@@ -91,7 +91,7 @@ async def execute(
             'error': f"Invalid target path '{target_path}': {e}",
         }
 
-    logger.info(f"fstrent_install_gemini: target={target}, repo={repo}, dry={dry_run}")
+    logger.info(f"trent_install_gemini: target={target}, repo={repo}, dry={dry_run}")
 
     result = run_install(
         manifest=GEMINI_MANIFEST,
@@ -102,6 +102,6 @@ async def execute(
         dry_run=dry_run,
         original_target_path=original_path,
     )
-    result['tool'] = 'fstrent_install_gemini'
+    result['tool'] = 'trent_install_gemini'
     result['os_info'] = get_os_info()
     return result

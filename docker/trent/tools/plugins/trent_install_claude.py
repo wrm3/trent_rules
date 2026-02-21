@@ -1,5 +1,5 @@
 """
-fstrent_install_claude Plugin
+trent_install_claude Plugin
 
 Install or upgrade Claude Code configuration only.
 Does NOT touch .cursor/, .agent/, or .trent/.
@@ -20,9 +20,9 @@ Use this when:
   - You want to refresh only the Claude config after a trent update
 
 See also:
-  fstrent_install        — All platforms (Cursor + Claude + Gemini + .trent)
-  fstrent_install_cursor — Cursor IDE only
-  fstrent_install_gemini — Google Antigravity / Gemini only
+  trent_install        — All platforms (Cursor + Claude + Gemini + .trent)
+  trent_install_cursor — Cursor IDE only
+  trent_install_gemini — Google Antigravity / Gemini only
 """
 import logging
 from pathlib import Path
@@ -40,7 +40,7 @@ from ._trent_shared import (
 # PLUGIN METADATA (Required)
 # ============================================================
 
-TOOL_NAME = "fstrent_install_claude"
+TOOL_NAME = "trent_install_claude"
 
 TOOL_DESCRIPTION = (
     "Install or upgrade Claude Code configuration only. "
@@ -50,7 +50,7 @@ TOOL_DESCRIPTION = (
     "Always overwrites existing files — safe to run on existing installations. "
     "Does NOT touch .cursor/, .agent/, or .trent/ task data. "
     "CURSOR_SETUP.md excluded (Cursor-specific). "
-    "Use fstrent_install for a full all-platforms install."
+    "Use trent_install for a full all-platforms install."
 )
 
 TOOL_PARAMS = {
@@ -89,7 +89,7 @@ async def execute(
             'error': f"Invalid target path '{target_path}': {e}",
         }
 
-    logger.info(f"fstrent_install_claude: target={target}, repo={repo}, dry={dry_run}")
+    logger.info(f"trent_install_claude: target={target}, repo={repo}, dry={dry_run}")
 
     result = run_install(
         manifest=CLAUDE_MANIFEST,
@@ -100,6 +100,6 @@ async def execute(
         dry_run=dry_run,
         original_target_path=original_path,
     )
-    result['tool'] = 'fstrent_install_claude'
+    result['tool'] = 'trent_install_claude'
     result['os_info'] = get_os_info()
     return result
