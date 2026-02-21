@@ -47,20 +47,21 @@ def get_github_repo() -> str:
 # INSTALL MANIFESTS
 # ============================================================
 
-# Full install — everything, including .trent/ template
+# ── Full install — all systems + .trent template ──────────────────────────────
 FULL_MANIFEST: List[str] = [
-    # ── IDE Configurations ────────────────────────────────────────────────────
-    '.agent',               # Google Antigravity (rules, skills, workflows)
-    '.platform_architecture',  # Cross-platform architecture docs
-    '.claude',              # Claude Code (agents, skills, rules, commands, hooks)
-    '.cursor',              # Cursor IDE  (rules, skills, agents, commands, hooks)
+    # IDE Configurations
+    '.agent',                   # Google Antigravity / Gemini
+    '.platform_architecture',   # Cross-platform architecture docs
+    '.claude',                  # Claude Code
+    '.cursor',                  # Cursor IDE
 
-    # ── Root files ────────────────────────────────────────────────────────────
-    'agents.md',            # Universal agent instructions
+    # Root files
+    'agents.md',                # Universal agent instructions  (merged)
     'AGENTS_INDEX.md',
-    'CLAUDE.md',
+    'CLAUDE.md',                # Claude-specific context        (merged)
     'COMMANDS_INDEX.md',
     'CURSOR_SETUP.md',
+    'GEMINI.md',
     'GUARDRAILS.md',
     'HOOKS_INDEX.md',
     'RULES_INDEX.md',
@@ -68,24 +69,19 @@ FULL_MANIFEST: List[str] = [
     '.env.example',
     'mcp.txt',
 
-    # ── .trent task management template ──────────────────────────────────────
     # .trent/ in this repo IS the template — blank root files, empty tasks/phases,
-    # examples/ and reference/ included, no live task data.
+    # examples/ and reference/ included.  No live task data.
     '.trent',
 ]
 
-# Rules/IDE update manifest — EXCLUDES .trent/ to preserve user task data
-RULES_MANIFEST: List[str] = [
-    # ── IDE Configurations ────────────────────────────────────────────────────
-    '.agent',
-    '.platform_architecture',
-    '.claude',
-    '.cursor',
+# ── IDE-only manifests (platform-specific installs, never touch .trent/) ──────
 
-    # ── Root files ────────────────────────────────────────────────────────────
-    'agents.md',
+# Cursor IDE — rules, skills, agents, commands, hooks + shared root files
+CURSOR_MANIFEST: List[str] = [
+    '.cursor',
+    '.platform_architecture',
+    'agents.md',                # merged
     'AGENTS_INDEX.md',
-    'CLAUDE.md',
     'COMMANDS_INDEX.md',
     'CURSOR_SETUP.md',
     'GUARDRAILS.md',
@@ -94,7 +90,20 @@ RULES_MANIFEST: List[str] = [
     'SKILLS_INDEX.md',
     '.env.example',
     'mcp.txt',
-    # NOTE: .trent is intentionally excluded — user task data is never touched
+]
+
+# Claude Code — rules, skills, agents, commands, hooks + CLAUDE.md
+CLAUDE_MANIFEST: List[str] = [
+    '.claude',
+    'CLAUDE.md',                # merged
+    'GUARDRAILS.md',
+]
+
+# Google Antigravity / Gemini — rules, skills, workflows + GEMINI.md
+GEMINI_MANIFEST: List[str] = [
+    '.agent',
+    'GEMINI.md',
+    'GUARDRAILS.md',
 ]
 
 # .trent-only manifest — for plan reset
