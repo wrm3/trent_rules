@@ -130,6 +130,10 @@ GEMINI_MANIFEST: List[str] = [
     'mcp.txt',
 ]
 
+# All-platforms IDE manifest — everything in FULL_MANIFEST except .trent/
+# Used by trent_install phase 1 (force-overwrite IDE configs while leaving .trent/ alone)
+RULES_MANIFEST: List[str] = [item for item in FULL_MANIFEST if item != '.trent']
+
 # .trent-only manifest — for plan reset
 TRENT_MANIFEST: List[str] = ['.trent']
 
