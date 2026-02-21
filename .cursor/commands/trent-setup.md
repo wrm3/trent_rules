@@ -23,6 +23,8 @@ I'll create these template files:
 - `.trent/SUBSYSTEMS.md` - Component registry
 - `.trent/FILE_REGISTRY.md` - File documentation
 - `.trent/MCP_TOOLS_INVENTORY.md` - Available MCP tools
+- `.trent/IDEA_BOARD.md` - Ideas parking lot (not yet ready for tasks)
+- `.trent/PROJECT_GOALS.md` - Strategic goals that steer AI decisions
 
 ### 3. Verify MCP Tools
 I'll check available MCP tools and document them in MCP_TOOLS_INVENTORY.md

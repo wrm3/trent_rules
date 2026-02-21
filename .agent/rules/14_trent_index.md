@@ -1,8 +1,12 @@
 ---
-description: "Trent task management system overview and session start protocol"
-activation: "always_on"
+description: trent system overview and command index
+activation: always_on
 ---
-
+---
+description: 
+globs: 
+alwaysApply: true
+---
 # trent System Overview
 
 Whenever you use this rule, start your message with the following:
@@ -65,7 +69,14 @@ The trent system is a consolidated, practical task management framework optimize
 - **Architecture Visualization**: System component relationship diagrams
 - **Sprint Planning**: Iteration planning and story point estimation
 
-### 5. **`self_improvement.mdc`** - System Self-Improvement
+### 5. **`19_trent_ideas_goals.md`** - Idea Board & Project Goals
+- **IDEA_BOARD.md**: Parking lot for ideas not yet ready for development
+- **PROJECT_GOALS.md**: Strategic north star loaded into every session
+- **Trigger Detection**: Auto-captures when user says "make note of this", "idea:", etc.
+- **Goal Validation**: AI checks new tasks against PROJECT_GOALS before proceeding
+- **Lifecycle Management**: raw → evaluating → accepted (task/phase) | shelved
+
+### 6. **`self_improvement.mdc`** - System Self-Improvement
 - **Issue Detection**: Automatic identification of system inconsistencies
 - **Issue Reporting**: Structured protocol for reporting issues to user
 - **Solution Proposals**: Concrete fixes with user approval workflow
@@ -89,7 +100,9 @@ The trent system is a consolidated, practical task management framework optimize
 ├── PROJECT_CONTEXT.md    # Project mission
 ├── PLAN.md               # Product Requirements Document
 ├── SUBSYSTEMS.md         # Component registry
-└── FILE_REGISTRY.md      # File documentation
+├── FILE_REGISTRY.md      # File documentation
+├── IDEA_BOARD.md         # Ideas parking lot (not ready for tasks yet)
+└── PROJECT_GOALS.md      # Strategic goals — AI loads at session start
 
 docs/                     # Project documentation (migration files, setup summaries)
 temp_scripts/             # Test and utility scripts
@@ -143,6 +156,11 @@ temp_scripts/             # Test and utility scripts
 - `@trent-task-update` - Update task status
 - `@trent-task-sync-check` - Validate TASKS.md ↔ task file synchronization
 
+**Idea & Goals Commands:**
+- `@trent-idea-capture` - Capture an idea to IDEA_BOARD.md
+- `@trent-idea-review` - Review and evaluate IDEA_BOARD entries
+- `@trent-goal-update` - Create or update PROJECT_GOALS.md
+
 **Other Commands:**
 - `@trent-plan` - Activate planning system
 - `@trent-review` - Code review
@@ -153,4 +171,5 @@ temp_scripts/             # Test and utility scripts
 ---
 
 *This consolidated system provides a solid, practical workhorse optimized for daily coding work with minimal context overhead while preserving 95% of original functionality.*
+
 

@@ -1,5 +1,5 @@
 ---
-description: Task creation, file format, status management, and pre-work verification
+description: "Task creation, file format, status management, and pre-work verification"
 globs: 
 alwaysApply: true
 ---
@@ -7,6 +7,26 @@ alwaysApply: true
 # Core Rules System
 
 This rule consolidates the essential trent functionality into a single, efficient rule for daily coding work.
+
+## Session Start: Context Loading
+
+When any of these files exist in `.trent/`, display them at session start:
+
+```
+📌 SESSION CONTEXT
+Mission: [from PROJECT_CONTEXT.md, 1 line]
+Goals: G-01: [name] | G-02: [name]    (from PROJECT_GOALS.md — if exists)
+Phase: [current phase]
+Ideas: [N] active                     (from IDEA_BOARD.md — if exists)
+```
+
+**Idea Capture Triggers** — capture IMMEDIATELY to IDEA_BOARD.md when user says:
+- "make a note of that" / "remember this idea" / "note that somewhere"
+- "idea: ..." / "what if we..." / "eventually..." / "for later..."
+
+See `19_trent_ideas_goals.mdc` for full IDEA_BOARD and PROJECT_GOALS protocols.
+
+---
 
 ## Task Management
 
@@ -191,3 +211,4 @@ Checking TASKS.md entries against .trent/tasks/ files...
 **Violations Found**: 1
 **Action Required**: Create retroactive file for Task 002
 ```
+

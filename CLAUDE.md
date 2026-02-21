@@ -71,6 +71,7 @@ cd docker && docker-compose up -d --build trent_rules_docker
 | `trent_install` | Install full trent environment to a project |
 | `trent_rules_update` | Update IDE configs/rules (preserves .trent/ task data) |
 | `trent_plan_reset` | Reset .trent/ to blank template (destroys task data!) |
+| `trent_server_status` | Health check |
 | `md_to_html` | Convert markdown to HTML |
 | `video_analyze` | Full YouTube video analysis |
 | `video_extract_transcript` | Extract video transcripts |
@@ -108,6 +109,8 @@ Tools: Shell, Read, StrReplace
 - `.trent/BUGS.md` - Bug tracking
 - `.trent/PROJECT_CONTEXT.md` - Project mission
 - `.trent/SUBSYSTEMS.md` - Component registry
+- `.trent/IDEA_BOARD.md` - Ideas parking lot
+- `.trent/PROJECT_GOALS.md` - Strategic goals
 - All files in `.trent/tasks/`
 - All files in `.trent/phases/`
 
@@ -533,6 +536,9 @@ Before creating any PRD, ask:
 | `@trent-workflow` | Task expansion, sprint planning |
 | `@trent-analyze-codebase` | Deep merge your own projects |
 | `@trent-harvest` | Harvest ideas from external sources |
+| `@trent-idea-capture` | Capture an idea to IDEA_BOARD.md |
+| `@trent-idea-review` | Review and evaluate IDEA_BOARD entries |
+| `@trent-goal-update` | Create or update PROJECT_GOALS.md |
 
 ---
 

@@ -283,6 +283,9 @@ Commands use the `trent-` prefix.
 | `trent-workflow` | Task expansion, sprint planning |
 | `trent-analyze-codebase` | Deep merge your own projects |
 | `trent-harvest` | Harvest ideas from external sources |
+| `trent-idea-capture` | Capture an idea to IDEA_BOARD.md |
+| `trent-idea-review` | Review and evaluate IDEA_BOARD entries |
+| `trent-goal-update` | Create or update PROJECT_GOALS.md |
 
 ### Usage
 - **Cursor**: `@trent-setup`, `@trent-task-new`, etc. (commands in `.cursor/commands/`)
