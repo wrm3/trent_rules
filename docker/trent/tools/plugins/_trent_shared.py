@@ -98,6 +98,7 @@ CURSOR_MANIFEST: List[str] = [
 # CURSOR_SETUP.md: intentionally excluded — Cursor-specific
 CLAUDE_MANIFEST: List[str] = [
     '.claude',
+    '.platform_architecture',
     'agents.md',                # universal agent instructions (merged)
     'AGENTS_INDEX.md',
     'CLAUDE.md',                # Claude-specific context (merged)
@@ -117,6 +118,7 @@ CLAUDE_MANIFEST: List[str] = [
 # CLAUDE.md: excluded — Claude Code-specific
 GEMINI_MANIFEST: List[str] = [
     '.agent',
+    '.platform_architecture',
     'agents.md',                # universal agent instructions (merged)
     'AGENTS_INDEX.md',
     'COMMANDS_INDEX.md',

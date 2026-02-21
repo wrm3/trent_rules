@@ -5,10 +5,11 @@ Install or upgrade Google Antigravity / Gemini configuration only.
 Does NOT touch .cursor/, .claude/, or .trent/.
 
 Installs and UPGRADES (overwrites):
-  - .agent/           Rules, skills, workflows
-  - agents.md         (merged — GEMINI.md explicitly says "See AGENTS.md for
-                        universal instructions")
-  - GEMINI.md         Gemini-specific project context
+  - .agent/                 Rules, skills, workflows
+  - .platform_architecture/ Cross-platform architecture docs
+  - agents.md               (merged — GEMINI.md explicitly says "See AGENTS.md for
+                              universal instructions")
+  - GEMINI.md               Gemini-specific project context
   - AGENTS_INDEX.md, COMMANDS_INDEX.md, RULES_INDEX.md, SKILLS_INDEX.md,
     GUARDRAILS.md, .env.example, mcp.txt
 

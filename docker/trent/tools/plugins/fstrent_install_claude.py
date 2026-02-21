@@ -5,9 +5,10 @@ Install or upgrade Claude Code configuration only.
 Does NOT touch .cursor/, .agent/, or .trent/.
 
 Installs and UPGRADES (overwrites):
-  - .claude/          Rules, skills, agents, commands, hooks
-  - agents.md         (merged — compatible with both Cursor and Claude Code)
-  - CLAUDE.md         (merged — trent section updated, user content preserved)
+  - .claude/                Rules, skills, agents, commands, hooks
+  - .platform_architecture/ Cross-platform architecture docs
+  - agents.md               (merged — compatible with both Cursor and Claude Code)
+  - CLAUDE.md               (merged — trent section updated, user content preserved)
   - AGENTS_INDEX.md, COMMANDS_INDEX.md, HOOKS_INDEX.md, RULES_INDEX.md,
     SKILLS_INDEX.md, GUARDRAILS.md, .env.example, mcp.txt
 
