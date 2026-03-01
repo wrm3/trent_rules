@@ -186,10 +186,15 @@ docs/                          # Project documentation
 | `oracle_query` | Read-only SQL on Oracle (SELECT, DESCRIBE) |
 | `oracle_execute` | Write SQL on Oracle (INSERT, UPDATE, DDL) |
 | `md_to_html` | Convert markdown to styled HTML |
-| `trent_install` | Install full trent environment to a project |
+| `trent_install` | Install full trent environment to a project (auto-generates .trent/.project_id) |
 | `trent_rules_update` | Update IDE configs/rules (preserves .trent/ task data) |
 | `trent_plan_reset` | Reset .trent/ to blank template (requires confirm=True) |
 | `trent_server_status` | Health check |
+| `memory_ingest_session` | Tier-1 passive capture: ingest raw turns from file adapters (Cursor, Claude Code) |
+| `memory_capture_session` | Tier-2 active capture: AI self-reports session summary (Gemini, VS Code) |
+| `memory_search` | Semantic search over captured session memory |
+| `memory_sessions` | List recent sessions for a project |
+| `memory_context` | Return token-budgeted context block for session-start injection |
 
 ---
 

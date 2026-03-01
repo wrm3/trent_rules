@@ -1,38 +1,68 @@
 # session-start.ps1 - Cursor hook for session initialization
-# Triggered when a new composer conversation is created
+# Triggered when a new composer conversation is created.
+# Injects past agent-memory context so the AI has continuity across sessions.
 
 # Read JSON input from stdin
 $inputJson = $input | Out-String
 
 try {
-    $eventData = $inputJson | ConvertFrom-Json
-    $sessionId = $eventData.session_id
+    $eventData    = $inputJson | ConvertFrom-Json
+    $sessionId    = $eventData.session_id
     $composerMode = $eventData.composer_mode
-    $timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
+    $timestamp    = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
 } catch {
-    $sessionId = "unknown"
+    $sessionId    = "unknown"
     $composerMode = "unknown"
-    $timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
+    $timestamp    = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
 }
 
-# Create log directory
+# ── Logging ──────────────────────────────────────────────────────────────────
 $logDir = ".cursor/logs"
-if (-not (Test-Path $logDir)) {
-    New-Item -ItemType Directory -Path $logDir -Force | Out-Null
-}
+if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir -Force | Out-Null }
 
-# Date prefix for log files (allows easy cleanup of older logs)
 $datePrefix = Get-Date -Format "yyyy-MM-dd"
-$logFile = "$logDir/${datePrefix}_session_lifecycle.log"
+$logFile    = "$logDir/${datePrefix}_session_lifecycle.log"
 
-# Log session start
 $logEntry = "[$timestamp] [SESSION_START] Session: $sessionId | Mode: $composerMode"
 Add-Content -Path $logFile -Value $logEntry
 
-# Output response (allow session to continue, optionally inject context)
+# ── Memory Context Retrieval ─────────────────────────────────────────────────
+$additionalContext = "trent task management system is active. Check .trent/TASKS.md for current tasks."
+
+$projectIdFile = ".trent/.project_id"
+if (Test-Path $projectIdFile) {
+    $projectId = (Get-Content $projectIdFile -Raw).Trim()
+
+    if ($projectId -ne "") {
+        try {
+            # Call the trent memory REST bridge (synchronous — hook waits for this)
+            $mcpUrl = "http://localhost:8082"
+            $contextUrl = "$mcpUrl/memory/context?project_id=$projectId&max_tokens=3000&platform=cursor"
+
+            $resp = Invoke-WebRequest -Uri $contextUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+            $body = $resp.Content | ConvertFrom-Json
+
+            if ($body.success -and $body.context -ne "") {
+                $memoryContext = $body.context
+                $additionalContext = @"
+$memoryContext
+
+---
+trent task management system is active. Check .trent/TASKS.md for current tasks.
+"@
+                Add-Content -Path $logFile -Value "[$timestamp] [MEMORY] Injected context: sessions=$($body.sessions_included) captures=$($body.captures_included)"
+            }
+        } catch {
+            # Memory bridge unavailable — fall back to default context silently
+            Add-Content -Path $logFile -Value "[$timestamp] [MEMORY] Context fetch failed (bridge unavailable): $_"
+        }
+    }
+}
+
+# ── Response ─────────────────────────────────────────────────────────────────
 $response = @{
-    continue = $true
-    additional_context = "trent task management system is active. Check .trent/TASKS.md for current tasks."
+    continue           = $true
+    additional_context = $additionalContext
 }
 
 $response | ConvertTo-Json -Compress

@@ -1,6 +1,6 @@
 # AI Platform Architecture Comparison
 
-**Last Updated**: 2025-10-28
+**Last Updated**: 2026-02-19
 **Purpose**: Cross-platform compatibility guide for maintaining AI project templates
 
 ## TL;DR - The Simple Truth
@@ -36,7 +36,8 @@ rename 's/\.mdc$/.md/' *.mdc  # Rename extensions
 | **Rules File Format** | `.md` | `.md` ✅ | `GEMINI.md` ⚠️ | `.mdc` ⚠️ | `.md` (?) | `.md` (?) | `.md` (?) |
 | **Rules Location** | `.claude/rules/` | `.agent/rules/` ✅ | Hierarchical cascade | `.cursor/rules/` | `.windsurf/` (?) | TBD | TBD |
 | **Skills** | ✅ `.claude/skills/` | ✅ `.agent/skills/` | ❌ No | ✅ `.cursor/skills/` | ❌ No | ❌ No | ❌ No |
-| **SubAgents** | ✅ Yes (34+ types) | ❌ No | ❌ No | ✅ Yes (34+ types) | ❌ No (?) | ❌ No (?) | ❌ No (?) |
+| **SubAgents** | ✅ Yes (52+ types) | ❌ No | ❌ No | ✅ Yes (52+ types) | ❌ No (?) | ❌ No (?) | ❌ No (?) |
+| **Agent SDK** | ✅ Python + TypeScript | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Hierarchical Context** | ❌ No | ✅ Global+Workspace | ✅ Yes ⚠️ | ❌ No | ❌ No | ❌ No | ❌ No |
 | **Commands** | ✅ `/command` | ✅ `/workflow-name` | ✅ `/command` | ✅ `@command` | ❓ Unknown | ❓ Unknown | ❓ Unknown |
 | **Workflows** | ❌ No | ✅ `.agent/workflows/` | ❌ No | ❌ No | ❌ No | ❌ No | ❌ No |
@@ -61,6 +62,8 @@ rename 's/\.mdc$/.md/' *.mdc  # Rename extensions
 
 **1. Claude Code (Unique)**
 - **Skills & SubAgents** - Sophisticated multi-agent system
+- **Agent SDK** - Programmatic agent creation via `@anthropic-ai/claude-agent-sdk` (TypeScript) or `claude-agent-sdk` (Python)
+  - Docs: https://docs.claude.com/en/api/agent-sdk/overview
 - **Directory**: `.claude/` with `skills/`, `agents/`, `commands/`, `rules/`
 - **File Format**: `.md` with YAML frontmatter
 - **Commands**: `/command` prefix
@@ -140,12 +143,17 @@ find .platform/rules -name "*.md" -exec sh -c 'mv "$1" "${1%.md}.mdc"' _ {} \;
 
 ### 3. Skills/SubAgents Support
 
-**Only Claude Code has Skills & SubAgents**
+**Claude Code and Cursor have Skills & SubAgents**
 
 ```
 Claude Code: ✅
   - .claude/skills/      # Knowledge modules
   - .claude/agents/      # Specialized AI agents
+  - Agent SDK            # Programmatic agent creation (Python/TypeScript)
+
+Cursor: ✅
+  - .cursor/skills/      # Knowledge modules
+  - .cursor/agents/      # Specialized AI agents
 
 All Others: ❌
   - Must use rules/instructions instead
@@ -154,8 +162,9 @@ All Others: ❌
 ```
 
 **Migration Strategy**:
-- Claude Code Skills → Convert to platform rules
-- Claude Code SubAgents → Merge into main AI instructions
+- Claude Code/Cursor Skills → Convert to platform rules for other IDEs
+- Claude Code/Cursor SubAgents → Merge into main AI instructions for other IDEs
+- Agent SDK → Claude Code exclusive (no equivalent elsewhere)
 - Document what functionality is lost
 
 ### 4. Command Invocation
@@ -262,7 +271,14 @@ All platforms use file-based setup:
    ---
    ```
 
-3. **YAML Triggers**
+3. **Agent SDK** (Programmatic agent creation)
+   - **Python**: `pip install claude-agent-sdk` — https://github.com/anthropics/claude-agent-sdk-python
+   - **TypeScript**: `@anthropic-ai/claude-agent-sdk` — https://github.com/anthropics/claude-agent-sdk-typescript
+   - Supports `allowedTools`, `permissionMode`, `systemPrompt`, `mcpServers`, `model`
+   - Agents inherit project `.claude/` configuration
+   - Docs: https://docs.claude.com/en/api/agent-sdk/overview
+
+4. **YAML Triggers**
    ```yaml
    triggers: [keyword1, keyword2, keyword3]
    ```
@@ -477,7 +493,7 @@ Test template on all platforms:
 | YAML Frontmatter | ✅ | ✅ | ❓ | ❓ | ❓ |
 | MCP Integration | ✅ | ✅ | ❓ | ✅ | ✅ |
 | Commands | ✅ | ✅ | ❓ | ❓ | ❓ |
-| Skills/Agents | ✅ | ❌ | ❌ | ❌ | ❌ |
+| Skills/Agents | ✅ | ✅ | ❌ | ❌ | ❌ |
 
 ## Maintenance Checklist
 
@@ -589,6 +605,6 @@ Help complete this comparison:
 
 ---
 
-**Last Updated**: 2025-10-26
-**Next Review**: 2026-01-26 (quarterly)
+**Last Updated**: 2026-02-19
+**Next Review**: 2026-05-19 (quarterly)
 **Status**: Active, needs community input for Windsurf/Cline/Roo-Code

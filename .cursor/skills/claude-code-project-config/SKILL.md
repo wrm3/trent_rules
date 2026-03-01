@@ -20,6 +20,9 @@ Create, maintain, audit, and update `.claude/` project configurations. Self-upda
 7. Fetch https://docs.anthropic.com/en/docs/claude-code/permissions — permissions reference
 8. Fetch https://docs.anthropic.com/en/docs/claude-code/mcp — MCP reference
 
+9. Fetch https://docs.claude.com/en/api/agent-sdk/overview — Agent SDK overview
+10. Fetch https://docs.claude.com/en/api/agent-sdk/quickstart — Agent SDK quickstart
+
 Compare fetched content against `reference/claude_code_structure.md`. If any new features, files, or settings are found, update the reference file AND this SKILL.md before proceeding.
 
 ## Complete .claude/ Structure
@@ -237,6 +240,33 @@ Located at `~/.claude/projects/{hash}/memory/MEMORY.md`. Auto-generated. First 2
 1. Read current `.claude/settings.json`
 2. Modify `permissions.allow/ask/deny` arrays
 3. Write back
+
+## Claude Agent SDK
+
+The Claude Agent SDK enables building autonomous AI agents programmatically using Claude Code's capabilities. Agents can understand codebases, edit files, run commands, and execute complex workflows.
+
+### Official Resources
+- **Overview**: https://docs.claude.com/en/api/agent-sdk/overview
+- **Quickstart**: https://docs.claude.com/en/api/agent-sdk/quickstart
+- **Python SDK**: https://github.com/anthropics/claude-agent-sdk-python
+- **TypeScript SDK**: https://github.com/anthropics/claude-agent-sdk-typescript
+- **npm package**: `@anthropic-ai/claude-agent-sdk`
+
+### Key Concepts
+- Uses Claude Code's filesystem-based configuration (CLAUDE.md, settings.json, etc.)
+- Supports `allowedTools` to restrict which tools the agent can use
+- Permission modes control auto-approval of file changes
+- Configuration: `systemPrompt`, `mcpServers`, `model`, `permissionMode`
+- Agents inherit project-level `.claude/` configuration
+
+### Local SDK Infrastructure
+This project includes a local Agent SDK implementation at `.claude/agents/sdk/`:
+- `base_agent.py` — Base class for all SDK-powered agents
+- `context.py` — Shared context for agent collaboration
+- `workflow.py` — Orchestrator for multi-agent workflows (sequential, parallel, conditional)
+- `fallback.py` — Graceful fallback from SDK to prompt-based agents
+- `health.py` — Health checks and readiness validation
+- `primitives/` — Memory, hooks, commands, and plugin integrations
 
 ## Reference Files
 - `reference/claude_code_structure.md` — Full structure reference (self-updated from official docs)

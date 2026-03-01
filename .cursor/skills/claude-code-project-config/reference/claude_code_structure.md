@@ -19,6 +19,8 @@ This file should be periodically refreshed by fetching the official docs listed 
 | https://docs.anthropic.com/en/docs/claude-code/memory | Memory, rules, CLAUDE.md |
 | https://docs.anthropic.com/en/docs/claude-code/permissions | Permission patterns |
 | https://docs.anthropic.com/en/docs/claude-code/mcp | MCP config format |
+| https://docs.claude.com/en/api/agent-sdk/overview | Agent SDK overview, capabilities |
+| https://docs.claude.com/en/api/agent-sdk/quickstart | Agent SDK quickstart, configuration |
 
 ## Known File Structure (as of 2026-02-19)
 
@@ -78,6 +80,23 @@ SessionStart, UserPromptSubmit, PreToolUse, PostToolUse, PostToolUseFailure, Per
 ## Hook Types (3)
 
 command, prompt, agent
+
+## Claude Agent SDK
+
+The Agent SDK enables building autonomous AI agents programmatically using Claude Code's capabilities.
+
+### Official Resources
+- **Overview**: https://docs.claude.com/en/api/agent-sdk/overview
+- **Quickstart**: https://docs.claude.com/en/api/agent-sdk/quickstart
+- **Python SDK**: https://github.com/anthropics/claude-agent-sdk-python (`pip install claude-agent-sdk`)
+- **TypeScript SDK**: https://github.com/anthropics/claude-agent-sdk-typescript (`@anthropic-ai/claude-agent-sdk`)
+
+### Key Features
+- Uses Claude Code's filesystem-based configuration (CLAUDE.md, settings.json, etc.)
+- `allowedTools` — restrict which tools the agent can use
+- `permissionMode` — control auto-approval of file changes
+- `systemPrompt`, `mcpServers`, `model` configuration
+- Agents inherit project-level `.claude/` configuration
 
 ## NOT Recognized (Community Only)
 

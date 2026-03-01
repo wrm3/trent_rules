@@ -71,7 +71,7 @@ def load_config() -> dict:
         'openai_api_key': os.getenv('OPENAI_API_KEY'),
         'postgres_host': os.getenv('POSTGRES_HOST'),
         'postgres_port': os.getenv('POSTGRES_PORT', '5432'),
-        'postgres_database': os.getenv('POSTGRES_DATABASE', 'rag_ai_coding'),
+        'postgres_database': os.getenv('POSTGRES_DATABASE') or os.getenv('POSTGRES_DB', 'rag_knowledge'),
         'postgres_user': os.getenv('POSTGRES_USER', 'postgres'),
         'postgres_password': os.getenv('POSTGRES_PASSWORD'),
         'postgres_connection_string': os.getenv('POSTGRES_CONNECTION_STRING'),

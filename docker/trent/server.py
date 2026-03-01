@@ -63,6 +63,7 @@ from .database.embeddings import EmbeddingGenerator
 from .database.multi_subject import MultiSubjectDatabase, SubjectAwareDBWrapper
 from .subjects import SubjectManager
 from .plugin_loader import PluginLoader
+from .memory_rest import MEMORY_ROUTES, init_memory_rest
 
 # Initialize components
 db: Optional[RAGDatabase] = None
@@ -248,11 +249,24 @@ def main():
             sys.exit(1)
 
         if transport == 'sse':
-            app = mcp.sse_app()
+            mcp_app = mcp.sse_app()
         else:
-            app = mcp.streamable_http_app()
+            mcp_app = mcp.streamable_http_app()
 
-        logger.info("MCP server ready - use trent_server_status tool to check health")
+        # Initialize the memory REST bridge with the shared DB/embedding components
+        init_memory_rest(db=db, embedding_generator=embedding_generator, config=config)
+
+        # Combine: memory REST routes are checked first; everything else falls
+        # through to the MCP SSE/streamable-http app.
+        from starlette.applications import Starlette
+        from starlette.routing import Mount
+
+        app = Starlette(
+            routes=MEMORY_ROUTES + [Mount("/", app=mcp_app)],
+        )
+
+        logger.info("MCP server ready - memory REST bridge active at /memory/*")
+        logger.info("use trent_server_status tool to check health")
         uvicorn.run(app, host=host, port=port, log_level="info")
 
     else:
