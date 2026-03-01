@@ -129,6 +129,22 @@ class User(db.Model):
     email = db.Column(db.String, index=True)  # ✅
 ```
 
+## Reusability Checklist (HIGH - Check Every Review)
+
+See `04_code_reusability.mdc` for full DRY standards and folder conventions.
+
+### Duplication Detection
+- [ ] No copy-pasted logic across files (3-strike rule: 3+ occurrences → extract MANDATORY)
+- [ ] Utility functions placed in `lib/utils/` or `shared/`, not defined inline
+- [ ] Existing shared modules used where applicable (checked `lib/`, `shared/`, `utils/`)
+- [ ] No magic numbers/strings hardcoded (should be in `lib/config/constants`)
+
+### Shared Module Quality
+- [ ] New shared modules have clear, single responsibility
+- [ ] Barrel exports (`index.ts` / `__init__.py`) used for clean import paths
+- [ ] Shared modules are documented (docstrings/JSDoc on public functions)
+- [ ] New shared modules have 2+ consumers (not premature abstraction)
+
 ## Review Output Format
 
 ```markdown
@@ -151,10 +167,16 @@ class User(db.Model):
 ## Performance Concerns
 - [With recommendations]
 
+## Reusability Issues
+- [Duplicated logic that should be extracted]
+- [Inline utilities that belong in lib/utils/]
+- [Missing shared module usage]
+
 ## Action Items
 1. [ ] Fix CRITICAL issue X
 2. [ ] Refactor large file Y
 3. [ ] Add tests for Z
+4. [ ] Extract duplicated logic to shared module (if applicable)
 ```
 
 ## Integration with fstrent-spec-tasks

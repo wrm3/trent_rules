@@ -106,6 +106,12 @@ This rule provides comprehensive planning functionality including PRD creation, 
 ### 8.5 Potential challenges
 - [Risks or technical hurdles]
 
+### 8.6 Shared modules and reusability
+- [Identify shared modules needed across multiple features in this PRD]
+- [Reference existing shared modules in lib/ or shared/ that should be leveraged]
+- [Plan new shared modules before feature implementation begins — prevents duplication]
+- Example: "Auth token parsing will be shared across API client, middleware, and SSR — extract to lib/services/auth.ts"
+
 ## 9. Milestones & sequencing
 ### 9.1 Project estimate
 - [Small/Medium/Large]: [Rough time estimate, e.g., 2-4 weeks]

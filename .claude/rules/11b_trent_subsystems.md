@@ -178,3 +178,4 @@ Before creating any PRD, ask these essential questions:
 - **Database**: Use simple file-based unless DB explicitly requested
 - **API**: Don't add comprehensive REST beyond required
 - **Architecture**: Default monolith unless scale requires separation
+- **Shared Modules**: Plan shared utilities BEFORE feature work begins. Duplicated logic across features = scope failure. (See 04_code_reusability.md)

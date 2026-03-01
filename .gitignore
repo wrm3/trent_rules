@@ -136,6 +136,7 @@ checkpoints/
 *.old
 *_backup/
 *_old/
+.trent_bk/
 
 # ============================================================================
 # OS-Specific
@@ -227,9 +228,8 @@ ftp_sites.json
 !example-project/
 !example-project/**/*
 
-# Documentation
-!docs/
-!docs/**/*
+# Documentation (private - not for distribution)
+docs/
 
 # GitHub files
 !.github/

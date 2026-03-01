@@ -148,6 +148,13 @@ When starting tasks, display:
 
 ## Coding Standards
 
+### Code Reusability (see 04_code_reusability.md for full details)
+- **3-Strike Rule**: Logic appearing 3+ times MUST be extracted to a shared module
+- **Shared module roots**: `src/lib/` (TS/JS) or `lib/` (Python) — utilities, services, types, config
+- **No inline utilities**: Functions used 2+ times belong in `lib/utils/`, not inline
+- **Barrel exports**: Every shared folder needs `index.ts` / `__init__.py`
+- **No magic values**: Constants and config belong in `lib/config/constants`
+
 ### Python
 - Follow PEP 8 guidelines (relaxed enforcement)
 - Use black formatter, 88-100 character line length

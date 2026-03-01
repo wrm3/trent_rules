@@ -230,6 +230,8 @@ actual_effort: '{actual_time_spent}'
 - **Bug Severity Distribution**: Breakdown of bugs by severity level
 - **Phase Impact Analysis**: Which phases are most affected by bugs
 - **Regression Rate**: Percentage of fixes that introduce new bugs
+- **Code Reuse Rate**: Ratio of shared module imports to total imports across the codebase
+- **Duplication Score**: Number of duplicated code patterns detected (target: 0 violations of 3-strike rule)
 
 ### Quality Gates
 - **Code Review**: All code changes require review
@@ -237,6 +239,7 @@ actual_effort: '{actual_time_spent}'
 - **Documentation Standards**: Code comments, API documentation, user guides
 - **Performance Benchmarks**: Performance regression testing
 - **Security Scanning**: Automated security vulnerability scanning
+- **Reusability Standards**: No 3-strike rule violations, shared modules used where available, no inline utilities that belong in lib/utils/ (see 04_code_reusability.mdc)
 
 ## Integration Points
 

@@ -175,6 +175,12 @@ Before marking complete, verify the work:
 - [ ] Acceptance criteria satisfied
 - [ ] User expectations met
 
+### Reusability Check (see 04_code_reusability.md)
+- [ ] No duplicated logic introduced (checked against existing shared modules)
+- [ ] New utility functions placed in lib/utils/ or shared/, not defined inline
+- [ ] Existing shared modules used where applicable
+- [ ] No magic numbers/strings hardcoded (use lib/config/constants)
+
 **Validation Result**: [PASS/FAIL]
 ```
 
@@ -303,6 +309,11 @@ Shall I update these files? (yes/no/skip)
 □ Did I check project files impact? (MANDATORY CHECK)
   → If task added MCP tool/command/skill/agent, update agents.md
   → If task changed tech stack/structure, update CLAUDE.md
+
+□ Did I introduce duplicated code that should be a shared module? (REUSABILITY CHECK)
+  → If logic appears 3+ times: extract to lib/ or shared/ BEFORE completing
+  → If new utilities defined inline: move to lib/utils/
+  → Reference 04_code_reusability.md for folder conventions
 ```
 
 **Failure to Complete Workflow = SYSTEM VIOLATION**

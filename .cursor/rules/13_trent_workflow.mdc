@@ -59,10 +59,25 @@ dependencies: []        # Can depend on other tasks/sub-tasks
 
 ### Expansion Workflow
 1. **Complexity Assessment**: Score task using established criteria
-2. **Expansion Proposal**: Generate sub-task breakdown
-3. **Direct Creation**: Create sub-tasks directly without approval prompts
-4. **Sub-Task Creation**: Create individual task files
-5. **Parent Task Update**: Update parent task to reference expansion
+2. **Shared Module Check**: Identify if the parent task will introduce reusable logic — if yes, add a dedicated shared module extraction sub-task (e.g., `task{id}-1_extract_shared_module.md`) as the FIRST sub-task, before feature implementation sub-tasks
+3. **Expansion Proposal**: Generate sub-task breakdown
+4. **Direct Creation**: Create sub-tasks directly without approval prompts
+5. **Sub-Task Creation**: Create individual task files
+6. **Parent Task Update**: Update parent task to reference expansion
+
+**Shared Module Extraction Sub-task Template** (see 04_code_reusability.mdc):
+```yaml
+---
+id: "{parent_id}-1"
+title: "Extract shared module: {module_name}"
+type: refactor
+status: pending
+priority: high
+parent_task: {parent_id}
+dependencies: []
+notes: "Must complete before feature implementation sub-tasks to prevent duplication"
+---
+```
 
 ## Methodology Integration
 

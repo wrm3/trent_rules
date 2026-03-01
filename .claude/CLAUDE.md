@@ -265,6 +265,10 @@ Run as background tasks to avoid hanging the terminal.
 - Authentication: don't add unless requested
 - Database: file-based unless explicitly requested
 - Architecture: monolith unless scale requires separation
+- **Shared Modules**: Plan shared utilities BEFORE feature work begins — duplicated logic = scope failure
+
+### PRD Section 8.6 (Required)
+Always include in PRD Technical Considerations: which shared modules are needed, which existing ones to leverage, and new ones to create before feature implementation starts.
 
 ---
 
@@ -282,6 +286,46 @@ Run as background tasks to avoid hanging the terminal.
 - 3 SP: 4-8 hours
 - 5 SP: 1-2 days
 - 8 SP: Requires sub-task expansion
+
+### Task Expansion: Shared Module Check
+When expanding a complex task, check if it introduces reusable logic. If yes, add a shared module extraction sub-task as the **first** sub-task before any feature implementation sub-tasks. See `.claude/rules/04_code_reusability.md`.
+
+---
+
+## Code Reusability (from 04_code_reusability.md)
+
+### The 3-Strike Rule (ENFORCED)
+If identical or near-identical logic appears **3+ times** across files, extraction to a shared module is **mandatory**.
+
+### Shared Module Folder Conventions
+| Language | Root | Structure |
+|----------|------|-----------|
+| TypeScript/JS | `src/lib/` | `utils/`, `services/`, `hooks/`, `components/`, `types/`, `config/` |
+| Python | `lib/` | `utils/`, `services/`, `models/`, `types/`, `config/` |
+
+**Always required**: Barrel exports (`index.ts` / `__init__.py`) on every shared folder.
+
+### Anti-Patterns (Flag Immediately)
+- Copy-pasted logic across files → extract to shared module
+- Utility functions defined inline → move to `lib/utils/`
+- Fat components mixing concerns → split into focused modules
+- Hardcoded values → move to `lib/config/constants`
+- Re-implementing stdlib → use standard library
+
+### Before Writing New Code
+```
+□ Does a shared module already exist for this?
+□ Can this be generalized for reuse?
+□ Am I duplicating logic from another file?
+□ Are constants defined centrally (not hardcoded)?
+```
+
+### Task Completion Reusability Check
+When completing any task, verify:
+- [ ] No 3-strike violations introduced
+- [ ] New utilities in `lib/utils/`, not inline
+- [ ] Shared modules leveraged where available
+- [ ] No magic numbers/strings hardcoded
 
 ---
 
