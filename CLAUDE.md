@@ -68,14 +68,18 @@ cd docker && docker-compose up -d --build trent_rules_docker
 | `oracle_execute` | Write SQL on Oracle |
 | `mediawiki_page` | MediaWiki CRUD operations |
 | `mediawiki_search` | Search MediaWiki |
-| `trent_install` | Install full trent environment to a project |
+| `trent_install` | Install full trent environment (auto-generates .trent/.project_id) |
 | `trent_rules_update` | Update IDE configs/rules (preserves .trent/ task data) |
 | `trent_plan_reset` | Reset .trent/ to blank template (destroys task data!) |
 | `trent_server_status` | Health check |
 | `md_to_html` | Convert markdown to HTML |
 | `video_analyze` | Full YouTube video analysis |
 | `video_extract_transcript` | Extract video transcripts |
-| `trent_server_status` | Health check |
+| `memory_ingest_session` | Tier-1: ingest raw turns from Cursor/Claude Code file adapters |
+| `memory_capture_session` | Tier-2: AI self-reports session summary (Gemini, VS Code) |
+| `memory_search` | Semantic search over captured session memory |
+| `memory_sessions` | List recent sessions for a project |
+| `memory_context` | Token-budgeted context block injected at session start |
 
 ---
 

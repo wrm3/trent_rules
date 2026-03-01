@@ -158,6 +158,25 @@ async def execute(
         original_target_path=original_path,
     )
 
+    # ── Phase 3: Generate .trent/.project_id if not present ──────────────────
+    project_id_path = trent_dir / '.project_id'
+    project_id_created = False
+    if not dry_run and not project_id_path.exists():
+        try:
+            import uuid as _uuid
+            import hashlib as _hashlib
+            # Derive a short, stable ID from the project path
+            path_hash = _hashlib.sha256(str(target).encode()).hexdigest()[:8]
+            project_name = target.name.lower().replace('_', '-').replace(' ', '-')
+            # Keep it short and human-readable: proj-<name>-<hash8>
+            proj_id = f"proj-{project_name[:20]}-{path_hash}"
+            project_id_path.parent.mkdir(parents=True, exist_ok=True)
+            project_id_path.write_text(proj_id, encoding='utf-8')
+            project_id_created = True
+            logger.info(f"trent_install: created .trent/.project_id = {proj_id}")
+        except Exception as e:
+            logger.warning(f"trent_install: could not create .project_id: {e}")
+
     # ── Merge results ─────────────────────────────────────────────────────────
     from datetime import datetime
     total_copied = len(ide_result.get('copied_files', [])) + len(trent_result.get('copied_files', []))
@@ -195,6 +214,8 @@ async def execute(
             'skipped': len(trent_result.get('skipped_files', [])),
             'note': 'Existing .trent/ files preserved (not overwritten)',
         },
+        'project_id': project_id_path.read_text(encoding='utf-8').strip() if not dry_run and project_id_path.exists() else None,
+        'project_id_created': project_id_created,
         'warnings': all_warnings,
         'operation_time_seconds': total_time,
         'message': (
