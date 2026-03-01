@@ -69,18 +69,68 @@ def load_user_config() -> dict:
 
 def _get_machine_id() -> str:
     """Get a stable machine identifier."""
+    import sys
     # Try Windows MachineGuid
-    try:
-        import winreg
-        key = winreg.OpenKey(
-            winreg.HKEY_LOCAL_MACHINE,
-            r"SOFTWARE\Microsoft\Cryptography",
-        )
-        value, _ = winreg.QueryValueEx(key, "MachineGuid")
-        return str(value)
-    except Exception:
-        pass
-    # Fallback
+    if sys.platform == "win32":
+        try:
+            import winreg
+            key = winreg.OpenKey(
+                winreg.HKEY_LOCAL_MACHINE,
+                r"SOFTWARE\Microsoft\Cryptography",
+            )
+            value, _ = winreg.QueryValueEx(key, "MachineGuid")
+            return str(value)
+        except Exception:
+            pass
+
+    # Try Antigravity installation_id (cross-platform)
+    antigravity_id = Path.home() / ".gemini" / "antigravity" / "installation_id"
+    if antigravity_id.exists():
+        try:
+            return antigravity_id.read_text(encoding="utf-8").strip()
+        except Exception:
+            pass
+
+    # VS Code / Cursor devDeviceId (Windows)
+    if sys.platform == "win32":
+        import os as _os
+        for vscode_storage in [
+            _os.path.expandvars(r"%APPDATA%\Cursor\User\globalStorage\storage.json"),
+            _os.path.expandvars(r"%APPDATA%\Code\User\globalStorage\storage.json"),
+        ]:
+            try:
+                with open(vscode_storage, encoding="utf-8") as f:
+                    vsc_data = json.load(f)
+                dev_id = vsc_data.get("telemetry.devDeviceId") or vsc_data.get(
+                    "telemetry", {}
+                ).get("devDeviceId")
+                if dev_id:
+                    return str(dev_id)
+            except Exception:
+                pass
+
+    # Linux: /etc/machine-id
+    for machine_id_path in ["/etc/machine-id", "/var/lib/dbus/machine-id"]:
+        try:
+            with open(machine_id_path) as f:
+                return f.read().strip()
+        except Exception:
+            pass
+
+    # macOS: ioreg
+    if sys.platform == "darwin":
+        try:
+            import subprocess
+            out = subprocess.check_output(
+                ["ioreg", "-rd1", "-c", "IOPlatformExpertDevice"], text=True
+            )
+            for line in out.splitlines():
+                if "IOPlatformUUID" in line:
+                    return line.split('"')[-2]
+        except Exception:
+            pass
+
+    # Final fallback: MAC address-based UUID
     import uuid as uuid_mod
     return str(uuid_mod.getnode())
 

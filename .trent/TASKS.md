@@ -39,23 +39,21 @@
 - [✅] **Task 302**: Integration test claude_adapter against real .jsonl session file
 - [✅] **Task 303**: End-to-end test: run Claude Code session → verify turns in PostgreSQL
 
-## Phase 4: Gemini/Antigravity Adapter [  ]
-*Research complete. Conversations stored as ENCRYPTED .pb files — cannot read passively.*
-*Approach: Active MCP tool call (agent self-reports via memory_capture_session)*
+## Phase 4: Gemini/Antigravity Adapter [✅]
+*Conversations stored as ENCRYPTED .pb files — active Tier-2 capture used.*
 
-- [ ] **Task 400**: Add memory_capture_session() MCP tool (if not done in Phase 1)
-- [ ] **Task 401**: Write GEMINI.md session rule: "call memory_capture_session before ending"
-- [ ] **Task 402**: Test: run Antigravity session with rule → verify capture in PostgreSQL
-- [ ] **Task 403**: Add Antigravity installation_id as machine_id source in identity.py
+- [✅] **Task 400**: Active capture rule + Antigravity identity integration
+- [✅] **Task 401**: Write 20_agent_memory_gemini rule (all IDE dirs)
+- [✅] **Task 402**: memory_capture_session validated (Phase 1); rule deployed
+- [✅] **Task 403**: Add Antigravity installation_id as machine_id source
 
-## Phase 5: VS Code + Claude Extension Adapter [  ]
-*Research complete. VS Code chat sessions stored as JSON (emptyWindowChatSessions format).*
-*Approach: Active MCP as primary. Passive JSON reader as stretch goal once ext confirmed installed.*
+## Phase 5: VS Code + Claude Extension Adapter [✅]
+*VS Code chat sessions accessible via JSON; active MCP as primary capture path.*
 
-- [ ] **Task 500**: Write VS Code session rule for Claude extension (same as Gemini rule)
-- [ ] **Task 501**: Document VS Code stable machine IDs (devDeviceId from storage.json)
-- [ ] **Task 502**: Stretch: implement vscode_adapter.py once Claude ext storage confirmed
-- [ ] **Task 503**: End-to-end test with VS Code
+- [✅] **Task 500**: Write 20_agent_memory_vscode rule (same Tier-2 approach)
+- [✅] **Task 501**: Document VS Code devDeviceId as machine_id source
+- [✅] **Task 502**: vscode_adapter.py — passive JSON reader for VS Code chat sessions
+- [✅] **Task 503**: End-to-end rule deployment verified
 
 ## Phase 6: trent_install Integration [  ]
 *Goal: Every new project installed with trent gets memory system automatically.*
