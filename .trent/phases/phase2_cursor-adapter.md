@@ -1,12 +1,12 @@
 ---
 phase: 2
 name: 'Cursor Adapter'
-status: planning
+status: completed
 subsystems: [cursor_adapter, hooks, mcp_server]
 task_range: '200-299'
 prerequisites: [0, 1]
-started_date: ''
-completed_date: ''
+started_date: '2026-03-01'
+completed_date: '2026-03-01'
 pivoted_from: null
 pivot_reason: ''
 ---

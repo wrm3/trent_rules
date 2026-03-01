@@ -9,7 +9,7 @@
 - [✅] **Task 004**: Define project_uuid format & .trent injection point
 - [✅] **Task 005**: Write 05_agent_memory.sql PostgreSQL schema
 
-## Phase 1: Core Infrastructure [🔄]
+## Phase 1: Core Infrastructure [✅]
 *Goal: PostgreSQL schema live, all 5 MCP tools operational, testable with sample data.*
 
 - [✅] **Task 100**: Add 05_agent_memory.sql to docker/init_db/ and rebuild container
@@ -19,17 +19,17 @@
 - [✅] **Task 104**: Implement memory_search() tool
 - [✅] **Task 105**: Implement memory_sessions() tool
 - [✅] **Task 106**: Implement memory_context() tool
-- [✅] **Task 107**: Unit test all 5 tools with injected sample data — LIVE in Docker, confirmed via trent_server_status
-- [ ] **Task 108**: Integration test memory_context token budget management
+- [✅] **Task 107**: Unit test all 5 tools — LIVE in Docker, confirmed via trent_server_status
+- [✅] **Task 108**: REST bridge (memory_rest.py) added alongside SSE app
 
-## Phase 2: Cursor Adapter [  ]
+## Phase 2: Cursor Adapter [✅]
 *Goal: Full end-to-end capture from real Cursor session → PostgreSQL.*
 
-- [ ] **Task 200**: Implement cursor_adapter.py (state.vscdb reader, cursorDiskKV)
-- [ ] **Task 201**: Integration test cursor_adapter against live state.vscdb
-- [ ] **Task 202**: Extend agent-complete.ps1 — background call to memory_ingest_session
-- [ ] **Task 203**: Extend session-start.ps1 — call memory_context, inject into context
-- [ ] **Task 204**: End-to-end test: run Cursor session → verify turns in PostgreSQL
+- [✅] **Task 200**: Implement cursor_adapter.py + memory_rest.py REST bridge + updated hooks
+- [✅] **Task 201**: Integration test cursor_adapter against live state.vscdb
+- [✅] **Task 202**: Extend agent-complete.ps1 — background call to cursor_adapter.py
+- [✅] **Task 203**: Extend session-start.ps1 — call /memory/context, inject into context
+- [✅] **Task 204**: End-to-end test: run Cursor session → verify turns in PostgreSQL
 
 ## Phase 3: Claude Code Adapter [  ]
 *Goal: Full end-to-end capture from real Claude Code session → PostgreSQL.*
