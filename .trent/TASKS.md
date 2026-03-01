@@ -31,13 +31,13 @@
 - [✅] **Task 203**: Extend session-start.ps1 — call /memory/context, inject into context
 - [✅] **Task 204**: End-to-end test: run Cursor session → verify turns in PostgreSQL
 
-## Phase 3: Claude Code Adapter [  ]
+## Phase 3: Claude Code Adapter [✅]
 *Goal: Full end-to-end capture from real Claude Code session → PostgreSQL.*
 
-- [ ] **Task 300**: Implement claude_adapter.py (~/.claude/projects/*.jsonl reader)
-- [ ] **Task 301**: Create Claude Code stop hook (shell script, cross-platform)
-- [ ] **Task 302**: Integration test claude_adapter against real .jsonl session file
-- [ ] **Task 303**: End-to-end test: run Claude Code session → verify turns in PostgreSQL
+- [✅] **Task 300**: Implement claude_adapter.py (~/.claude/projects/*.jsonl reader)
+- [✅] **Task 301**: Create Claude Code stop hook (.claude/hooks/stop.sh + agent-complete.ps1)
+- [✅] **Task 302**: Integration test claude_adapter against real .jsonl session file
+- [✅] **Task 303**: End-to-end test: run Claude Code session → verify turns in PostgreSQL
 
 ## Phase 4: Gemini/Antigravity Adapter [  ]
 *Research complete. Conversations stored as ENCRYPTED .pb files — cannot read passively.*

@@ -8,12 +8,13 @@ try {
     $eventData = $inputJson | ConvertFrom-Json
     $status = $eventData.status
     $loopCount = $eventData.loop_count
-    $conversationId = $eventData.conversation_id
+    # Claude Code Stop hook provides session_id; fallback to conversation_id for older versions
+    $sessionId = if ($eventData.session_id) { $eventData.session_id } elseif ($eventData.conversation_id) { $eventData.conversation_id } else { "unknown" }
     $timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
 } catch {
     $status = "unknown"
     $loopCount = 0
-    $conversationId = "unknown"
+    $sessionId = "unknown"
     $timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
 }
 
@@ -23,12 +24,11 @@ if (-not (Test-Path $logDir)) {
     New-Item -ItemType Directory -Path $logDir -Force | Out-Null
 }
 
-# Date prefix for log files (allows easy cleanup of older logs)
 $datePrefix = Get-Date -Format "yyyy-MM-dd"
 $logFile = "$logDir/${datePrefix}_agent_lifecycle.log"
 
 # Log agent completion
-$logEntry = "[$timestamp] [STOP] Conversation: $conversationId | Status: $status | Loops: $loopCount"
+$logEntry = "[$timestamp] [STOP] Session: $sessionId | Status: $status | Loops: $loopCount"
 Add-Content -Path $logFile -Value $logEntry
 
 # Create metrics directory
@@ -37,12 +37,46 @@ if (-not (Test-Path $metricsDir)) {
     New-Item -ItemType Directory -Path $metricsDir -Force | Out-Null
 }
 
-# Date prefix for metrics files
 $metricsFile = "$metricsDir/${datePrefix}_completions.csv"
-
-# Write completion event to metrics
-$csvEntry = "$timestamp,$conversationId,$status,$loopCount"
+$csvEntry = "$timestamp,$sessionId,$status,$loopCount"
 Add-Content -Path $metricsFile -Value $csvEntry
+
+# ── Memory Capture (async background job) ────────────────────────────────────
+# Only attempt capture for real sessions (skip "unknown" IDs).
+if ($sessionId -ne "unknown" -and $sessionId -ne "" -and $sessionId -ne $null) {
+    $projectPath = (Get-Location).Path
+
+    # Find claude_adapter.py — check .claude/hooks/ first, then .cursor/hooks/
+    $adapterScript = $null
+    foreach ($candidate in @(
+        (Join-Path $PSScriptRoot "claude_adapter.py"),
+        (Join-Path $projectPath ".claude\hooks\claude_adapter.py"),
+        (Join-Path $projectPath ".cursor\hooks\claude_adapter.py")
+    )) {
+        if (Test-Path $candidate) {
+            $adapterScript = $candidate
+            break
+        }
+    }
+
+    if ($adapterScript) {
+        $adapterLog = "$logDir/${datePrefix}_memory_claude_adapter.log"
+        $adapterArgs = @(
+            $adapterScript,
+            "--session-id", $sessionId,
+            "--project-path", $projectPath,
+            "--status", $(if ($status -eq "success") { "completed" } else { "partial" })
+        )
+        Start-Job -ScriptBlock {
+            param($pythonExe, $args, $logFile)
+            $output = & $pythonExe @args 2>&1
+            $output | Add-Content -Path $logFile
+        } -ArgumentList "python", $adapterArgs, $adapterLog | Out-Null
+        Add-Content -Path $logFile -Value "[$timestamp] [MEMORY] Adapter job started for session $sessionId"
+    } else {
+        Add-Content -Path $logFile -Value "[$timestamp] [MEMORY] claude_adapter.py not found — skipping"
+    }
+}
 
 # Output empty response (no follow-up message)
 $response = @{}
