@@ -35,8 +35,17 @@ if (Test-Path $projectIdFile) {
 
     if ($projectId -ne "") {
         try {
-            # Call the trent memory REST bridge (synchronous — hook waits for this)
+            # Read mcp_url from user_config.json — falls back to localhost
             $mcpUrl = "http://localhost:8082"
+            $userConfigPath = Join-Path $env:USERPROFILE ".trent\user_config.json"
+            if (Test-Path $userConfigPath) {
+                try {
+                    $userConfig = Get-Content $userConfigPath -Raw | ConvertFrom-Json
+                    if ($userConfig.mcp_url) { $mcpUrl = $userConfig.mcp_url.TrimEnd("/") }
+                } catch {}
+            }
+
+            # Call the trent memory REST bridge (synchronous — hook waits for this)
             $contextUrl = "$mcpUrl/memory/context?project_id=$projectId&max_tokens=3000&platform=cursor"
 
             $resp = Invoke-WebRequest -Uri $contextUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop

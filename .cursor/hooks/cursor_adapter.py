@@ -289,6 +289,7 @@ def load_user_config(user_config_path: Optional[str] = None) -> dict:
     config = {
         "user_id": user_id,
         "machine_id": machine_id,
+        "mcp_url": "http://localhost:8082",   # Override to point at your shared server
         "created_at": _utcnow_str(),
         "platform": sys.platform,
     }
@@ -440,7 +441,19 @@ def main() -> int:
     parser.add_argument("--platform", default="cursor", help="Platform identifier (default: cursor)")
     parser.add_argument("--loop-count", type=int, default=0, help="Number of agent loops")
     parser.add_argument("--status", default="completed", choices=["completed", "partial"], help="Session status")
-    parser.add_argument("--mcp-url", default="http://localhost:8082", help="trent MCP server base URL")
+    # mcp_url priority: --mcp-url flag > user_config.json > localhost default
+    _early_config: dict = {}
+    _early_config_path = Path.home() / ".trent" / "user_config.json"
+    if _early_config_path.exists():
+        try:
+            import json as _json
+            _early_config = _json.loads(_early_config_path.read_text(encoding="utf-8"))
+        except Exception:
+            pass
+    _default_mcp_url = _early_config.get("mcp_url", "http://localhost:8082")
+
+    parser.add_argument("--mcp-url", default=_default_mcp_url,
+                        help="trent MCP server base URL (default from ~/.trent/user_config.json or localhost:8082)")
     parser.add_argument("--user-config", default=None, help="Path to user_config.json")
     parser.add_argument("--vscdb", default=None, help="Override path to state.vscdb")
     args = parser.parse_args()

@@ -32,10 +32,22 @@ logging.basicConfig(
 )
 logger = logging.getLogger("claude_adapter")
 
-MEMORY_INGEST_URL = "http://localhost:8082/memory/ingest"
 CLAUDE_PROJECTS_DIR = Path.home() / ".claude" / "projects"
 USER_CONFIG_PATH = Path.home() / ".trent" / "user_config.json"
 HTTP_TIMEOUT = 120  # seconds — ingestion can be slow for large sessions
+
+DEFAULT_MCP_URL = "http://localhost:8082"   # overridden by user_config.json or --mcp-url flag
+
+
+def _get_configured_mcp_url() -> str:
+    """Read mcp_url from ~/.trent/user_config.json, fall back to localhost."""
+    if USER_CONFIG_PATH.exists():
+        try:
+            cfg = json.loads(USER_CONFIG_PATH.read_text(encoding="utf-8"))
+            return cfg.get("mcp_url", DEFAULT_MCP_URL).rstrip("/")
+        except Exception:
+            pass
+    return DEFAULT_MCP_URL
 
 
 # ---------------------------------------------------------------------------
@@ -60,6 +72,7 @@ def load_user_config() -> dict:
     config = {
         "user_id": str(uuid_mod.uuid4()),
         "machine_id": machine_id,
+        "mcp_url": "http://localhost:8082",   # Override to point at your shared server
         "created": __import__("datetime").datetime.utcnow().isoformat() + "Z",
     }
     USER_CONFIG_PATH.write_text(json.dumps(config, indent=2), encoding="utf-8")
@@ -338,8 +351,10 @@ def post_to_memory_ingest(
     session_id: str,
     turns: list[dict],
     status: str = "completed",
+    mcp_url: Optional[str] = None,
 ) -> bool:
     """POST extracted turns to the trent memory REST bridge."""
+    ingest_url = (mcp_url or _get_configured_mcp_url()).rstrip("/") + "/memory/ingest"
     payload = {
         "project_id": project_id,
         "conversation_id": session_id,
@@ -349,7 +364,7 @@ def post_to_memory_ingest(
     }
     data = json.dumps(payload).encode("utf-8")
     req = urllib.request.Request(
-        MEMORY_INGEST_URL,
+        ingest_url,
         data=data,
         headers={"Content-Type": "application/json"},
         method="POST",
@@ -391,6 +406,11 @@ def main() -> int:
         default="completed",
         choices=["completed", "partial", "active"],
         help="Session status to record",
+    )
+    parser.add_argument(
+        "--mcp-url",
+        default=_get_configured_mcp_url(),
+        help="trent MCP server base URL (default from ~/.trent/user_config.json or localhost:8082)",
     )
     args = parser.parse_args()
 
@@ -446,6 +466,7 @@ def main() -> int:
         session_id=session_id,
         turns=turns,
         status=args.status,
+        mcp_url=args.mcp_url,
     )
     return 0 if success else 1
 
