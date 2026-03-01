@@ -6,14 +6,16 @@ non-MCP clients (Cursor hooks, Claude Code hooks, shell scripts) can
 call memory functions without implementing the full MCP SSE protocol.
 
 Endpoints:
-  POST /memory/ingest   — Tier-1 passive capture (raw turns from file adapters)
-  POST /memory/capture  — Tier-2 active capture (agent self-reports)
-  GET  /memory/context  — Return token-budgeted context for session-start hook
-  GET  /memory/health   — Quick health check
+  POST /memory/ingest    — Tier-1 passive capture (raw turns from file adapters)
+  POST /memory/capture   — Tier-2 active capture (agent self-reports session summary)
+  POST /memory/insight   — Tier-2 active capture (structured insight with category/topic)
+  GET  /memory/context   — Return token-budgeted context for session-start hook
+  GET  /memory/health    — Quick health check
 
 All endpoints accept/return JSON.
 """
 
+import difflib
 import logging
 from typing import Optional
 
@@ -235,7 +237,7 @@ async def handle_memory_ingest(request: Request) -> JSONResponse:
 
 
 # ---------------------------------------------------------------------------
-# /memory/capture  — Tier-2 active capture (agent self-reports)
+# /memory/capture  — Tier-2 active capture (agent self-reports session summary)
 # ---------------------------------------------------------------------------
 
 async def handle_memory_capture(request: Request) -> JSONResponse:
@@ -288,6 +290,7 @@ async def handle_memory_capture(request: Request) -> JSONResponse:
             init as mem_init,
             upsert_project,
             ensure_session,
+            embed as embed_fn,
             embed_str,
         )
 
@@ -314,7 +317,7 @@ async def handle_memory_capture(request: Request) -> JSONResponse:
         combined_text = summary
         if key_decisions:
             combined_text += f"\n\nKey Decisions:\n{key_decisions}"
-        embedding_vec = embed_str(combined_text)
+        embedding_vec = embed_str(embed_fn(combined_text))
 
         # Update summary + insert capture record in a single cursor context
         capture_id = None
@@ -326,8 +329,9 @@ async def handle_memory_capture(request: Request) -> JSONResponse:
             cur.execute(
                 """
                 INSERT INTO agent_memory_captures
-                    (session_id, project_id, summary, key_decisions, files_changed, embedding)
-                VALUES (%s, %s, %s, %s, %s, %s)
+                    (session_id, project_id, summary, key_decisions, files_changed, embedding,
+                     category, scope)
+                VALUES (%s, %s, %s, %s, %s, %s, 'context', 'session')
                 RETURNING id
                 """,
                 (session_db_id, project_db_id, summary, key_decisions, files_changed, embedding_vec),
@@ -350,6 +354,182 @@ async def handle_memory_capture(request: Request) -> JSONResponse:
 
     except Exception as e:
         logger.error("memory/capture error: %s", e, exc_info=True)
+        return JSONResponse({"success": False, "error": str(e)}, status_code=500)
+
+
+# ---------------------------------------------------------------------------
+# /memory/insight  — Tier-2 active capture (structured insight with category/topic)
+# ---------------------------------------------------------------------------
+
+_VALID_CATEGORIES = {"procedure", "preference", "context", "correction", "decision", "general"}
+_VALID_SCOPES = {"project", "user", "session", "global"}
+
+
+async def handle_memory_insight(request: Request) -> JSONResponse:
+    """
+    POST /memory/insight
+
+    Body (JSON):
+      project_id   str  — stable project UUID (REQUIRED)
+      insight      str  — the insight text, 1-4 sentences (REQUIRED)
+      category     str  — procedure|preference|context|correction|decision|general
+      scope        str  — project|user|session|global
+      topic        str  — short label, e.g. 'git workflow' (enables dedup + diff)
+      project_path str  — absolute path to project root (optional)
+      platform     str  — 'cursor' | 'claude_code' | etc.
+      user_id      str  — from user_config.json (optional)
+      machine_id   str  — (optional)
+
+    If a capture with the same project_id + topic already exists, the existing
+    content is stored as prev_content and a unified diff is computed.
+
+    Returns: {success, capture_id, action, category, scope, topic}
+    """
+    try:
+        db, eg = _get_shared()
+    except RuntimeError as e:
+        return JSONResponse({"success": False, "error": str(e)}, status_code=503)
+
+    try:
+        body = await request.json()
+    except Exception as e:
+        return JSONResponse({"success": False, "error": f"Invalid JSON: {e}"}, status_code=400)
+
+    project_id = body.get("project_id")
+    insight = body.get("insight", "").strip()
+
+    if not project_id or not insight:
+        return JSONResponse(
+            {"success": False, "error": "project_id and insight are required"},
+            status_code=400,
+        )
+
+    category = body.get("category", "general")
+    if category not in _VALID_CATEGORIES:
+        category = "general"
+    scope = body.get("scope", "project")
+    if scope not in _VALID_SCOPES:
+        scope = "project"
+
+    topic = body.get("topic") or None
+    project_path = body.get("project_path", "")
+    platform = body.get("platform", "cursor")
+    user_id = body.get("user_id", "")
+    machine_id = body.get("machine_id", "")
+    display_name = body.get("display_name") or (project_path.split("\\")[-1] or project_path.split("/")[-1] or project_id)
+
+    try:
+        import json as _json
+        from datetime import datetime, timezone
+        from trent.tools.plugins._agent_memory_shared import (
+            init as mem_init,
+            upsert_project,
+            ensure_session,
+            embed as embed_fn,
+            embed_str,
+        )
+
+        mem_init({"db": db, "embedding_generator": eg})
+
+        project_db_id = upsert_project(
+            project_id=project_id,
+            user_id=user_id,
+            machine_id=machine_id,
+            project_path=project_path,
+            display_name=display_name,
+        )
+
+        ts = datetime.now(timezone.utc).strftime("%Y%m%d%H%M%S")
+        conversation_id = f"insight_{project_id}_{ts}"
+        session_db_id = ensure_session(
+            conversation_id=conversation_id,
+            project_row_id=project_db_id,
+            platform=platform,
+            capture_tier="active",
+            status="completed",
+            loop_count=0,
+        )
+
+        # Diff tracking — check for existing capture with same topic
+        prev_content = None
+        diff_text = None
+        action = "created"
+
+        if topic:
+            with db.get_cursor() as cur:
+                cur.execute(
+                    """
+                    SELECT id, summary FROM agent_memory_captures
+                    WHERE project_id=%s AND topic=%s
+                    ORDER BY created_at DESC LIMIT 1
+                    """,
+                    (project_db_id, topic),
+                )
+                row = cur.fetchone()
+
+            if row:
+                prev_content = row["summary"]
+                if prev_content and prev_content.strip() == insight:
+                    return JSONResponse({
+                        "success": True,
+                        "action": "skipped_duplicate",
+                        "topic": topic,
+                        "message": f"Insight for topic '{topic}' is unchanged — skipped.",
+                    })
+                if prev_content:
+                    diff_lines = list(difflib.unified_diff(
+                        prev_content.splitlines(keepends=True),
+                        insight.splitlines(keepends=True),
+                        fromfile=f"{topic} (before)",
+                        tofile=f"{topic} (after)",
+                        lineterm="",
+                    ))
+                    diff_text = "".join(diff_lines) if diff_lines else None
+                action = "updated"
+
+        embedding_vec = embed_str(embed_fn(f"{category} {topic or ''} {insight}"))
+
+        with db.get_cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO agent_memory_captures
+                    (session_id, project_id, summary, key_decisions, files_changed, embedding,
+                     category, scope, topic, prev_content, diff_text)
+                VALUES (%s, %s, %s, NULL, NULL, %s, %s, %s, %s, %s, %s)
+                RETURNING id
+                """,
+                (
+                    session_db_id, project_db_id, insight, embedding_vec,
+                    category, scope, topic, prev_content, diff_text,
+                ),
+            )
+            capture_id = cur.fetchone()["id"]
+
+        logger.info(
+            "memory/insight: %s category=%s topic=%s project=%s",
+            action, category, topic, project_id,
+        )
+
+        resp = {
+            "success": True,
+            "capture_id": capture_id,
+            "action": action,
+            "category": category,
+            "scope": scope,
+            "topic": topic,
+            "project_id": project_id,
+        }
+        if action == "updated" and diff_text:
+            resp["diff_summary"] = f"Updated '{topic}' — {len(diff_text)} chars changed"
+        resp["message"] = (
+            f"Insight {action} under category '{category}'"
+            + (f" / topic '{topic}'" if topic else "")
+            + ". Will appear in future session context."
+        )
+        return JSONResponse(resp)
+
+    except Exception as e:
+        logger.error("memory/insight error: %s", e, exc_info=True)
         return JSONResponse({"success": False, "error": str(e)}, status_code=500)
 
 
@@ -401,17 +581,20 @@ async def handle_memory_context(request: Request) -> JSONResponse:
             )
             sessions = cur.fetchall()
 
-            # Recent key decisions
+            # Recent captures — latest per topic, plus un-topicked entries
+            # Use DISTINCT ON (topic) to avoid showing stale versions of updated insights.
             cur.execute(
                 f"""
-                SELECT c.summary, c.key_decisions, c.files_changed, c.created_at
+                SELECT DISTINCT ON (COALESCE(c.topic, c.id::text))
+                       c.summary, c.key_decisions, c.files_changed, c.created_at,
+                       c.category, c.scope, c.topic
                 FROM agent_memory_captures c
                 JOIN agent_sessions s ON c.session_id = s.id
                 JOIN agent_projects p ON c.project_id = p.id
                 WHERE p.project_id = %s
                   {platform_clause}
-                ORDER BY c.created_at DESC
-                LIMIT 10
+                ORDER BY COALESCE(c.topic, c.id::text), c.created_at DESC
+                LIMIT 20
                 """,
                 params_base,
             )
@@ -438,17 +621,43 @@ async def handle_memory_context(request: Request) -> JSONResponse:
             lines.append("")
 
         if captures:
-            lines.append("## Key Decisions & Actions")
+            # Group by category for a richer context block
+            from collections import defaultdict
+            by_category: dict = defaultdict(list)
             for row in captures:
-                key_dec = row["key_decisions"]
-                created_at = row["created_at"]
-                if key_dec:
+                cat = row.get("category") or "context"
+                by_category[cat].append(row)
+
+            category_order = ["procedure", "preference", "correction", "decision", "context", "general"]
+            category_labels = {
+                "procedure": "## Procedures & How-Tos",
+                "preference": "## User Preferences",
+                "correction": "## Corrections (Avoid These)",
+                "decision": "## Architectural Decisions",
+                "context": "## Project Context",
+                "general": "## Notes",
+            }
+
+            for cat in category_order:
+                rows = by_category.get(cat, [])
+                if not rows:
+                    continue
+                section_header = category_labels.get(cat, f"## {cat.title()}")
+                lines.append(section_header)
+                for row in rows:
+                    topic = row.get("topic")
+                    summary = row.get("summary") or row.get("key_decisions") or ""
+                    created_at = row.get("created_at")
+                    if not summary:
+                        continue
                     date_str = created_at.strftime("%Y-%m-%d") if created_at else "unknown"
-                    entry = f"- [{date_str}] {key_dec}"
+                    prefix = f"**{topic}**:" if topic else f"[{date_str}]"
+                    entry = f"- {prefix} {summary}"
                     approx_chars += len(entry)
                     if approx_chars > budget:
                         break
                     lines.append(entry)
+                lines.append("")
 
         context_text = "\n".join(lines)
 
@@ -482,6 +691,7 @@ async def handle_memory_health(request: Request) -> JSONResponse:
             "endpoints": [
                 "POST /memory/ingest",
                 "POST /memory/capture",
+                "POST /memory/insight",
                 "GET  /memory/context?project_id=...",
                 "GET  /memory/health",
             ],
@@ -494,8 +704,9 @@ async def handle_memory_health(request: Request) -> JSONResponse:
 # ---------------------------------------------------------------------------
 
 MEMORY_ROUTES = [
-    Route("/memory/health", endpoint=handle_memory_health, methods=["GET"]),
-    Route("/memory/ingest", endpoint=handle_memory_ingest, methods=["POST"]),
+    Route("/memory/health",  endpoint=handle_memory_health,  methods=["GET"]),
+    Route("/memory/ingest",  endpoint=handle_memory_ingest,  methods=["POST"]),
     Route("/memory/capture", endpoint=handle_memory_capture, methods=["POST"]),
+    Route("/memory/insight", endpoint=handle_memory_insight, methods=["POST"]),
     Route("/memory/context", endpoint=handle_memory_context, methods=["GET"]),
 ]

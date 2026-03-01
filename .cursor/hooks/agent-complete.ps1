@@ -73,6 +73,27 @@ if ($conversationId -ne "unknown" -and $conversationId -ne "" -and $conversation
     }
 }
 
+# ── Reflection hint file ─────────────────────────────────────────────────────
+# If the session had enough loops (≥5), write a pending_reflection.json so that
+# session-start.ps1 injects a memory-check reminder on the NEXT session.
+# This is the letta-code "step-count reflection trigger" adapted for Cursor hooks.
+$reflectionThreshold = 5
+if ([int]$loopCount -ge $reflectionThreshold) {
+    try {
+        $reflectionFile = "$logDir/pending_reflection.json"
+        $reflectionData = @{
+            conversation_id = $conversationId
+            loop_count      = [int]$loopCount
+            timestamp       = $timestamp
+            status          = $status
+        }
+        $reflectionData | ConvertTo-Json -Compress | Set-Content -Path $reflectionFile -Encoding UTF8
+        Add-Content -Path $logFile -Value "[$timestamp] [REFLECT] Wrote reflection hint ($loopCount loops)"
+    } catch {
+        Add-Content -Path $logFile -Value "[$timestamp] [REFLECT] Failed to write hint: $_"
+    }
+}
+
 # ── Response (no follow-up message to Cursor) ─────────────────────────────────
 $response = @{}
 $response | ConvertTo-Json -Compress

@@ -512,7 +512,67 @@ def main() -> int:
         status=args.status,
     )
 
+    # Step-count reflection enrichment —————————————————————————————————————
+    # If this session had enough turns, write (or enrich) a pending_reflection.json
+    # so the NEXT session-start hook injects the memory-check reminder.
+    #
+    # We write here (after extraction) so we have the real turn count rather than
+    # relying solely on the loop_count Cursor reports in the event payload.
+    REFLECTION_TURN_THRESHOLD = 5
+    if ok and len(turns) >= REFLECTION_TURN_THRESHOLD:
+        _write_reflection_hint(
+            project_path=project_path,
+            conversation_id=args.conversation_id,
+            turn_count=len(turns),
+            turns=turns,
+        )
+
     return 0 if ok else 2
+
+
+def _write_reflection_hint(
+    project_path: str,
+    conversation_id: str,
+    turn_count: int,
+    turns: list[dict],
+) -> None:
+    """Write .cursor/logs/pending_reflection.json with richer metadata than
+    agent-complete.ps1 can provide (actual turn count + topic hints)."""
+    import time
+
+    log_dir = Path(project_path) / ".cursor" / "logs"
+    try:
+        log_dir.mkdir(parents=True, exist_ok=True)
+    except Exception:
+        return
+
+    reflection_file = log_dir / "pending_reflection.json"
+
+    # Extract rough topic hints from first/last user messages
+    recent_topics: list[str] = []
+    user_msgs = [t.get("user", "") for t in turns if t.get("user")]
+    if user_msgs:
+        # First and last user messages give a sense of the session arc
+        for msg in [user_msgs[0], user_msgs[-1]]:
+            snippet = msg.strip()[:120].replace("\n", " ")
+            if snippet:
+                recent_topics.append(snippet)
+
+    hint = {
+        "conversation_id": conversation_id,
+        "turn_count": turn_count,
+        "timestamp": time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
+        "source": "cursor_adapter",
+        "recent_topics": recent_topics,
+    }
+
+    try:
+        reflection_file.write_text(json.dumps(hint, indent=2), encoding="utf-8")
+        logger.info(
+            f"Reflection hint written ({turn_count} turns) → {reflection_file}"
+        )
+    except Exception as e:
+        logger.warning(f"Could not write reflection hint: {e}")
 
 
 if __name__ == "__main__":
