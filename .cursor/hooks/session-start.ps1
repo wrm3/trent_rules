@@ -26,6 +26,44 @@ $logFile    = "$logDir/${datePrefix}_session_lifecycle.log"
 $logEntry = "[$timestamp] [SESSION_START] Session: $sessionId | Mode: $composerMode"
 Add-Content -Path $logFile -Value $logEntry
 
+# ── Proactive user_config.json creation (runs before adapters so IDs are stable) ──
+$userConfigDir  = Join-Path $env:USERPROFILE ".trent"
+$userConfigFile = Join-Path $userConfigDir "user_config.json"
+
+if (-not (Test-Path $userConfigFile)) {
+    try {
+        if (-not (Test-Path $userConfigDir)) {
+            New-Item -ItemType Directory -Path $userConfigDir -Force | Out-Null
+        }
+
+        # Stable machine ID from Windows registry
+        $machineId = ""
+        try {
+            $machineId = (Get-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Cryptography" `
+                          -Name "MachineGuid" -ErrorAction Stop).MachineGuid
+        } catch {}
+        if (-not $machineId) { $machineId = [System.Guid]::NewGuid().ToString() }
+
+        # User ID: Unix-timestamp in milliseconds (unique + monotonic, easy to read)
+        $tsMs   = [DateTimeOffset]::UtcNow.ToUnixTimeMilliseconds()
+        $userId = "usr_$tsMs"
+
+        $cfg = [ordered]@{
+            user_id    = $userId
+            machine_id = $machineId
+            mcp_url    = "http://localhost:8082"
+            created_at = (Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ")
+            platform   = "windows"
+            created_by = "session-start.ps1"
+        }
+        $cfg | ConvertTo-Json | Set-Content -Path $userConfigFile -Encoding UTF8
+
+        Add-Content -Path $logFile -Value "[$timestamp] [CONFIG] Created user_config.json user_id=$userId machine_id=$($machineId.Substring(0,[Math]::Min(8,$machineId.Length)))…"
+    } catch {
+        Add-Content -Path $logFile -Value "[$timestamp] [CONFIG] Failed to create user_config.json: $_"
+    }
+}
+
 # ── Memory Context Retrieval ─────────────────────────────────────────────────
 $additionalContext = "trent task management system is active. Check .trent/TASKS.md for current tasks."
 

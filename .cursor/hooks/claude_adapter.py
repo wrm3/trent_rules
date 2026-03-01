@@ -254,40 +254,79 @@ def find_jsonl_file(project_dir: Path, session_id: Optional[str] = None) -> Opti
     return None
 
 
-def _extract_text_from_content(content_blocks: list) -> str:
+def _extract_text_from_content(content_blocks: list) -> tuple[str, list[str], list[str]]:
     """
-    Extract plain text from a message content array.
+    Extract text, tool names, and file references from a message content array.
     Skips 'thinking' blocks (Claude extended thinking).
-    Joins multiple text blocks with newline.
+
+    Returns:
+        (text, tool_names, file_refs)
     """
-    parts = []
-    for block in content_blocks:
-        if isinstance(block, dict) and block.get("type") == "text":
+    _FILE_TOOLS = {
+        "read_file", "write_file", "edit_file", "create_file", "delete_file",
+        "str_replace", "str_replace_editor", "view", "insert", "undo_edit",
+    }
+    parts: list[str] = []
+    tool_names: list[str] = []
+    file_refs: list[str] = []
+
+    for block in content_blocks if isinstance(content_blocks, list) else []:
+        if not isinstance(block, dict):
+            continue
+        btype = block.get("type", "")
+
+        if btype == "text":
             text = block.get("text", "")
             if text:
                 parts.append(text)
-    return "\n".join(parts)
+
+        elif btype == "tool_use":
+            tname = block.get("name", "")
+            if tname:
+                tool_names.append(tname)
+            # Extract file paths from tool input
+            inp = block.get("input", {})
+            if isinstance(inp, dict):
+                for fkey in ("path", "file_path", "target_file", "filename"):
+                    fval = inp.get(fkey)
+                    if fval and isinstance(fval, str) and fval not in file_refs:
+                        file_refs.append(fval)
+                # edit_file / str_replace passes path at top level
+                if tname in _FILE_TOOLS:
+                    p = inp.get("path") or inp.get("file_path") or inp.get("target_file")
+                    if p and p not in file_refs:
+                        file_refs.append(p)
+
+        elif btype == "tool_result":
+            # tool_result blocks contain file content; skip text but note the path if available
+            pass
+
+    return "\n".join(parts), list(dict.fromkeys(tool_names)), list(dict.fromkeys(file_refs))
 
 
 def extract_turns_from_jsonl(jsonl_path: Path) -> list[dict]:
     """
-    Parse a Claude Code JSONL file and return a list of turn dicts:
-        [{"user": "...", "agent": "..."}, ...]
+    Parse a Claude Code JSONL file and return a list of enriched turn dicts:
+
+        [{
+          "user":             "...",
+          "agent":            "...",
+          "tool_names":       ["read_file", "bash", ...],
+          "file_refs":        ["src/app.py", ...],
+          "session_metadata": {"gitBranch": "main", "cwd": "/path/...", "version": "..."},
+        }, ...]
 
     Strategy:
-    - type="user"      → pending user message (may have tool_result / text content)
-    - type="assistant" → assistant message; ONLY accept lines where stop_reason is set
-                         (streaming sends many partial lines; only the last has stop_reason)
-    - type="progress"  → skip (streaming intermediate)
-    - type="system"    → skip
-    - type="queue-operation", "file-history-snapshot" → skip
-
-    Pairing:
-    - A turn = one user message + the assistant response that follows it
-    - If a user message has no following assistant response, it's buffered
+    - type="user"      → pending user message
+    - type="assistant" → only accept lines where stop_reason is set (final streaming chunk)
+    - type="system"    → extract session metadata (gitBranch, cwd, version, etc.)
+    - type="progress", "queue-operation", "file-history-snapshot" → skip
     """
     turns: list[dict] = []
     pending_user: Optional[str] = None
+    pending_tools: list[str] = []
+    pending_files: list[str] = []
+    session_metadata: dict = {}
 
     try:
         with open(jsonl_path, encoding="utf-8", errors="replace") as fh:
@@ -302,39 +341,83 @@ def extract_turns_from_jsonl(jsonl_path: Path) -> list[dict]:
 
                 msg_type = obj.get("type", "")
 
+                # ── Session metadata from system messages ──────────────────
+                if msg_type == "system":
+                    for mkey in ("gitBranch", "cwd", "version", "requestId",
+                                 "model", "sessionId"):
+                        val = obj.get(mkey)
+                        if val is not None and mkey not in session_metadata:
+                            session_metadata[mkey] = str(val)
+                    continue
+
+                if msg_type in ("progress", "queue-operation",
+                                "file-history-snapshot", "result"):
+                    continue
+
+                # ── User message ───────────────────────────────────────────
                 if msg_type == "user":
                     msg = obj.get("message", {})
                     content = msg.get("content", [])
-                    # content can be a list of blocks or a plain string
                     if isinstance(content, str):
                         text = content
+                        tnames, frefs = [], []
                     else:
-                        text = _extract_text_from_content(content)
-                    if text.strip():
-                        # If there's already a buffered user msg with no agent response,
-                        # flush it as a partial turn before starting new one
-                        if pending_user is not None:
-                            turns.append({"user": pending_user, "agent": ""})
-                        pending_user = text.strip()
+                        text, tnames, frefs = _extract_text_from_content(content)
 
+                    if text.strip():
+                        if pending_user is not None:
+                            turns.append({
+                                "user": pending_user, "agent": "",
+                                "tool_names": pending_tools,
+                                "file_refs": pending_files,
+                                "session_metadata": dict(session_metadata),
+                            })
+                        pending_user = text.strip()
+                        pending_tools = list(tnames)
+                        pending_files = list(frefs)
+
+                # ── Assistant message ──────────────────────────────────────
                 elif msg_type == "assistant":
                     msg = obj.get("message", {})
-                    # Only accept final chunks (streaming partial has stop_reason=None)
                     if not msg.get("stop_reason"):
                         continue
                     content = msg.get("content", [])
-                    agent_text = _extract_text_from_content(content).strip()
-                    if agent_text:
+                    agent_text, tnames, frefs = _extract_text_from_content(content)
+                    agent_text = agent_text.strip()
+
+                    # Accumulate tools/files from the assistant's response too
+                    all_tools = list(dict.fromkeys(pending_tools + tnames))
+                    all_files = list(dict.fromkeys(pending_files + frefs))
+
+                    if agent_text or all_tools:
                         if pending_user is not None:
-                            turns.append({"user": pending_user, "agent": agent_text})
+                            turns.append({
+                                "user": pending_user,
+                                "agent": agent_text,
+                                "tool_names": all_tools,
+                                "file_refs": all_files,
+                                "session_metadata": dict(session_metadata),
+                            })
                             pending_user = None
+                            pending_tools = []
+                            pending_files = []
                         else:
-                            # Assistant message with no preceding user — store as lone turn
-                            turns.append({"user": "", "agent": agent_text})
+                            turns.append({
+                                "user": "",
+                                "agent": agent_text,
+                                "tool_names": all_tools,
+                                "file_refs": all_files,
+                                "session_metadata": dict(session_metadata),
+                            })
 
         # Flush any trailing user message with no assistant response
         if pending_user is not None:
-            turns.append({"user": pending_user, "agent": ""})
+            turns.append({
+                "user": pending_user, "agent": "",
+                "tool_names": pending_tools,
+                "file_refs": pending_files,
+                "session_metadata": dict(session_metadata),
+            })
 
     except OSError as e:
         logger.error("Cannot read JSONL %s: %s", jsonl_path, e)

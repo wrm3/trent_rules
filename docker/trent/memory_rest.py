@@ -139,48 +139,78 @@ async def handle_memory_ingest(request: Request) -> JSONResponse:
         # We deliberately skip per-turn LLM summarisation here: the bulk ingest
         # path embeds the raw text (user + agent combined) which is sufficient for
         # semantic search. Summaries can be generated lazily on demand.
+        import json as _json
+
         records = []
         for idx, turn in enumerate(turns):
-            user_msg_text = turn.get("user", "")
+            user_msg_text  = turn.get("user", "")
             agent_msg_text = turn.get("agent", "")
             if not user_msg_text and not agent_msg_text:
                 continue
             chash = content_hash(user_msg_text, agent_msg_text)
-            # Embed combined raw text (fast, single API call per turn)
-            combined_raw = f"{user_msg_text}\n{agent_msg_text}".strip()
-            emb_vec = embed(combined_raw[:2000])  # truncate to avoid token limits
-            records.append((
-                session_db_id, idx, chash,
-                user_msg_text, agent_msg_text,
-                None, None, emb_vec,          # title/description filled lazily
-                platform, "passive",
-            ))
+
+            # Enrich embedding text with tool names and file refs when available
+            tool_names = turn.get("tool_names") or []
+            file_refs  = turn.get("file_refs")  or []
+            session_meta = turn.get("session_metadata") or {}
+
+            combined_raw = " ".join(filter(None, [
+                user_msg_text,
+                agent_msg_text,
+                " ".join(tool_names),
+                " ".join(file_refs),
+            ]))
+            emb_vec = embed(combined_raw[:2000])
+
+            records.append({
+                "session_id":       session_db_id,
+                "turn_index":       idx,
+                "chash":            chash,
+                "user_msg":         user_msg_text,
+                "agent_resp":       agent_msg_text,
+                "emb_vec":          emb_vec,
+                "platform":         platform,
+                "tool_names":       tool_names,
+                "file_refs":        file_refs,
+                "session_metadata": session_meta,
+            })
 
         ingested = 0
         if records:
             with db.get_cursor() as cur:
-                # Fetch already-ingested hashes for this session in one query
-                # get_cursor() uses RealDictCursor → rows are dicts
                 cur.execute(
                     "SELECT content_hash FROM agent_turns WHERE session_id=%s",
                     (session_db_id,),
                 )
                 existing = {row["content_hash"] for row in cur.fetchall()}
 
-                for (sid, idx, chash, um, am, title, desc, emb_vec, plat, tier) in records:
-                    if chash in existing:
+                for r in records:
+                    if r["chash"] in existing:
                         continue
+
+                    # Serialise arrays / JSONB for psycopg2
+                    meta_json  = _json.dumps(r["session_metadata"]) if r["session_metadata"] else "{}"
+                    tools_arr  = r["tool_names"] or []
+                    files_arr  = r["file_refs"]  or []
+
                     cur.execute(
                         """
                         INSERT INTO agent_turns
                             (session_id, turn_index, content_hash,
                              user_message, agent_response,
                              llm_title, llm_description, embedding,
-                             platform, capture_tier)
-                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)
+                             platform, capture_tier,
+                             tool_names, file_refs, session_metadata)
+                        VALUES (%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s::jsonb)
                         ON CONFLICT DO NOTHING
                         """,
-                        (sid, idx, chash, um, am, title, desc, emb_vec, plat, tier),
+                        (
+                            r["session_id"], r["turn_index"], r["chash"],
+                            r["user_msg"], r["agent_resp"],
+                            None, None, r["emb_vec"],   # title/desc filled lazily
+                            r["platform"], "passive",
+                            tools_arr, files_arr, meta_json,
+                        ),
                     )
                     ingested += 1
 

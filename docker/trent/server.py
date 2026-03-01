@@ -64,6 +64,7 @@ from .database.multi_subject import MultiSubjectDatabase, SubjectAwareDBWrapper
 from .subjects import SubjectManager
 from .plugin_loader import PluginLoader
 from .memory_rest import MEMORY_ROUTES, init_memory_rest
+from .admin_db_rest import ADMIN_ROUTES, init_admin_db
 
 # Initialize components
 db: Optional[RAGDatabase] = None
@@ -253,19 +254,21 @@ def main():
         else:
             mcp_app = mcp.streamable_http_app()
 
-        # Initialize the memory REST bridge with the shared DB/embedding components
+        # Initialize REST bridges with shared DB/embedding components
         init_memory_rest(db=db, embedding_generator=embedding_generator, config=config)
+        init_admin_db(db=db)
 
-        # Combine: memory REST routes are checked first; everything else falls
-        # through to the MCP SSE/streamable-http app.
+        # Route priority: admin UI → memory REST → MCP (SSE/streamable-http)
         from starlette.applications import Starlette
         from starlette.routing import Mount
 
         app = Starlette(
-            routes=MEMORY_ROUTES + [Mount("/", app=mcp_app)],
+            routes=ADMIN_ROUTES + MEMORY_ROUTES + [Mount("/", app=mcp_app)],
         )
 
-        logger.info("MCP server ready - memory REST bridge active at /memory/*")
+        logger.info("MCP server ready")
+        logger.info("  /admin/db          — DB Explorer UI")
+        logger.info("  /memory/*          — agent memory REST bridge")
         logger.info("use trent_server_status tool to check health")
         uvicorn.run(app, host=host, port=port, log_level="info")
 
