@@ -76,6 +76,84 @@ def find_state_vscdb() -> Optional[Path]:
 
 
 # ---------------------------------------------------------------------------
+# Auto-detect the most recent conversation from state.vscdb
+# ---------------------------------------------------------------------------
+
+def find_latest_conversation_id(db_path: Path) -> Optional[str]:
+    """
+    Find the most recently active Cursor conversation by scanning all
+    composerData:* keys in state.vscdb and picking the one with the
+    highest turn count or most recent bubbleId.
+
+    Used as fallback when Cursor doesn't pass conversation_id in the hook
+    event payload (which happens in most Cursor versions).
+    """
+    import shutil
+    import tempfile
+
+    tmp_fd, tmp_str = tempfile.mkstemp(suffix=".db")
+    os.close(tmp_fd)
+    tmp_path = Path(tmp_str)
+
+    try:
+        try:
+            shutil.copy2(db_path, tmp_path)
+        except Exception as e:
+            logger.error(f"find_latest: failed to copy state.vscdb: {e}")
+            return None
+
+        conn = sqlite3.connect(str(tmp_path))
+        conn.row_factory = sqlite3.Row
+        cur = conn.cursor()
+
+        # Fetch all composerData keys — each is a separate conversation
+        cur.execute(
+            "SELECT key, value FROM cursorDiskKV WHERE key LIKE 'composerData:%'"
+        )
+        rows = cur.fetchall()
+        conn.close()
+
+        best_id = None
+        best_bubble_count = -1
+
+        for row in rows:
+            key = row["key"] if isinstance(row, sqlite3.Row) else row[0]
+            raw_value = row["value"] if isinstance(row, sqlite3.Row) else row[1]
+
+            conv_id = key.split(":", 1)[1] if ":" in key else None
+            if not conv_id:
+                continue
+
+            if isinstance(raw_value, (bytes, bytearray)):
+                raw_value = raw_value.decode("utf-8", errors="replace")
+
+            try:
+                data = json.loads(raw_value)
+            except Exception:
+                continue
+
+            headers = data.get("fullConversationHeadersOnly", [])
+            bubble_count = len(headers)
+
+            if bubble_count > best_bubble_count:
+                best_bubble_count = bubble_count
+                best_id = conv_id
+
+        if best_id:
+            logger.info(f"Auto-detected conversation: {best_id} ({best_bubble_count} bubbles)")
+        else:
+            logger.warning("Could not auto-detect any conversation from state.vscdb")
+
+        return best_id
+
+    finally:
+        try:
+            tmp_path.unlink()
+        except Exception:
+            pass
+
+
+# ---------------------------------------------------------------------------
 # Extract conversation from state.vscdb
 # ---------------------------------------------------------------------------
 
@@ -435,7 +513,7 @@ def main() -> int:
     parser = argparse.ArgumentParser(
         description="Capture a Cursor conversation into trent agent memory."
     )
-    parser.add_argument("--conversation-id", required=True, help="Cursor conversation UUID")
+    parser.add_argument("--conversation-id", default=None, help="Cursor conversation UUID (auto-detected if omitted or 'unknown')")
     parser.add_argument("--project-id", default=None, help="trent project UUID (reads .trent/.project_id if omitted)")
     parser.add_argument("--project-path", default=None, help="Absolute path to project root (defaults to cwd)")
     parser.add_argument("--platform", default="cursor", help="Platform identifier (default: cursor)")
@@ -489,8 +567,17 @@ def main() -> int:
 
     logger.info(f"Using state.vscdb: {db_path}")
 
+    # Resolve conversation_id — auto-detect if not provided or Cursor sent "unknown"
+    conversation_id = args.conversation_id
+    if not conversation_id or conversation_id.lower() in ("unknown", "none", ""):
+        logger.info("conversation_id not provided by hook — auto-detecting from state.vscdb")
+        conversation_id = find_latest_conversation_id(db_path)
+        if not conversation_id:
+            logger.error("Could not determine conversation_id — aborting capture")
+            return 1
+
     # Extract turns
-    turns = extract_turns_from_vscdb(db_path, args.conversation_id)
+    turns = extract_turns_from_vscdb(db_path, conversation_id)
     if not turns:
         logger.warning(
             f"No turns extracted for conversation {args.conversation_id}. "
@@ -502,7 +589,7 @@ def main() -> int:
     ok = post_to_memory_ingest(
         mcp_url=args.mcp_url,
         project_id=project_id,
-        conversation_id=args.conversation_id,
+        conversation_id=conversation_id,
         platform=args.platform,
         project_path=project_path,
         turns=turns,
@@ -522,7 +609,7 @@ def main() -> int:
     if ok and len(turns) >= REFLECTION_TURN_THRESHOLD:
         _write_reflection_hint(
             project_path=project_path,
-            conversation_id=args.conversation_id,
+            conversation_id=conversation_id,
             turn_count=len(turns),
             turns=turns,
         )

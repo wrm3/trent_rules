@@ -37,40 +37,37 @@ $csvEntry = "$timestamp,$conversationId,$status,$loopCount"
 Add-Content -Path $metricsFile -Value $csvEntry
 
 # ── Memory Capture (async background job) ────────────────────────────────────
-# Only attempt capture for real conversations (skip "unknown" IDs).
-if ($conversationId -ne "unknown" -and $conversationId -ne "" -and $conversationId -ne $null) {
+# Always attempt capture. cursor_adapter.py will auto-detect the conversation
+# from state.vscdb if Cursor didn't pass conversation_id in the hook payload
+# (which is normal — most Cursor versions don't include it).
+$projectPath = (Get-Location).Path
+$adapterScript = Join-Path $PSScriptRoot "cursor_adapter.py"
 
-    # Resolve the project path (the hook runs from the workspace root)
-    $projectPath = (Get-Location).Path
+if (Test-Path $adapterScript) {
+    $adapterLog = "$logDir/${datePrefix}_memory_adapter.log"
 
-    # Build the python command arguments — no multi-line python -c!
-    # cursor_adapter.py uses stdlib only, so any system Python works.
-    $adapterScript = Join-Path $PSScriptRoot "cursor_adapter.py"
-
-    if (Test-Path $adapterScript) {
-        # Run in a background job so the hook returns immediately to Cursor.
-        # Output goes to the adapter log file (not consumed by Cursor).
-        $adapterLog = "$logDir/${datePrefix}_memory_adapter.log"
-
-        $jobArgs = @(
-            $adapterScript,
-            "--conversation-id", $conversationId,
-            "--project-path",    $projectPath,
-            "--loop-count",      $loopCount,
-            "--status",          $(if ($status -eq "success") { "completed" } else { "partial" })
-        )
-
-        # Start-Job runs in a subprocess — safe for long-running I/O
-        Start-Job -ScriptBlock {
-            param($pythonExe, $args, $logFile)
-            $output = & $pythonExe @args 2>&1
-            $output | Add-Content -Path $logFile
-        } -ArgumentList "python", $jobArgs, $adapterLog | Out-Null
-
-        Add-Content -Path $logFile -Value "[$timestamp] [MEMORY] Adapter job started for $conversationId"
-    } else {
-        Add-Content -Path $logFile -Value "[$timestamp] [MEMORY] cursor_adapter.py not found at $adapterScript — skipping"
+    # Pass conversation_id if we have it; adapter auto-detects if "unknown"
+    $jobArgs = @(
+        $adapterScript,
+        "--project-path", $projectPath,
+        "--loop-count",   $loopCount,
+        "--status",       $(if ($status -eq "success") { "completed" } else { "partial" })
+    )
+    if ($conversationId -and $conversationId -ne "unknown") {
+        $jobArgs += "--conversation-id"
+        $jobArgs += $conversationId
     }
+
+    # Start-Job runs in a subprocess — returns immediately to Cursor
+    Start-Job -ScriptBlock {
+        param($pythonExe, $args, $logFile)
+        $output = & $pythonExe @args 2>&1
+        $output | Add-Content -Path $logFile
+    } -ArgumentList "python", $jobArgs, $adapterLog | Out-Null
+
+    Add-Content -Path $logFile -Value "[$timestamp] [MEMORY] Adapter job started (conv=$conversationId loops=$loopCount)"
+} else {
+    Add-Content -Path $logFile -Value "[$timestamp] [MEMORY] cursor_adapter.py not found at $adapterScript — skipping"
 }
 
 # ── Reflection hint file ─────────────────────────────────────────────────────
