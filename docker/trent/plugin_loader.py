@@ -126,8 +126,8 @@ class PluginLoader:
 
         loaded = []
 
-        # Use recursive glob to find plugins in subdirectories too
-        for file_path in self.tools_dir.glob("**/*.py"):
+        # Use recursive glob to find plugins in subdirectories too — sorted alphabetically
+        for file_path in sorted(self.tools_dir.glob("**/*.py")):
             # Skip __init__.py and files starting with _
             if file_path.name.startswith("_"):
                 continue
