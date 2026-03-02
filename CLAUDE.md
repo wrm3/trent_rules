@@ -5,7 +5,7 @@ trent is a comprehensive AI-powered task management and development system for C
 
 ## Tech Stack
 - **Rules**: Cursor `.mdc` format (Markdown Cursor) - Claude Code reads this CLAUDE.md instead
-- **Skills**: Markdown with YAML frontmatter in `.cursor/skills/`
+- **Skills**: Markdown with YAML frontmatter in `.cursor/skills/` (50+ skills including excalidraw-diagram)
 - **Agents**: Markdown in `.cursor/agents/`
 - **MCP Server**: Python with FastMCP, PostgreSQL/pgvector for RAG, Oracle support
 - **Task Files**: Markdown with YAML frontmatter

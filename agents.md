@@ -174,6 +174,7 @@ docs/                          # Project documentation
 - `internal-comms` - Internal communications
 - `computer-use-agent` - Desktop automation
 - `artifacts-builder` - Complex HTML artifact creation
+- `excalidraw-diagram` - Create Excalidraw diagram JSON files that make visual arguments
 - `automatic-rag-checking` - Automatic RAG validation
 - `silicon-valley-superfan` - HBO Silicon Valley knowledge base
 
