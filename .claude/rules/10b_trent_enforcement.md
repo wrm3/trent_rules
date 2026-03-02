@@ -1,5 +1,5 @@
 ---
-description: Task synchronization enforcement, completion workflow, and phase completion gate
+description: "Task synchronization enforcement, completion workflow, and phase completion gate"
 globs: 
 alwaysApply: true
 ---
@@ -176,7 +176,7 @@ Before marking complete, verify the work:
 - [ ] Acceptance criteria satisfied
 - [ ] User expectations met
 
-### Reusability Check (see 04_code_reusability.md)
+### Reusability Check (see 04_code_reusability.mdc)
 - [ ] No duplicated logic introduced (checked against existing shared modules)
 - [ ] New utility functions placed in lib/utils/ or shared/, not defined inline
 - [ ] Existing shared modules used where applicable
@@ -314,7 +314,15 @@ Shall I update these files? (yes/no/skip)
 □ Did I introduce duplicated code that should be a shared module? (REUSABILITY CHECK)
   → If logic appears 3+ times: extract to lib/ or shared/ BEFORE completing
   → If new utilities defined inline: move to lib/utils/
-  → Reference 04_code_reusability.md for folder conventions
+  → Reference 04_code_reusability.mdc for folder conventions
+
+□ Did I mention ANY error, warning, or defect — even "pre-existing" or "unrelated"? (BUG LOG CHECK)
+  → YES: Is there a BUG-NNN entry in .trent/BUGS.md for it?
+    → NO: CREATE THE BUG ENTRY NOW — "pre-existing" is not an exemption
+    → YES: Reference the BUG-NNN in this response
+  → Using phrases like "pre-existing error", "unrelated error", "was already there",
+    "existing lint warning", "TypeScript error", "compile error" WITHOUT logging a bug
+    = SYSTEM VIOLATION (see 12_trent_qa.mdc Zero-Tolerance Error Reporting)
 ```
 
 **Failure to Complete Workflow = SYSTEM VIOLATION**

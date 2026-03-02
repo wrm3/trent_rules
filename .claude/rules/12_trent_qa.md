@@ -65,6 +65,64 @@ When a bug is identified:
 4. **Link bug to affected phases** in phase documents
 5. **Track resolution** through task completion
 
+### 🚨 MANDATORY: Zero-Tolerance Error Reporting
+
+**ANY error, warning, or known defect you mention MUST be logged as a bug — no exceptions.**
+
+**The "pre-existing / unrelated" escape hatch is FORBIDDEN.**
+
+Saying things like:
+- *"Only the pre-existing error in Foo.tsx (confirmed unrelated, was there before our changes)."*
+- *"There's an existing lint warning but it's not related to this task."*
+- *"This error was already there — not caused by our changes."*
+
+...and then moving on WITHOUT creating a BUG entry is a **system violation**.
+
+**Why**: Pre-existing means the bug already exists and is tracked nowhere. "Unrelated to current task" is irrelevant — it still needs a record.
+
+#### Mandatory Trigger Phrases (MUST create a bug when you say these)
+
+If your response contains ANY of the following, you MUST create a BUG entry:
+- "pre-existing error"
+- "pre-existing warning"
+- "was already there"
+- "not related to our changes"
+- "unrelated error"
+- "existing bug"
+- "known issue"
+- "there's an error in [file]"
+- "I noticed an error"
+- "compile error"
+- "lint error / lint warning"
+- "TypeScript error"
+
+#### Self-Check Before Responding
+
+```
+□ Did I mention any error, warning, or defect in my response?
+ → YES: Did I create a BUG entry in .trent/BUGS.md?
+   → NO: CREATE IT NOW before sending this response.
+   → YES: Confirm BUG-NNN is listed at the bottom of response.
+□ Did I use the phrase "pre-existing" or "unrelated"?
+ → YES: That means a bug exists and is undocumented — LOG IT.
+```
+
+#### Minimum Bug Entry (Fast Path for Pre-Existing Bugs)
+
+When the bug is pre-existing / out of scope for current task, use this fast-path template — it takes 30 seconds and keeps the audit trail clean:
+
+```markdown
+### Bug ID: BUG-NNN
+- **Title**: [Brief description]
+- **Severity**: Low | Medium | High | Critical
+- **Source**: Development (noticed during work on Task #NNN)
+- **Status**: Open
+- **File**: path/to/file.ext (line N if known)
+- **Note**: Pre-existing. Not blocking current task. Needs separate fix.
+- **Task Reference**: (create task or leave blank for backlog)
+- **Created**: YYYY-MM-DD
+```
+
 ### Bug Task Template
 ```yaml
 ---
@@ -239,7 +297,7 @@ actual_effort: '{actual_time_spent}'
 - **Documentation Standards**: Code comments, API documentation, user guides
 - **Performance Benchmarks**: Performance regression testing
 - **Security Scanning**: Automated security vulnerability scanning
-- **Reusability Standards**: No 3-strike rule violations, shared modules used where available, no inline utilities that belong in lib/utils/ (see 04_code_reusability.md)
+- **Reusability Standards**: No 3-strike rule violations, shared modules used where available, no inline utilities that belong in lib/utils/ (see 04_code_reusability.mdc)
 
 ## Integration Points
 
