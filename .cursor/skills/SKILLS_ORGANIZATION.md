@@ -41,11 +41,6 @@ Looking at existing Skills in this project:
 │   │   └── SKILL.md
 │   └── web-tools/
 │       └── SKILL.md
-├── research/
-│   ├── deep-research/
-│   │   └── SKILL.md
-│   └── research-methodology/
-│       └── SKILL.md
 ├── document_skills/
 │   ├── docx/
 │   │   └── SKILL.md
@@ -148,7 +143,6 @@ Limit nesting to 2 levels maximum:
 Keep Skill folder names descriptive:
 ```
 ✅ trent-task-management/
-✅ research-methodology/
 ❌ task-mgmt/
 ❌ rsrch/
 ```

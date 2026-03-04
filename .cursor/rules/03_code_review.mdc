@@ -131,7 +131,7 @@ class User(db.Model):
 
 ## Reusability Checklist (HIGH - Check Every Review)
 
-See `04_code_reusability.mdc` for full DRY standards and folder conventions.
+See `04_code_reusability.md` for full DRY standards and folder conventions.
 
 ### Duplication Detection
 - [ ] No copy-pasted logic across files (3-strike rule: 3+ occurrences → extract MANDATORY)

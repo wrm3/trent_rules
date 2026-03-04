@@ -32,3 +32,5 @@ alwaysApply: true
 
 
 4. When working with Python Project, please use the UV for virtual environment management
+
+5. Your training data is 1-3 years old. For time-sensitive queries (versions, pricing, APIs, best practices), **research before answering** using WebSearch or WebFetch. Use today's date from system context, NOT training cutoff.

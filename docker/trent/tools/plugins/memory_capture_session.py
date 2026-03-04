@@ -68,23 +68,21 @@ def execute(
 
     emb = embed(f"{summary} {key_decisions or ''}")
 
-    with _db.get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                INSERT INTO agent_memory_captures
-                    (session_id, project_id, summary, key_decisions,
-                     files_changed, embedding)
-                VALUES (%s, %s, %s, %s, %s, %s::vector)
-                """,
-                (session_id, proj_row_id, summary, key_decisions,
-                 files_changed, embed_str(emb)),
-            )
-            cur.execute(
-                "UPDATE agent_sessions SET session_summary=%s WHERE id=%s",
-                (summary, session_id),
-            )
-            conn.commit()
+    with _db.get_cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO agent_memory_captures
+                (session_id, project_id, summary, key_decisions,
+                 files_changed, embedding)
+            VALUES (%s, %s, %s, %s, %s, %s::vector)
+            """,
+            (session_id, proj_row_id, summary, key_decisions,
+             files_changed, embed_str(emb)),
+        )
+        cur.execute(
+            "UPDATE agent_sessions SET session_summary=%s WHERE id=%s",
+            (summary, session_id),
+        )
 
     return {
         "success": True,

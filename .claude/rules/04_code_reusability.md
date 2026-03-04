@@ -179,4 +179,4 @@ parsed = date.fromisoformat(s)
 
 ---
 
-*This rule is referenced by 10b_trent_enforcement.mdc (task completion), 11a/b (planning), 03_code_review.mdc (review), 12_trent_qa.mdc (quality gates), and 13_trent_workflow.mdc (task expansion).*
+*This rule is referenced by 20_trent_tasks.md (task completion), 22_trent_planning.md (planning), 03_code_review.md (review), 23_trent_qa.md (quality gates), and 24_trent_workflow.md (task expansion).*

@@ -106,34 +106,30 @@ Unified MCP Server - trent
 
 This server provides multiple tool categories:
 
-**RAG (Knowledge Base):**
-- rag_search - Semantic search over knowledge bases
-- rag_ingest_text - Store text content
-- rag_ingest_url - Store web content
-- rag_list_sources - Browse content catalog
-- rag_stats - Knowledge base statistics
-- Subject management (create, delete, list, set default)
+**Agent Memory:**
+- memory_ingest_session - Tier-1 passive capture (raw turns from file adapters)
+- memory_capture_session - Tier-2 active capture (AI self-reports session summary)
+- memory_capture_insight - Store structured insight with category/topic for dedup
+- memory_search - Semantic search across all stored sessions and captures
+- memory_search_combined - Combined search across turns and captures
+- memory_sessions - List recent sessions for a project
+- memory_context - Token-budgeted context block for session-start injection
 
 **Oracle Database:**
 - oracle_query - Execute read queries (source database)
 - oracle_execute - Execute write operations (target database)
-- oracle_describe - Describe Oracle objects
-
-**Research Tools (NO DuckDuckGo):**
-- research_query - Deep research via Perplexity/Google
-- research_summarize - Summarize research content
-- web_fetch - Fetch and extract web content
 
 **MediaWiki:**
-- mediawiki_get_page - Get wiki page content
-- mediawiki_create_page - Create new pages
-- mediawiki_update_page - Update existing pages
-- mediawiki_search - Search wiki
+- mediawiki_page - Get, create, or update wiki pages (get/create/update actions)
+- mediawiki_search - Search wiki pages
 
 **Template Installer:**
-- template_install - Install trent to new projects
-- template_check - Check installation status
-- template_update - Update existing installation
+- trent_install - Install trent to new projects
+- trent_plan_reset - Reset .trent/ to blank template
+- trent_server_status - Health check
+
+**Utilities:**
+- md_to_html - Convert markdown to styled HTML
 
 Use the appropriate tools based on your task.
 """

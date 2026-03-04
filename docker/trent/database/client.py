@@ -54,8 +54,8 @@ class RAGDatabase:
         try:
             dsn = self._build_connection_string()
             self.pool = SimpleConnectionPool(
-                minconn=1,
-                maxconn=10,
+                minconn=2,
+                maxconn=20,
                 dsn=dsn,
                 connect_timeout=10,
                 options='-c statement_timeout=30000'  # 30 second query timeout

@@ -63,23 +63,22 @@ def execute(
         sql += " ORDER BY t.embedding <=> %s::vector LIMIT %s"
         params += [es, limit]
 
-        with _db.get_connection() as conn:
-            with conn.cursor() as cur:
+        with _db.get_cursor() as cur:
                 cur.execute(sql, params)
                 for row in cur.fetchall():
                     results.append({
                         "type": "turn",
-                        "title": row[0],
-                        "description": row[1],
-                        "user_preview": (row[2] or "")[:300],
-                        "agent_preview": (row[3] or "")[:300],
-                        "platform": row[4],
-                        "capture_tier": row[5],
-                        "created_at": str(row[6]),
-                        "conversation_id": row[7],
-                        "project_id": row[8],
-                        "project_name": row[9],
-                        "similarity": float(row[10]),
+                        "title": row["llm_title"],
+                        "description": row["llm_description"],
+                        "user_preview": (row["user_message"] or "")[:300],
+                        "agent_preview": (row["agent_response"] or "")[:300],
+                        "platform": row["platform"],
+                        "capture_tier": row["capture_tier"],
+                        "created_at": str(row["created_at"]),
+                        "conversation_id": row["conversation_id"],
+                        "project_id": row["project_id"],
+                        "project_name": row["display_name"],
+                        "similarity": float(row["sim"]),
                     })
 
         # Search agent_memory_captures (active captures)
@@ -100,23 +99,22 @@ def execute(
         cap_sql += " ORDER BY c.embedding <=> %s::vector LIMIT %s"
         cap_params += [es, limit]
 
-        with _db.get_connection() as conn:
-            with conn.cursor() as cur:
+        with _db.get_cursor() as cur:
                 cur.execute(cap_sql, cap_params)
                 for row in cur.fetchall():
                     results.append({
                         "type": "capture",
-                        "title": (row[0] or "")[:120],
-                        "description": row[0],
-                        "key_decisions": row[1],
-                        "files_changed": row[2],
-                        "platform": row[5],
+                        "title": (row["summary"] or "")[:120],
+                        "description": row["summary"],
+                        "key_decisions": row["key_decisions"],
+                        "files_changed": row["files_changed"],
+                        "platform": row["platform"],
                         "capture_tier": "active",
-                        "created_at": str(row[3]),
-                        "conversation_id": row[4],
-                        "project_id": row[6],
-                        "project_name": row[7],
-                        "similarity": float(row[8]),
+                        "created_at": str(row["created_at"]),
+                        "conversation_id": row["conversation_id"],
+                        "project_id": row["project_id"],
+                        "project_name": row["display_name"],
+                        "similarity": float(row["sim"]),
                     })
 
         results.sort(key=lambda x: x.get("similarity", 0), reverse=True)

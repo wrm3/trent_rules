@@ -51,16 +51,15 @@ def execute(
         LIMIT %s
     """
     sessions = []
-    with _db.get_connection() as conn:
-        with conn.cursor() as cur:
+    with _db.get_cursor() as cur:
             cur.execute(sql, (project_id, recent_n))
             for row in cur.fetchall():
                 sessions.append({
-                    "conversation_id": row[0],
-                    "platform":  row[1],
-                    "summary":   row[2],
-                    "ended_at":  str(row[3])[:16],
-                    "turn_count": row[4],
+                    "conversation_id": row["conversation_id"],
+                    "platform":  row["platform"],
+                    "summary":   row["session_summary"],
+                    "ended_at":  str(row["ended_at"])[:16] if row["ended_at"] else "unknown",
+                    "turn_count": row["turn_count"],
                 })
 
     # Fetch recent key decisions from active captures
@@ -74,8 +73,7 @@ def execute(
         ORDER BY c.created_at DESC LIMIT 5
     """
     caps = []
-    with _db.get_connection() as conn:
-        with conn.cursor() as cur:
+    with _db.get_cursor() as cur:
             cur.execute(cap_sql, (project_id,))
             caps = cur.fetchall()
 
@@ -99,10 +97,10 @@ def execute(
     if caps:
         lines.append("\n### Key Decisions (Recent)")
         for cap in caps:
-            ts = str(cap[2])[:16]
-            lines.append(f"\n**{ts}:** {cap[0]}")
-            if cap[1]:
-                lines.append(f"Files: {cap[1]}")
+            ts = str(cap["created_at"])[:16]
+            lines.append(f"\n**{ts}:** {cap['key_decisions']}")
+            if cap["files_changed"]:
+                lines.append(f"Files: {cap['files_changed']}")
 
     context_text = "\n".join(lines)
     if len(context_text) > approx_chars:

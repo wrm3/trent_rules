@@ -54,22 +54,21 @@ def execute(
     params.append(limit)
 
     sessions = []
-    with _db.get_connection() as conn:
-        with conn.cursor() as cur:
+    with _db.get_cursor() as cur:
             cur.execute(sql, params)
             for row in cur.fetchall():
                 sessions.append({
-                    "session_id":    row[0],
-                    "conversation_id": row[1],
-                    "platform":      row[2],
-                    "capture_tier":  row[3],
-                    "status":        row[4],
-                    "loop_count":    row[5],
-                    "summary":       row[6],
-                    "ended_at":      str(row[7]),
-                    "created_at":    str(row[8]),
-                    "turn_count":    row[9],
-                    "capture_count": row[10],
+                    "session_id":    row["id"],
+                    "conversation_id": row["conversation_id"],
+                    "platform":      row["platform"],
+                    "capture_tier":  row["capture_tier"],
+                    "status":        row["status"],
+                    "loop_count":    row["loop_count"],
+                    "summary":       row["session_summary"],
+                    "ended_at":      str(row["ended_at"]),
+                    "created_at":    str(row["created_at"]),
+                    "turn_count":    row["turn_count"],
+                    "capture_count": row["capture_count"],
                 })
 
     return {

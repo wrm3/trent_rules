@@ -137,6 +137,7 @@ checkpoints/
 *_backup/
 *_old/
 .trent_bk/
+.trent/memory_fallback.jsonl
 
 # ============================================================================
 # OS-Specific

@@ -41,7 +41,7 @@ DO NOT use this skill for:
 - Simple code reviews → Use `trent-code-reviewer` skill
 - Planning features from scratch → Use `trent-planning` skill
 - Bug tracking → Use `trent-qa` skill
-- Research without a specific codebase → Use `research-methodology` skill
+
 
 ## Safeguards (MANDATORY)
 
@@ -438,7 +438,6 @@ User: "I've downloaded ProjectX into /research/projectx-main.
 |-------|--------------|
 | `trent-planning` | After creating integration plan, for detailed PRD if needed |
 | `trent-task-management` | For creating individual task files from the plan |
-| `research-methodology` | For deep research on specific components before integration |
 | `trent-code-reviewer` | For reviewing integration code quality |
 | `trent-qa` | For tracking bugs discovered during integration |
 

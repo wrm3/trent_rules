@@ -291,7 +291,6 @@ Task {ID}: {Action verb} {component} - {description} [Harvest: {source_name}] [{
 |-------|--------------|
 | `trent-task-management` | After creating harvest tasks |
 | `trent-planning` | If harvest reveals need for a new phase |
-| `research-methodology` | For deeper research on a specific harvest item |
 | `trent-code-reviewer` | When implementing harvested ideas |
 | `trent-qa` | For tracking issues found during implementation |
 

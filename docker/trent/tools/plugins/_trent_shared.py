@@ -48,30 +48,34 @@ def get_github_repo() -> str:
 # ============================================================
 
 # ── Full install — all systems + .trent template ──────────────────────────────
+# All paths are relative to the template/ subfolder in the repo.
+# The installer strips "template/" when writing to the target project.
+TEMPLATE_PREFIX = "template/"
+
 FULL_MANIFEST: List[str] = [
     # IDE Configurations
-    '.agent',                   # Google Antigravity / Gemini
-    '.platform_architecture',   # Cross-platform architecture docs
-    '.claude',                  # Claude Code
-    '.cursor',                  # Cursor IDE
+    'template/.agent',                   # Google Antigravity / Gemini
+    'template/.platform_architecture',   # Cross-platform architecture docs
+    'template/.claude',                  # Claude Code
+    'template/.cursor',                  # Cursor IDE
 
     # Root files
-    'agents.md',                # Universal agent instructions  (merged)
-    'AGENTS_INDEX.md',
-    'CLAUDE.md',                # Claude-specific context        (merged)
-    'COMMANDS_INDEX.md',
-    'CURSOR_SETUP.md',
-    'GEMINI.md',
-    'GUARDRAILS.md',
-    'HOOKS_INDEX.md',
-    'RULES_INDEX.md',
-    'SKILLS_INDEX.md',
-    '.env.example',
-    'mcp.txt',
+    'template/agents.md',                # Universal agent instructions  (merged)
+    'template/AGENTS_INDEX.md',
+    'template/CLAUDE.md',                # Claude-specific context        (merged)
+    'template/COMMANDS_INDEX.md',
+    'template/CURSOR_SETUP.md',
+    'template/GEMINI.md',
+    'template/GUARDRAILS.md',
+    'template/HOOKS_INDEX.md',
+    'template/RULES_INDEX.md',
+    'template/SKILLS_INDEX.md',
+    'template/.env.example',
+    'template/mcp.txt',
 
-    # .trent/ in this repo IS the template — blank root files, empty tasks/phases,
-    # examples/ and reference/ included.  No live task data.
-    '.trent',
+    # .trent/ blank template — blank root files, empty tasks/phases,
+    # examples/ and reference/ included. No live task data.
+    'template/.trent',
 ]
 
 # ── IDE-only manifests (platform-specific installs, never touch .trent/) ──────
@@ -79,36 +83,36 @@ FULL_MANIFEST: List[str] = [
 # Cursor IDE — rules, skills, agents, commands, hooks + shared root files
 # NOTE: CLAUDE.md is NOT included — it is Claude Code-specific, not read by Cursor.
 CURSOR_MANIFEST: List[str] = [
-    '.cursor',
-    '.platform_architecture',
-    'agents.md',                # universal agent instructions (merged)
-    'AGENTS_INDEX.md',
-    'COMMANDS_INDEX.md',
-    'CURSOR_SETUP.md',          # Cursor-specific setup guide
-    'GUARDRAILS.md',
-    'HOOKS_INDEX.md',
-    'RULES_INDEX.md',
-    'SKILLS_INDEX.md',
-    '.env.example',
-    'mcp.txt',
+    'template/.cursor',
+    'template/.platform_architecture',
+    'template/agents.md',                # universal agent instructions (merged)
+    'template/AGENTS_INDEX.md',
+    'template/COMMANDS_INDEX.md',
+    'template/CURSOR_SETUP.md',          # Cursor-specific setup guide
+    'template/GUARDRAILS.md',
+    'template/HOOKS_INDEX.md',
+    'template/RULES_INDEX.md',
+    'template/SKILLS_INDEX.md',
+    'template/.env.example',
+    'template/mcp.txt',
 ]
 
 # Claude Code — rules, skills, agents, commands, hooks + root files
 # agents.md: explicitly says "Compatible with both Cursor and Claude Code"
 # CURSOR_SETUP.md: intentionally excluded — Cursor-specific
 CLAUDE_MANIFEST: List[str] = [
-    '.claude',
-    '.platform_architecture',
-    'agents.md',                # universal agent instructions (merged)
-    'AGENTS_INDEX.md',
-    'CLAUDE.md',                # Claude-specific context (merged)
-    'COMMANDS_INDEX.md',
-    'GUARDRAILS.md',
-    'HOOKS_INDEX.md',
-    'RULES_INDEX.md',
-    'SKILLS_INDEX.md',
-    '.env.example',
-    'mcp.txt',
+    'template/.claude',
+    'template/.platform_architecture',
+    'template/agents.md',                # universal agent instructions (merged)
+    'template/AGENTS_INDEX.md',
+    'template/CLAUDE.md',                # Claude-specific context (merged)
+    'template/COMMANDS_INDEX.md',
+    'template/GUARDRAILS.md',
+    'template/HOOKS_INDEX.md',
+    'template/RULES_INDEX.md',
+    'template/SKILLS_INDEX.md',
+    'template/.env.example',
+    'template/mcp.txt',
 ]
 
 # Google Antigravity / Gemini — rules, skills, workflows + root files
@@ -117,25 +121,25 @@ CLAUDE_MANIFEST: List[str] = [
 # HOOKS_INDEX.md: excluded — Gemini has no hooks system
 # CLAUDE.md: excluded — Claude Code-specific
 GEMINI_MANIFEST: List[str] = [
-    '.agent',
-    '.platform_architecture',
-    'agents.md',                # universal agent instructions (merged)
-    'AGENTS_INDEX.md',
-    'COMMANDS_INDEX.md',
-    'GEMINI.md',
-    'GUARDRAILS.md',
-    'RULES_INDEX.md',
-    'SKILLS_INDEX.md',
-    '.env.example',
-    'mcp.txt',
+    'template/.agent',
+    'template/.platform_architecture',
+    'template/agents.md',                # universal agent instructions (merged)
+    'template/AGENTS_INDEX.md',
+    'template/COMMANDS_INDEX.md',
+    'template/GEMINI.md',
+    'template/GUARDRAILS.md',
+    'template/RULES_INDEX.md',
+    'template/SKILLS_INDEX.md',
+    'template/.env.example',
+    'template/mcp.txt',
 ]
 
 # All-platforms IDE manifest — everything in FULL_MANIFEST except .trent/
 # Used by trent_install phase 1 (force-overwrite IDE configs while leaving .trent/ alone)
-RULES_MANIFEST: List[str] = [item for item in FULL_MANIFEST if item != '.trent']
+RULES_MANIFEST: List[str] = [item for item in FULL_MANIFEST if item != 'template/.trent']
 
 # .trent-only manifest — for plan reset
-TRENT_MANIFEST: List[str] = ['.trent']
+TRENT_MANIFEST: List[str] = ['template/.trent']
 
 # Paths that are NEVER extracted to a target project, regardless of manifest.
 # Protects internal implementation details from leaking into user projects.
@@ -192,9 +196,14 @@ def extract_manifest_from_zip(
       wrm3-trent_rules-abc123/
     This function strips that prefix automatically.
 
+    Manifest entries should be relative to the repo's template/ subfolder
+    (e.g. ['template/.cursor', 'template/agents.md']). The "template/" prefix
+    is automatically stripped when writing to target_dir, so files land at the
+    project root (e.g. target_dir/.cursor/, target_dir/agents.md).
+
     Args:
         zip_bytes:   Raw bytes of the GitHub ZIP download.
-        manifest:    List of repo-relative paths to extract, e.g. ['.cursor', 'agents.md'].
+        manifest:    List of repo-relative paths to extract, e.g. ['template/.cursor', 'template/agents.md'].
                      Both individual files and directories are supported.
         target_dir:  Local directory to write files into.
         overwrite:   If False, skip files that already exist locally.
@@ -253,7 +262,14 @@ def extract_manifest_from_zip(
                 if not matched:
                     continue
 
-                local_target = target_dir / rel_path
+                # Strip template/ prefix so files land at the project root, not template/
+                install_rel_path = rel_path
+                if install_rel_path.startswith(TEMPLATE_PREFIX):
+                    install_rel_path = install_rel_path[len(TEMPLATE_PREFIX):]
+                    if not install_rel_path:
+                        continue  # skip the template/ directory entry itself
+
+                local_target = target_dir / install_rel_path
 
                 # Honour overwrite flag
                 if not overwrite and local_target.exists():

@@ -37,36 +37,35 @@ def init(context: dict) -> None:
 
 def upsert_project(project_id: str, user_id: str, machine_id: str,
                    project_path: str, display_name: str) -> int:
-    with _db.get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "SELECT upsert_agent_project(%s, %s, %s, %s, %s)",
-                (project_id, user_id, machine_id, project_path, display_name),
-            )
-            row = cur.fetchone()
-            return row[0]
+    with _db.get_cursor() as cur:
+        cur.execute(
+            "SELECT upsert_agent_project(%s, %s, %s, %s, %s)",
+            (project_id, user_id, machine_id, project_path, display_name),
+        )
+        row = cur.fetchone()
+        # RealDictCursor returns a dict; the function result is keyed by the function name
+        return list(row.values())[0]
 
 
 def ensure_session(conversation_id: str, project_row_id: int,
                    platform: str, capture_tier: str,
                    status: Optional[str], loop_count: Optional[int]) -> int:
-    with _db.get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                INSERT INTO agent_sessions
-                    (conversation_id, project_id, platform, capture_tier,
-                     status, loop_count, ended_at)
-                VALUES (%s, %s, %s, %s, %s, %s, NOW())
-                ON CONFLICT (conversation_id) DO UPDATE
-                    SET status     = EXCLUDED.status,
-                        loop_count = EXCLUDED.loop_count
-                RETURNING id
-                """,
-                (conversation_id, project_row_id, platform, capture_tier,
-                 status, loop_count),
-            )
-            return cur.fetchone()[0]
+    with _db.get_cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO agent_sessions
+                (conversation_id, project_id, platform, capture_tier,
+                 status, loop_count, ended_at)
+            VALUES (%s, %s, %s, %s, %s, %s, NOW())
+            ON CONFLICT (conversation_id) DO UPDATE
+                SET status     = EXCLUDED.status,
+                    loop_count = EXCLUDED.loop_count
+            RETURNING id
+            """,
+            (conversation_id, project_row_id, platform, capture_tier,
+             status, loop_count),
+        )
+        return cur.fetchone()["id"]
 
 
 def content_hash(user_msg: str, agent_resp: str) -> str:
@@ -123,30 +122,27 @@ def insert_turn(session_id: int, turn_index: int, user_msg: str,
                 agent_resp: str, platform: str, capture_tier: str) -> bool:
     """Returns True if inserted, False if duplicate."""
     chash = content_hash(user_msg, agent_resp)
-    with _db.get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                "SELECT 1 FROM agent_turns WHERE content_hash = %s", (chash,)
-            )
-            if cur.fetchone():
-                return False
+    with _db.get_cursor() as cur:
+        cur.execute(
+            "SELECT 1 FROM agent_turns WHERE content_hash = %s", (chash,)
+        )
+        if cur.fetchone():
+            return False
 
     title, description = summarise_turn(user_msg, agent_resp)
     emb = embed(f"{title} {description}")
 
-    with _db.get_connection() as conn:
-        with conn.cursor() as cur:
-            cur.execute(
-                """
-                INSERT INTO agent_turns
-                    (session_id, turn_index, content_hash, user_message,
-                     agent_response, llm_title, llm_description, embedding,
-                     platform, capture_tier)
-                VALUES (%s,%s,%s,%s,%s,%s,%s,%s::vector,%s,%s)
-                ON CONFLICT DO NOTHING
-                """,
-                (session_id, turn_index, chash, user_msg, agent_resp,
-                 title, description, embed_str(emb), platform, capture_tier),
-            )
-            conn.commit()
+    with _db.get_cursor() as cur:
+        cur.execute(
+            """
+            INSERT INTO agent_turns
+                (session_id, turn_index, content_hash, user_message,
+                 agent_response, llm_title, llm_description, embedding,
+                 platform, capture_tier)
+            VALUES (%s,%s,%s,%s,%s,%s,%s,%s::vector,%s,%s)
+            ON CONFLICT DO NOTHING
+            """,
+            (session_id, turn_index, chash, user_msg, agent_resp,
+             title, description, embed_str(emb), platform, capture_tier),
+        )
     return True
