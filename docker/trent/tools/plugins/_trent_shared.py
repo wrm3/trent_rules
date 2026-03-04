@@ -65,22 +65,14 @@ FULL_MANIFEST: List[str] = [
     'template/temp_scripts',
 
     # Root files
-    'template/.env.example',
     'template/agents.md',                # Universal agent instructions  (merged)
-    'template/AGENTS_INDEX.md',
     'template/CLAUDE.md',                # Claude-specific context        (merged)
-    'template/COMMANDS_INDEX.md',
-    'template/CURSOR_SETUP.md',
     'template/GEMINI.md',
     'template/GUARDRAILS.md',
-    'template/HOOKS_INDEX.md',
     'template/LICENSE',
     'template/LICENSE_OBS',
     'template/NOTICE',
     'template/NOTICE_OBS',
-    'template/RULES_INDEX.md',
-    'template/SKILLS_INDEX.md',
-    'template/mcp.txt',
 
     # .trent/ blank template — blank root files, empty tasks/phases,
     # examples/ and reference/ included. No live task data.
@@ -97,20 +89,12 @@ CURSOR_MANIFEST: List[str] = [
     'template/docs',
     'template/research',
     'template/temp_scripts',
-    'template/.env.example',
     'template/agents.md',                # universal agent instructions (merged)
-    'template/AGENTS_INDEX.md',
-    'template/COMMANDS_INDEX.md',
-    'template/CURSOR_SETUP.md',          # Cursor-specific setup guide
     'template/GUARDRAILS.md',
-    'template/HOOKS_INDEX.md',
     'template/LICENSE',
     'template/LICENSE_OBS',
     'template/NOTICE',
     'template/NOTICE_OBS',
-    'template/RULES_INDEX.md',
-    'template/SKILLS_INDEX.md',
-    'template/mcp.txt',
 ]
 
 # Claude Code — rules, skills, agents, commands, hooks + root files
@@ -122,26 +106,17 @@ CLAUDE_MANIFEST: List[str] = [
     'template/docs',
     'template/research',
     'template/temp_scripts',
-    'template/.env.example',
     'template/agents.md',                # universal agent instructions (merged)
-    'template/AGENTS_INDEX.md',
     'template/CLAUDE.md',                # Claude-specific context (merged)
-    'template/COMMANDS_INDEX.md',
     'template/GUARDRAILS.md',
-    'template/HOOKS_INDEX.md',
     'template/LICENSE',
     'template/LICENSE_OBS',
     'template/NOTICE',
     'template/NOTICE_OBS',
-    'template/RULES_INDEX.md',
-    'template/SKILLS_INDEX.md',
-    'template/mcp.txt',
 ]
 
 # Google Antigravity / Gemini — rules, skills, workflows + root files
 # agents.md: GEMINI.md explicitly says "See AGENTS.md for universal instructions"
-# CURSOR_SETUP.md: excluded — Cursor-specific
-# HOOKS_INDEX.md: excluded — Gemini has no hooks system
 # CLAUDE.md: excluded — Claude Code-specific
 GEMINI_MANIFEST: List[str] = [
     'template/.agent',
@@ -149,19 +124,13 @@ GEMINI_MANIFEST: List[str] = [
     'template/docs',
     'template/research',
     'template/temp_scripts',
-    'template/.env.example',
     'template/agents.md',                # universal agent instructions (merged)
-    'template/AGENTS_INDEX.md',
-    'template/COMMANDS_INDEX.md',
     'template/GEMINI.md',
     'template/GUARDRAILS.md',
     'template/LICENSE',
     'template/LICENSE_OBS',
     'template/NOTICE',
     'template/NOTICE_OBS',
-    'template/RULES_INDEX.md',
-    'template/SKILLS_INDEX.md',
-    'template/mcp.txt',
 ]
 
 # All-platforms IDE manifest — everything in FULL_MANIFEST except .trent/
