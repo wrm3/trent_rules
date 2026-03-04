@@ -210,6 +210,8 @@ ftp_sites.json
 # These rules come AFTER !.cursor/**/* to override that unignore
 .cursor/logs/*
 !.cursor/logs/.gitkeep
+template/.cursor/logs/*
+!template/.cursor/logs/.gitkeep
 .cursor/metrics/*
 !.cursor/metrics/.gitkeep
 
