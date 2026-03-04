@@ -77,6 +77,11 @@ FULL_MANIFEST: List[str] = [
     'template/.env.example',
     'template/mcp.txt',
 
+    # Empty scaffold folders (contain .gitkeep so they deploy to target projects)
+    'template/docs',
+    'template/research',
+    'template/temp_scripts',
+
     # .trent/ blank template — blank root files, empty tasks/phases,
     # examples/ and reference/ included. No live task data.
     'template/.trent',
@@ -93,14 +98,17 @@ CURSOR_MANIFEST: List[str] = [
     'template/AGENTS_INDEX.md',
     'template/COMMANDS_INDEX.md',
     'template/CURSOR_SETUP.md',          # Cursor-specific setup guide
+    'template/docs',
     'template/GUARDRAILS.md',
     'template/HOOKS_INDEX.md',
     'template/LICENSE',
     'template/LICENSE_OBS',
     'template/NOTICE',
     'template/NOTICE_OBS',
+    'template/research',
     'template/RULES_INDEX.md',
     'template/SKILLS_INDEX.md',
+    'template/temp_scripts',
     'template/.env.example',
     'template/mcp.txt',
 ]
@@ -115,14 +123,17 @@ CLAUDE_MANIFEST: List[str] = [
     'template/AGENTS_INDEX.md',
     'template/CLAUDE.md',                # Claude-specific context (merged)
     'template/COMMANDS_INDEX.md',
+    'template/docs',
     'template/GUARDRAILS.md',
     'template/HOOKS_INDEX.md',
     'template/LICENSE',
     'template/LICENSE_OBS',
     'template/NOTICE',
     'template/NOTICE_OBS',
+    'template/research',
     'template/RULES_INDEX.md',
     'template/SKILLS_INDEX.md',
+    'template/temp_scripts',
     'template/.env.example',
     'template/mcp.txt',
 ]
@@ -138,14 +149,17 @@ GEMINI_MANIFEST: List[str] = [
     'template/agents.md',                # universal agent instructions (merged)
     'template/AGENTS_INDEX.md',
     'template/COMMANDS_INDEX.md',
+    'template/docs',
     'template/GEMINI.md',
     'template/GUARDRAILS.md',
     'template/LICENSE',
     'template/LICENSE_OBS',
     'template/NOTICE',
     'template/NOTICE_OBS',
+    'template/research',
     'template/RULES_INDEX.md',
     'template/SKILLS_INDEX.md',
+    'template/temp_scripts',
     'template/.env.example',
     'template/mcp.txt',
 ]
