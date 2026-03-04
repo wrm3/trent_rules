@@ -55,11 +55,17 @@ TEMPLATE_PREFIX = "template/"
 FULL_MANIFEST: List[str] = [
     # IDE Configurations
     'template/.agent',                   # Google Antigravity / Gemini
-    'template/.platform_architecture',   # Cross-platform architecture docs
     'template/.claude',                  # Claude Code
     'template/.cursor',                  # Cursor IDE
+    'template/.platform_architecture',   # Cross-platform architecture docs
+
+    # Scaffold folders (contain .gitkeep so they deploy to target projects)
+    'template/docs',
+    'template/research',
+    'template/temp_scripts',
 
     # Root files
+    'template/.env.example',
     'template/agents.md',                # Universal agent instructions  (merged)
     'template/AGENTS_INDEX.md',
     'template/CLAUDE.md',                # Claude-specific context        (merged)
@@ -74,13 +80,7 @@ FULL_MANIFEST: List[str] = [
     'template/NOTICE_OBS',
     'template/RULES_INDEX.md',
     'template/SKILLS_INDEX.md',
-    'template/.env.example',
     'template/mcp.txt',
-
-    # Empty scaffold folders (contain .gitkeep so they deploy to target projects)
-    'template/docs',
-    'template/research',
-    'template/temp_scripts',
 
     # .trent/ blank template — blank root files, empty tasks/phases,
     # examples/ and reference/ included. No live task data.
@@ -94,22 +94,22 @@ FULL_MANIFEST: List[str] = [
 CURSOR_MANIFEST: List[str] = [
     'template/.cursor',
     'template/.platform_architecture',
+    'template/docs',
+    'template/research',
+    'template/temp_scripts',
+    'template/.env.example',
     'template/agents.md',                # universal agent instructions (merged)
     'template/AGENTS_INDEX.md',
     'template/COMMANDS_INDEX.md',
     'template/CURSOR_SETUP.md',          # Cursor-specific setup guide
-    'template/docs',
     'template/GUARDRAILS.md',
     'template/HOOKS_INDEX.md',
     'template/LICENSE',
     'template/LICENSE_OBS',
     'template/NOTICE',
     'template/NOTICE_OBS',
-    'template/research',
     'template/RULES_INDEX.md',
     'template/SKILLS_INDEX.md',
-    'template/temp_scripts',
-    'template/.env.example',
     'template/mcp.txt',
 ]
 
@@ -119,22 +119,22 @@ CURSOR_MANIFEST: List[str] = [
 CLAUDE_MANIFEST: List[str] = [
     'template/.claude',
     'template/.platform_architecture',
+    'template/docs',
+    'template/research',
+    'template/temp_scripts',
+    'template/.env.example',
     'template/agents.md',                # universal agent instructions (merged)
     'template/AGENTS_INDEX.md',
     'template/CLAUDE.md',                # Claude-specific context (merged)
     'template/COMMANDS_INDEX.md',
-    'template/docs',
     'template/GUARDRAILS.md',
     'template/HOOKS_INDEX.md',
     'template/LICENSE',
     'template/LICENSE_OBS',
     'template/NOTICE',
     'template/NOTICE_OBS',
-    'template/research',
     'template/RULES_INDEX.md',
     'template/SKILLS_INDEX.md',
-    'template/temp_scripts',
-    'template/.env.example',
     'template/mcp.txt',
 ]
 
@@ -146,21 +146,21 @@ CLAUDE_MANIFEST: List[str] = [
 GEMINI_MANIFEST: List[str] = [
     'template/.agent',
     'template/.platform_architecture',
+    'template/docs',
+    'template/research',
+    'template/temp_scripts',
+    'template/.env.example',
     'template/agents.md',                # universal agent instructions (merged)
     'template/AGENTS_INDEX.md',
     'template/COMMANDS_INDEX.md',
-    'template/docs',
     'template/GEMINI.md',
     'template/GUARDRAILS.md',
     'template/LICENSE',
     'template/LICENSE_OBS',
     'template/NOTICE',
     'template/NOTICE_OBS',
-    'template/research',
     'template/RULES_INDEX.md',
     'template/SKILLS_INDEX.md',
-    'template/temp_scripts',
-    'template/.env.example',
     'template/mcp.txt',
 ]
 
