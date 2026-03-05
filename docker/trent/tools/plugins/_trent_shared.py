@@ -57,7 +57,7 @@ FULL_MANIFEST: List[str] = [
     'template/.agent',                   # Google Antigravity / Gemini
     'template/.claude',                  # Claude Code
     'template/.cursor',                  # Cursor IDE
-    'template/.platform_architecture',   # Cross-platform architecture docs
+    'template/.platforms',   # Cross-platform architecture docs
 
     # Scaffold folders (contain .gitkeep so they deploy to target projects)
     'template/docs',
@@ -85,7 +85,7 @@ FULL_MANIFEST: List[str] = [
 # NOTE: CLAUDE.md is NOT included — it is Claude Code-specific, not read by Cursor.
 CURSOR_MANIFEST: List[str] = [
     'template/.cursor',
-    'template/.platform_architecture',
+    'template/.platforms',
     'template/docs',
     'template/research',
     'template/temp_scripts',
@@ -102,7 +102,7 @@ CURSOR_MANIFEST: List[str] = [
 # CURSOR_SETUP.md: intentionally excluded — Cursor-specific
 CLAUDE_MANIFEST: List[str] = [
     'template/.claude',
-    'template/.platform_architecture',
+    'template/.platforms',
     'template/docs',
     'template/research',
     'template/temp_scripts',
@@ -120,7 +120,7 @@ CLAUDE_MANIFEST: List[str] = [
 # CLAUDE.md: excluded — Claude Code-specific
 GEMINI_MANIFEST: List[str] = [
     'template/.agent',
-    'template/.platform_architecture',
+    'template/.platforms',
     'template/docs',
     'template/research',
     'template/temp_scripts',
