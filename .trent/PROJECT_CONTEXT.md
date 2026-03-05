@@ -65,8 +65,10 @@
 ## Next Steps
 
 ### Immediate
-1. {Step 1}
-2. {Step 2}
+1. Complete project planning
+2. Define scope and requirements
+3. Create initial tasks
+
 
 ---
 

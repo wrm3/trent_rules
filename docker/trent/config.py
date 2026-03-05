@@ -67,14 +67,6 @@ def load_config() -> dict:
 
     # Build configuration from all sources
     config = {
-        # === RAG / PostgreSQL ===
-        'openai_api_key': os.getenv('OPENAI_API_KEY'),
-        'postgres_host': os.getenv('POSTGRES_HOST'),
-        'postgres_port': os.getenv('POSTGRES_PORT', '5432'),
-        'postgres_database': os.getenv('POSTGRES_DATABASE') or os.getenv('POSTGRES_DB', 'rag_knowledge'),
-        'postgres_user': os.getenv('POSTGRES_USER', 'postgres'),
-        'postgres_password': os.getenv('POSTGRES_PASSWORD'),
-        'postgres_connection_string': os.getenv('POSTGRES_CONNECTION_STRING'),
 
         # === Oracle Database ===
         'oracle_src_host': os.getenv('ORACLE_SRC_HOST'),
@@ -91,6 +83,19 @@ def load_config() -> dict:
         'oracle_tgt_service': os.getenv('ORACLE_TGT_SERVICE'),
         'oracle_tgt_schema': os.getenv('ORACLE_TGT_SCHEMA'),
 
+        # === PostgreSQL ===
+        'postgres_host': os.getenv('POSTGRES_HOST'),
+        'postgres_port': os.getenv('POSTGRES_PORT', '5432'),
+        'postgres_db': os.getenv('POSTGRES_DB') or os.getenv('POSTGRES_DB', 'rag_knowledge'),
+        'postgres_user': os.getenv('POSTGRES_USER', 'postgres'),
+        'postgres_password': os.getenv('POSTGRES_PASSWORD'),
+        'postgres_connection_string': os.getenv('POSTGRES_CONNECTION_STRING'),
+
+
+        # === OpenAI (Embeddings) ===
+
+       'openai_api_key': os.getenv('OPENAI_API_KEY'),
+ 
         # === Research APIs ===
         'perplexity_api_key': os.getenv('PERPLEXITY_API_KEY'),
         'google_search_api_key': os.getenv('GOOGLE_SEARCH_API_KEY'),
@@ -106,6 +111,13 @@ def load_config() -> dict:
 
         # === Template Installer ===
         'template_source_path': os.getenv('TEMPLATE_SOURCE_PATH'),
+
+        # === Template Git Source (for remote template fetching) ===
+        'template_git_repo': os.getenv('TEMPLATE_GIT_REPO'),
+        'template_git_branch': os.getenv('TEMPLATE_GIT_BRANCH', 'main'),
+        'template_git_token': os.getenv('TEMPLATE_GIT_TOKEN'),
+        'template_git_path': os.getenv('TEMPLATE_GIT_PATH', 'template'),
+        'template_full_git_path': os.getenv('TEMPLATE_FULL_GIT_PATH', 'template'),
     }
 
     # Validate critical variables for core RAG functionality

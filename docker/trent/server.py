@@ -245,22 +245,36 @@ def main():
             print("ERROR: uvicorn required for HTTP transport", file=sys.stderr)
             sys.exit(1)
 
-        if transport == 'sse':
-            mcp_app = mcp.sse_app()
-        else:
-            mcp_app = mcp.streamable_http_app()
-
         # Initialize REST bridges with shared DB/embedding components
         init_memory_rest(db=db, embedding_generator=embedding_generator, config=config)
         init_admin_db(db=db)
 
-        # Route priority: admin UI → memory REST → MCP (SSE/streamable-http)
         from starlette.applications import Starlette
         from starlette.routing import Mount
+        from contextlib import asynccontextmanager
 
-        app = Starlette(
-            routes=ADMIN_ROUTES + MEMORY_ROUTES + [Mount("/", app=mcp_app)],
-        )
+        if transport == 'sse':
+            mcp_app = mcp.sse_app()
+            app = Starlette(
+                routes=ADMIN_ROUTES + MEMORY_ROUTES + [Mount("/", app=mcp_app)],
+            )
+        else:
+            # streamable-http: Starlette does NOT propagate lifespan to mounted
+            # sub-apps, so the StreamableHTTPSessionManager task group is never
+            # initialized — causing "Task group is not initialized" 500s.
+            # Fix: build the mcp app first (which creates _session_manager),
+            # then wire that manager's run() into the outer app's lifespan.
+            mcp_app = mcp.streamable_http_app()
+
+            @asynccontextmanager
+            async def lifespan(app):
+                async with mcp._session_manager.run():
+                    yield
+
+            app = Starlette(
+                lifespan=lifespan,
+                routes=ADMIN_ROUTES + MEMORY_ROUTES + [Mount("/", app=mcp_app)],
+            )
 
         logger.info("MCP server ready")
         logger.info("  /admin/db          — DB Explorer UI")

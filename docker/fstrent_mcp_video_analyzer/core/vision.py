@@ -16,7 +16,7 @@ async def analyze_frames(
     frame_paths: List[str],
     video_context: str = "",
     anthropic_api_key: Optional[str] = None,
-    model: str = "claude-sonnet-4-20250514",
+    model: str = "claude-sonnet-4-6",
     max_tokens: int = 2000
 ) -> Dict[str, Any]:
     """
@@ -221,7 +221,7 @@ async def analyze_single_frame(
     frame_path: str,
     prompt: str,
     anthropic_api_key: Optional[str] = None,
-    model: str = "claude-sonnet-4-20250514"
+    model: str = "claude-sonnet-4-6"
 ) -> Dict[str, Any]:
     """
     Analyze a single frame with a custom prompt.

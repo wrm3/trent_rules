@@ -12,17 +12,10 @@
 (None yet)
 
 ---
-**Legend:**
-- `[ ]` - Pending (no task file yet)
-- `[📋]` - Ready (task file created)
-- `[🔄]` - In Progress
-- `[✅]` - Completed
-- `[❌]` - Failed/Blocked
-
 **Status Indicators**:
-- `[ ]` = Task listed but **NO detailed file created yet** ⚠️ **BLOCKED - DO NOT START**
-- `[📋]` = Task file created and ready to start ✅ **UNBLOCKED - CAN PROCEED**
-- `[🔄]` = In Progress (actively working) - **Requires [📋] first**
+- `[ ]` = Task listed but **NO detailed file created yet** ⚠️ **SPECC'ING - ALLOWED**  **CODING - BLOCKED**
+- `[�]` = Task file created and ready to start ✅ **SPECC'ING - ALLOWED**  **CODING - ALLOWED - NOT BLOCKED**
+- `[�]` = In Progress (actively working) - **SPECC'ING - BLOCKED - IN PROGRESS**  **CODING - BLOCKED**
 - `[✅]` = Completed
 - `[❌]` = Failed or blocked
 - `[⏸️]` = Paused (work stopped, may resume later) - **Used for phases during pivots**

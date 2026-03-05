@@ -1,0 +1,15 @@
+# Docker build context filter
+# Build context is project root (for template access)
+# Only include what the Dockerfile actually needs
+
+# Exclude everything by default
+*
+
+# Include only what the build needs
+!docker/requirements.txt
+!docker/pyproject.toml
+!docker/trent/
+
+# Template (baked into image)
+!template/
+!template/**

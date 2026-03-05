@@ -48,15 +48,30 @@
 *Detailed phase management is in TASKS.md. This section provides high-level overview only.*
 
 ### 4.1 Phase Overview
-- **Phase 0**: Setup & Infrastructure - [Brief description]
-- **Phase 1**: Foundation - [Brief description]
-- **Phase 2**: Core Development - [Brief description]
+
+Project work is organized into phases, each with a reserved task ID range:
+
+- **Phase 0: Setup & Infrastructure** (Task IDs: 1-99)
+  - [Setup objectives and deliverables]
+  - Status: [ ] Pending
+
+- **Phase 1: Foundation** (Task IDs: 100-199)
+  - [Foundation objectives and deliverables]
+  - Status: [ ] Pending
+
+- **Phase 2: Core Development** (Task IDs: 200-299)
+  - [Core development objectives and deliverables]
+  - Status: [ ] Pending
 
 ### 4.2 Phase References
 - **Master Location**: TASKS.md (phase headers with task lists)
 - **Detail Files**: `.trent/phases/phase{N}_{name}.md`
 - **Template**: `.trent/templates/phase_template.md`
 - **Commands**: `@trent-phase-add`, `@trent-phase-pivot`, `@trent-phase-sync-check`
+
+### 4.3 Adding New Phases
+- Phases can be added at any time
+- Gaps in numbering allowed for pivots
 
 ## 5. User experience
 
@@ -134,6 +149,15 @@
 
 ### 9.3 Phase Sequencing
 *See TASKS.md for detailed phase breakdown and task assignments.*
+
+- **Phase 0: Setup** 
+  - Key deliverables: [TBD]
+
+- **Phase 1: Foundation**
+  - Key deliverables: [TBD]
+
+- **Phase 2: Core Development**
+  - Key deliverables: [TBD]
 
 ## 10. User stories
 
