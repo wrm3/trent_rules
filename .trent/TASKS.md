@@ -130,6 +130,9 @@
 - [✅] **Task 302**: pgAdmin admin-login hardening + security warning in trent_server_status
 - [✅] **Task 303**: Fix docker-compose project name from "docker" to "trent_rules"
 - [✅] **Task 304**: memory_setup_user MCP tool — cross-platform user identity setup (Windows/macOS/Linux/Docker)
+- [✅] **Task 305**: Firecrawl retry/backoff + zero-page alert + CRAWL_STATUS.json + health_report integration
+- [✅] **Task 306**: trent_validate_task MCP tool — ARCHITECTURE_CONSTRAINTS.md hard gate for autonomous agents
+- [✅] **Task 307**: SYSTEM_EXPERIMENTS.md result field + memory_search at proposal + memory_capture_insight at close
 
 ---
 
@@ -142,4 +145,4 @@
 **Phase 0 Progress**: 55/55 tasks COMPLETED [✅] — ALL PHASE 0 TASKS DONE
 **Phase 1 Progress**: 4/4 tasks COMPLETED [✅] — ALL PHASE 1 TASKS DONE
 **Phase 2 Progress**: 5/5 tasks COMPLETED [✅] — ALL PHASE 2 TASKS DONE
-**Phase 3 Progress**: 5/5 tasks COMPLETED [✅] — ALL PHASE 3 TASKS DONE
+**Phase 3 Progress**: 8/8 tasks COMPLETED [✅] — ALL PHASE 3 TASKS DONE

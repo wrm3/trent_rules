@@ -23,6 +23,13 @@ for future AI sessions.
 **Hypothesis**: [What we expect this change to improve]
 **Change Made**: [What was actually changed — file, rule, template]
 **Monitoring**: [How we'll know if it worked — metric, observation, timeframe]
+**experiment_result**:
+  outcome: (leave blank until closing)
+  measured_by: []
+  task_failure_rate_before: null
+  task_failure_rate_after: null
+  notes: ""
+  closed_date: null
 -->
 
 *(No active experiments yet)*
@@ -43,6 +50,13 @@ for future AI sessions.
 **Outcome**: [What actually happened]
 **Lessons Learned**: [What future sessions should know]
 **Reference**: [task or commit reference]
+**experiment_result**:
+  outcome: success | failed | partial | abandoned
+  measured_by: [metric or observation used to evaluate]
+  task_failure_rate_before: null
+  task_failure_rate_after: null
+  notes: "what actually happened in practice"
+  closed_date: YYYY-MM-DD
 -->
 
 *(No completed experiments yet)*

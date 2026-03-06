@@ -10,6 +10,7 @@ import logging
 import os
 import subprocess
 import sys
+import time
 from datetime import datetime, timezone
 from pathlib import Path
 from typing import Optional
@@ -24,6 +25,7 @@ logger = logging.getLogger(__name__)
 
 PLATFORMS_DIR = Path(__file__).parent / "platforms"
 CHANGELOG_PATH = Path(__file__).parent.parent.parent / ".platforms" / "CHANGELOG.md"
+CRAWL_STATUS_PATH = Path(__file__).parent.parent.parent / ".platforms" / "CRAWL_STATUS.json"
 
 DB_CONFIG = {
     "host": os.environ.get("POSTGRES_HOST", "localhost"),
@@ -34,6 +36,10 @@ DB_CONFIG = {
 }
 RAG_SUBJECT = os.environ.get("RAG_SUBJECT", "platform_docs")
 GIT_AUTO_COMMIT = os.environ.get("GIT_AUTO_COMMIT", "true").lower() == "true"
+
+# Retry configuration
+MAX_CRAWL_ATTEMPTS = 3
+RETRY_BASE_DELAY_SECONDS = 5   # doubles each attempt: 5 → 10 → 20
 
 
 # ---------------------------------------------------------------------------
@@ -106,6 +112,62 @@ def _get_embedding(text: str) -> list[float]:
     else:
         logger.warning("No OPENAI_API_KEY set — using zero embedding vector (search will not work)")
         return [0.0] * 1536
+
+
+def crawl_with_retry(
+    crawler: "PlatformDocsCrawler",
+    target: "CrawlTarget",
+    max_attempts: int = MAX_CRAWL_ATTEMPTS,
+    base_delay: float = RETRY_BASE_DELAY_SECONDS,
+) -> list["PageResult"]:
+    """
+    Crawl a single target with exponential backoff retry.
+    Returns pages on success, empty list after all attempts fail (dead-letter).
+    Delays: base, base*2, base*4, ...
+    """
+    for attempt in range(1, max_attempts + 1):
+        try:
+            pages = crawler.crawl_target(target)
+            if pages:
+                return pages
+            # Got zero pages — could be a transient empty response, retry
+            logger.warning(f"  Zero pages returned for {target.name} (attempt {attempt}/{max_attempts})")
+        except Exception as e:
+            logger.warning(f"  Crawl error for {target.name} attempt {attempt}/{max_attempts}: {e}")
+
+        if attempt < max_attempts:
+            delay = base_delay * (2 ** (attempt - 1))
+            logger.info(f"  Retrying {target.name} in {delay:.0f}s...")
+            time.sleep(delay)
+
+    logger.error(f"  DEAD-LETTER: {target.name} failed after {max_attempts} attempts — skipping")
+    return []
+
+
+def write_crawl_status(
+    crawl_date: str,
+    pages_crawled: int,
+    pages_failed: int,
+    dead_letter_targets: list[str],
+    status: str,
+) -> None:
+    """Write CRAWL_STATUS.json so trent_health_report can surface stale crawls."""
+    import json
+
+    CRAWL_STATUS_PATH.parent.mkdir(parents=True, exist_ok=True)
+    status_data = {
+        "last_crawl_date": crawl_date,
+        "pages_crawled": pages_crawled,
+        "pages_failed": pages_failed,
+        "dead_letter_targets": dead_letter_targets,
+        "status": status,   # "success" | "partial" | "failed"
+        "updated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    CRAWL_STATUS_PATH.write_text(
+        json.dumps(status_data, indent=2, ensure_ascii=False),
+        encoding="utf-8",
+    )
+    logger.info(f"Crawl status written: {CRAWL_STATUS_PATH} [{status}]")
 
 
 # ---------------------------------------------------------------------------
@@ -195,7 +257,28 @@ def run_crawl(diff_only: bool = False, platforms: Optional[list[str]] = None) ->
 
     crawler = PlatformDocsCrawler()
     snapshots = SnapshotManager()
-    all_results = crawler.crawl_all(targets=platforms)
+
+    # Use retry-aware crawl per target
+    all_results: dict[str, list[PageResult]] = {}
+    dead_letter_targets: list[str] = []
+
+    targets_to_crawl = [t for t in CRAWL_TARGETS if not platforms or t.name in platforms]
+    for target in targets_to_crawl:
+        pages = crawl_with_retry(crawler, target)
+        if pages:
+            all_results[target.name] = pages
+        else:
+            dead_letter_targets.append(target.name)
+            all_results[target.name] = []
+
+    total_pages_crawled = sum(len(p) for p in all_results.values())
+    if total_pages_crawled == 0:
+        logger.error(
+            "ZERO pages crawled across all targets — platform knowledge base NOT updated. "
+            "Check Firecrawl API key, network connectivity, and target URLs."
+        )
+        write_crawl_status(crawl_date, 0, len(dead_letter_targets), dead_letter_targets, "failed")
+        return
 
     all_changes: dict[str, dict[str, list[str]]] = {}
     changed_pages: list[PageResult] = []
@@ -214,10 +297,13 @@ def run_crawl(diff_only: bool = False, platforms: Optional[list[str]] = None) ->
 
     total_new = sum(len(v["new"]) for v in all_changes.values())
     total_updated = sum(len(v["updated"]) for v in all_changes.values())
-    logger.info(f"Crawl complete: {total_new} new, {total_updated} updated pages")
+    logger.info(f"Crawl complete: {total_pages_crawled} pages, {total_new} new, {total_updated} updated")
 
     if diff_only:
         return
+
+    pages_failed = len(dead_letter_targets)
+    crawl_status = "partial" if dead_letter_targets else "success"
 
     if changed_pages:
         logger.info("Ingesting changed pages to RAG...")
@@ -230,8 +316,13 @@ def run_crawl(diff_only: bool = False, platforms: Optional[list[str]] = None) ->
             conn.close()
         except Exception as e:
             logger.error(f"RAG ingest failed (continuing): {e}")
+            crawl_status = "partial"
 
     update_changelog(all_changes, crawl_date)
+    write_crawl_status(crawl_date, total_pages_crawled, pages_failed, dead_letter_targets, crawl_status)
+
+    if dead_letter_targets:
+        logger.warning(f"Dead-letter targets (crawl failed): {dead_letter_targets}")
 
     if GIT_AUTO_COMMIT:
         git_commit_snapshots(crawl_date, all_changes)

@@ -336,7 +336,37 @@ async def execute(
     # Blocked tasks
     blocked_tasks = _find_blocked_tasks(tasks_dir)
 
-    return {
+    # Firecrawl crawl status
+    crawl_status_warning = None
+    crawl_status_info = None
+    platforms_dir = target / ".platforms"
+    crawl_status_file = platforms_dir / "CRAWL_STATUS.json"
+    if crawl_status_file.exists():
+        try:
+            import json as _json
+            cs = _json.loads(crawl_status_file.read_text(encoding="utf-8"))
+            crawl_status_info = cs
+            last_date_str = cs.get("last_crawl_date") or cs.get("updated_at", "")[:10]
+            if last_date_str:
+                try:
+                    last_date = datetime.strptime(last_date_str[:10], "%Y-%m-%d").replace(tzinfo=timezone.utc)
+                    days_ago = (datetime.now(timezone.utc) - last_date).days
+                    if cs.get("status") == "failed":
+                        crawl_status_warning = (
+                            f"Last Firecrawl crawl FAILED on {last_date_str}. "
+                            "Platform docs knowledge base may be stale."
+                        )
+                    elif days_ago > 14:
+                        crawl_status_warning = (
+                            f"Firecrawl last ran {days_ago} days ago ({last_date_str}). "
+                            "Platform docs may be stale — check the firecrawl container."
+                        )
+                except ValueError:
+                    pass
+        except Exception as e:
+            logger.warning(f"Could not read CRAWL_STATUS.json: {e}")
+
+    result = {
         "success": True,
         "project": str(target),
         "overall_health": overall_score,
@@ -359,3 +389,8 @@ async def execute(
         "tasks_md_exists": tasks_md.exists(),
         "tasks_dir_exists": tasks_dir.exists(),
     }
+    if crawl_status_warning:
+        result["crawl_status_warning"] = crawl_status_warning
+    if crawl_status_info:
+        result["crawl_status"] = crawl_status_info
+    return result

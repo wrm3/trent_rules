@@ -30,6 +30,34 @@ Both agents operate **without a human at the keyboard**. Safety mechanisms repla
 
 ---
 
+## Task Claim Pre-Validation (MANDATORY HARD GATE)
+
+**Before claiming any task, call `trent_validate_task`:**
+
+```
+trent_validate_task(
+    project_path = "{absolute path to project root}",
+    task_id      = "{task_id}",
+    blast_radius = "{from task YAML}",
+    subsystems   = [{from task YAML}],
+    files_to_modify = [{planned files}],
+    ai_safe      = {from task YAML}
+)
+```
+
+**Act on the result:**
+
+| Result | Action |
+|---|---|
+| `valid=true, warnings=[]` | Proceed normally |
+| `valid=true, warnings=[...]` | Proceed — log warnings in claim commit message |
+| `valid=false, violations=[...]` | **STOP — escalate to human. Do NOT claim the task.** |
+
+This is a hard gate, not a soft suggestion. A `valid=false` result means the task
+cannot be autonomously executed regardless of other conditions.
+
+---
+
 ## Task Claim TTL System
 
 ### Purpose

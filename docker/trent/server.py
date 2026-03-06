@@ -133,7 +133,8 @@ This server provides multiple tool categories:
 - platform_docs_search - Semantic search over weekly-crawled Cursor/Claude/Gemini platform docs (requires Firecrawl profile)
 
 **Project Health:**
-- trent_health_report - Compute health score (0-100) for a trent-managed project; returns per-subsystem breakdown, stale claims, and blocked tasks
+- trent_health_report - Compute health score (0-100) for a trent-managed project; returns per-subsystem breakdown, stale claims, blocked tasks, and Firecrawl crawl status
+- trent_validate_task - Validate a task against ARCHITECTURE_CONSTRAINTS.md before claiming it; returns pass/fail with violations listed; call before any autonomous task claim
 
 **Service URLs:**
 - get_service_url - Returns the correct URL for mediawiki, pgadmin, trent, or postgres — environment-aware (works across home, work, OKE/Kubernetes)
