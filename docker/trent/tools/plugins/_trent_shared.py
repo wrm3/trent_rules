@@ -140,6 +140,82 @@ RULES_MANIFEST: List[str] = [item for item in FULL_MANIFEST if item != 'template
 # .trent-only manifest — for plan reset
 TRENT_MANIFEST: List[str] = ['template/.trent']
 
+# ── template_v2 manifests (vNext — autonomous multi-agent support) ────────────
+# All paths are relative to the template_v2/ subfolder in the repo.
+# The installer strips "template_v2/" when writing to the target project.
+TEMPLATE_V2_PREFIX = "template_v2/"
+
+FULL_MANIFEST_V2: List[str] = [
+    # IDE Configurations
+    'template_v2/.agent',
+    'template_v2/.claude',
+    'template_v2/.cursor',
+    'template_v2/.platforms',
+
+    # Scaffold folders
+    'template_v2/docs',
+    'template_v2/research',
+    'template_v2/temp_scripts',
+
+    # Root files
+    'template_v2/agents.md',
+    'template_v2/CLAUDE.md',
+    'template_v2/GEMINI.md',
+    'template_v2/GUARDRAILS.md',
+    'template_v2/LICENSE',
+    'template_v2/NOTICE',
+
+    # .trent/ blank template — vNext version with ARCHITECTURE_CONSTRAINTS.md,
+    # SPRINT.md, CLEANUP_REPORT.md, SYSTEM_EXPERIMENTS.md, etc.
+    'template_v2/.trent',
+]
+
+CURSOR_MANIFEST_V2: List[str] = [
+    'template_v2/.cursor',
+    'template_v2/.platforms',
+    'template_v2/docs',
+    'template_v2/research',
+    'template_v2/temp_scripts',
+    'template_v2/agents.md',
+    'template_v2/GUARDRAILS.md',
+    'template_v2/LICENSE',
+    'template_v2/NOTICE',
+]
+
+CLAUDE_MANIFEST_V2: List[str] = [
+    'template_v2/.claude',
+    'template_v2/.platforms',
+    'template_v2/docs',
+    'template_v2/research',
+    'template_v2/temp_scripts',
+    'template_v2/agents.md',
+    'template_v2/CLAUDE.md',
+    'template_v2/GUARDRAILS.md',
+    'template_v2/LICENSE',
+    'template_v2/NOTICE',
+]
+
+GEMINI_MANIFEST_V2: List[str] = [
+    'template_v2/.agent',
+    'template_v2/.platforms',
+    'template_v2/docs',
+    'template_v2/research',
+    'template_v2/temp_scripts',
+    'template_v2/agents.md',
+    'template_v2/GEMINI.md',
+    'template_v2/GUARDRAILS.md',
+    'template_v2/LICENSE',
+    'template_v2/NOTICE',
+]
+
+# IDE configs only — used by trent_install phase 1 with v2 template
+RULES_MANIFEST_V2: List[str] = [
+    item for item in FULL_MANIFEST_V2 if item != 'template_v2/.trent'
+]
+
+# .trent-only manifest for v2 — for plan reset / first-time .trent init
+TRENT_MANIFEST_V2: List[str] = ['template_v2/.trent']
+
 # Paths that are NEVER extracted to a target project, regardless of manifest.
 # Protects internal implementation details from leaking into user projects.
 NEVER_EXTRACT: List[str] = [

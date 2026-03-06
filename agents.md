@@ -159,6 +159,8 @@ docs/                          # Project documentation
 | `trent_rules_update` | Update IDE configs/rules (preserves .trent/ task data) |
 | `trent_plan_reset` | Reset .trent/ to blank template (requires confirm=True) |
 | `trent_server_status` | Health check |
+| `trent_health_report` | Compute health score (0-100) for a trent project; returns subsystem breakdown, stale claims, blocked tasks |
+| `platform_docs_search` | Semantic search over Firecrawl-crawled Cursor/Claude/Gemini platform docs (requires `--profile platform-docs`) |
 | `memory_ingest_session` | Tier-1 passive capture: ingest raw turns from file adapters (Cursor, Claude Code) |
 | `memory_capture_session` | Tier-2 active capture: AI self-reports session summary (Gemini, VS Code) |
 | `memory_search` | Semantic search over captured session memory |
@@ -202,9 +204,12 @@ dependencies: [other_task_ids]
 | `[📝]` | Speccing | `status: speccing` | Agent writing the spec (TTL: 1 hour) |
 | `[📋]` | Ready | `status: pending` | Task file created, ready to start |
 | `[🔄]` | Active | `status: in-progress` | Being coded (TTL: 2 hours) |
+| `[🔍]` | Verifying | `status: verifying` | Under cross-agent verification (vNext) |
 | `[✅]` | Done | `status: completed` | Completed |
 | `[❌]` | Failed | `status: failed` | Failed/Cancelled |
 | `[⏸️]` | Paused | `status: paused` | Paused (used for phase pivots) |
+| `[⏳]` | Waiting | `status: waiting` | Blocked on dependency (vNext) |
+| `[🌾]` | Harvested | `status: harvested` | Idea harvested, not a deliverable task (vNext) |
 
 ### Phase-Based Task Numbering
 
@@ -255,11 +260,13 @@ Commands use the `trent-` prefix.
 | `trent-qa-report` | Generate quality metrics |
 | `trent-review` | Comprehensive code review |
 | `trent-setup` | Initialize trent system |
+| `trent-sprint` | Run autonomous 2-hour sprint (vNext) |
 | `trent-status` | Project status overview |
 | `trent-task-new` | Create a new task |
 | `trent-task-sync-check` | Validate task synchronization |
 | `trent-task-update` | Update task status |
 | `trent-workflow` | Task expansion, sprint planning |
+| `trent-cleanup` | Run autonomous nightly cleanup (vNext) |
 
 ### Usage
 - **Cursor**: `@trent-setup`, `@trent-task-new`, etc. (commands in `.cursor/commands/`)
@@ -317,7 +324,7 @@ Commands use the `trent-` prefix.
 
 ---
 
-**Version**: 5.0.0
-**Last Updated**: 2026-03-03
+**Version**: 5.1.0
+**Last Updated**: 2026-03-06
 **Supported IDEs**: Cursor IDE (`.cursor/`), Claude Code (`.claude/`)
 **Platform Parity**: Agents, skills, commands, and hooks are identical between both IDEs

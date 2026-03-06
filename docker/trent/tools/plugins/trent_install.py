@@ -40,6 +40,8 @@ from ._trent_shared import (
     trent_dir_has_user_data,
     RULES_MANIFEST,
     TRENT_MANIFEST,
+    RULES_MANIFEST_V2,
+    TRENT_MANIFEST_V2,
 )
 
 # ============================================================
@@ -56,12 +58,21 @@ TOOL_DESCRIPTION = (
     "If .trent/ contains user task data, a backup zip is created automatically before "
     "writing anything. "
     "agents.md and CLAUDE.md are merged (user content preserved). "
+    "Use use_v2=True (default) to install trent vNext (template_v2) — the latest "
+    "release with autonomous multi-agent support. Use use_v2=False for the legacy "
+    "trent v1 (template). "
     "Use trent_install_cursor / trent_install_claude / trent_install_gemini "
     "to update a single platform."
 )
 
 TOOL_PARAMS = {
     "target_path": "Target project directory to install / upgrade trent into (required)",
+    "use_v2": (
+        "Install trent vNext (template_v2) with autonomous multi-agent support (default: True). "
+        "Pass use_v2=False to install the legacy trent v1 (template/) instead. "
+        "vNext adds ARCHITECTURE_CONSTRAINTS.md, SPRINT.md, autonomous cleanup/sprint agents, "
+        "cross-agent verification, and blast-radius task flags."
+    ),
     "backup_trent": (
         "Create a zip backup of .trent/ before installing if user task data is detected "
         "(default: True). Backup saved as .trent_backup_YYYYMMDD_HHMMSS.zip. "
@@ -83,6 +94,7 @@ def setup(context: dict):
 
 async def execute(
     target_path: str,
+    use_v2: bool = True,
     backup_trent: bool = True,
     dry_run: bool = False,
     context: dict = None,
@@ -90,12 +102,19 @@ async def execute(
     """
     Install or upgrade trent to a project directory.
 
-    Phase 1 — IDE configs (RULES_MANIFEST): always overwrite — upgrades rules/skills.
-    Phase 2 — .trent template (TRENT_MANIFEST): skip existing files — preserves user data.
+    Phase 1 — IDE configs: always overwrite — upgrades rules/skills.
+    Phase 2 — .trent template: skip existing files — preserves user data.
+
+    use_v2=True (default): installs trent vNext from template_v2/
+    use_v2=False: installs legacy trent v1 from template/
     """
     token = get_github_token()
     repo = get_github_repo()
     original_path = target_path
+
+    # Select manifests based on version
+    rules_manifest = RULES_MANIFEST_V2 if use_v2 else RULES_MANIFEST
+    trent_manifest = TRENT_MANIFEST_V2 if use_v2 else TRENT_MANIFEST
 
     try:
         target = resolve_target_path(target_path)
@@ -132,7 +151,7 @@ async def execute(
 
     # ── Phase 1: IDE configs — always overwrite (upgrade) ─────────────────────
     ide_result = run_install(
-        manifest=RULES_MANIFEST,
+        manifest=rules_manifest,
         target=target,
         github_repo=repo,
         github_token=token,
@@ -149,7 +168,7 @@ async def execute(
 
     # ── Phase 2: .trent template — skip existing files ────────────────────────
     trent_result = run_install(
-        manifest=TRENT_MANIFEST,
+        manifest=trent_manifest,
         target=target,
         github_repo=repo,
         github_token=token,
@@ -204,6 +223,7 @@ async def execute(
         'source': f'github:{repo}',
         'dry_run': dry_run,
         'backup_result': backup_result,
+        'template_version': 'v2 (vNext)' if use_v2 else 'v1 (legacy)',
         'ide_phase': {
             'copied': len(ide_result.get('copied_files', [])),
             'skipped': len(ide_result.get('skipped_files', [])),

@@ -128,6 +128,12 @@ This server provides multiple tool categories:
 - trent_plan_reset - Reset .trent/ to blank template
 - trent_server_status - Health check
 
+**Platform Documentation:**
+- platform_docs_search - Semantic search over weekly-crawled Cursor/Claude/Gemini platform docs (requires Firecrawl profile)
+
+**Project Health:**
+- trent_health_report - Compute health score (0-100) for a trent-managed project; returns per-subsystem breakdown, stale claims, and blocked tasks
+
 **Utilities:**
 - md_to_html - Convert markdown to styled HTML
 

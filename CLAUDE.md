@@ -44,10 +44,12 @@ temp_scripts/           # Test and utility scripts
 | `oracle_execute` | Write SQL on Oracle |
 | `mediawiki_page` | MediaWiki CRUD operations |
 | `mediawiki_search` | Search MediaWiki |
-| `trent_install` | Install full trent environment |
+| `trent_install` | Install full trent environment (use_v2=True for vNext) |
 | `trent_rules_update` | Update IDE configs/rules |
 | `trent_plan_reset` | Reset .trent/ to blank template |
 | `trent_server_status` | Health check |
+| `trent_health_report` | Compute health score for a trent project (vNext) |
+| `platform_docs_search` | Search Firecrawl-crawled platform docs (vNext, optional) |
 | `md_to_html` | Convert markdown to HTML |
 | `memory_ingest_session` | Ingest raw turns from file adapters |
 | `memory_capture_session` | AI self-reports session summary |
@@ -66,8 +68,8 @@ cd docker && docker-compose up -d --build trent_rules_docker  # Rebuild
 ## Rules & Configuration
 All detailed rules are in `.claude/rules/`. Key areas:
 - **00-04**: Core (response format, docs, git, code review, reusability)
-- **10-19**: Trent task management system
-- **20-23**: Agent memory, Cursor CLI
+- **20-32**: Trent task management system (vNext: rules 31=autonomous, 32=verification, 66=parity)
+- **23**: Agent memory, Cursor CLI
 - **30-32**: PowerShell, Python/UV
 - **41**: RAG knowledge base
 - **SV**: Silicon Valley personalities
@@ -79,6 +81,6 @@ All detailed rules are in `.claude/rules/`. Key areas:
 - Oracle credentials passed per-query via tool parameters
 
 ---
-**Version**: 5.0.0
-**Last Updated**: 2026-03-03
+**Version**: 5.1.0
+**Last Updated**: 2026-03-06
 **Supported IDEs**: Cursor, Claude Code, Gemini
