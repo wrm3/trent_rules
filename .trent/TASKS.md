@@ -26,7 +26,7 @@
 
 - [✅] **Task 001**: Initialize template_v2 folder structure (copy baseline from template/, apply new structure)
 - [✅] **Task 002**: Create ARCHITECTURE_CONSTRAINTS.md template with session-start enforcement
-- [📋] **Task 003**: Create updated task YAML schema (all new fields: ai_safe, TTL, blast_radius, failure_history, spec_freshness, execution_cost, verification)
+- [✅] **Task 003**: Create updated task YAML schema (all new fields: ai_safe, TTL, blast_radius, failure_history, spec_freshness, execution_cost, verification)
 - [✅] **Task 004**: Create SPRINT.md template (active work queue, ≤15 tasks, cleanup-agent-generated)
 - [✅] **Task 005**: Create SYSTEM_EXPERIMENTS.md template (system evolution log)
 - [✅] **Task 006**: Rename PLAN.md → PRD.md in template_v2, update all references
@@ -60,8 +60,8 @@
 
 ### Subsystem: autonomous
 
-- [📋] **Task 040**: Create @trent-cleanup command spec (midnight cleanup agent responsibilities)
-- [📋] **Task 041**: Create CLEANUP_REPORT.md template
+- [✅] **Task 040**: Create @trent-cleanup command spec (midnight cleanup agent responsibilities)
+- [✅] **Task 041**: Create CLEANUP_REPORT.md template
 - [✅] **Task 042**: Create @trent-sprint command spec (2-hour sprint agent responsibilities)
 - [📋] **Task 043**: Implement atomic task claiming protocol (git-commit-based claim)
 - [📋] **Task 044**: Add ai_safe flag to task YAML + rules for unattended execution
@@ -76,22 +76,22 @@
 
 ### Subsystem: platform-docs
 
-- [📋] **Task 060**: Design Firecrawl Docker service architecture (docker/firecrawl/)
-- [📋] **Task 061**: Create Firecrawl crawler.py (crawl targets: Cursor, Claude, Gemini docs)
-- [📋] **Task 062**: Create Firecrawl scheduler.py (weekly cron, diff, commit, RAG ingest)
-- [📋] **Task 063**: Create docker-compose additions for firecrawl service
-- [📋] **Task 064**: Create platform_docs_search MCP tool (semantic search over crawled docs)
-- [📋] **Task 065**: Create .platforms/CHANGELOG.md template and update format
+- [✅] **Task 060**: Design Firecrawl Docker service architecture (docker/firecrawl/)
+- [✅] **Task 061**: Create Firecrawl crawler.py (crawl targets: Cursor, Claude, Gemini docs)
+- [✅] **Task 062**: Create Firecrawl scheduler.py (weekly cron, diff, commit, RAG ingest)
+- [✅] **Task 063**: Create docker-compose additions for firecrawl service
+- [✅] **Task 064**: Create platform_docs_search MCP tool (semantic search over crawled docs)
+- [✅] **Task 065**: Create .platforms/CHANGELOG.md template and update format
 - [✅] **Task 066**: Create platform parity enforcement rule (cross-IDE rule diff check)
 
 ### Subsystem: agent-rules
 
-- [📋] **Task 070**: Update 20_trent_tasks rule with new status values, YAML fields, verification workflow
+- [✅] **Task 070**: Update 20_trent_tasks rule with new status values, YAML fields, verification workflow
 - [📋] **Task 071**: Update 21_trent_infrastructure rule with new file structure (logs/, SPRINT.md, etc.)
 - [📋] **Task 072**: Update 22_trent_planning rule with project types, PRD rename, ARCHITECTURE_CONSTRAINTS
-- [📋] **Task 073**: Update 25_trent_index rule with session-start ARCHITECTURE_CONSTRAINTS load
+- [✅] **Task 073**: Update 25_trent_index rule with session-start ARCHITECTURE_CONSTRAINTS load
 - [📋] **Task 074**: Update 27_trent_self_improvement rule with SYSTEM_EXPERIMENTS.md
-- [📋] **Task 075**: Create new rule: autonomous agent workflow (cleanup + sprint agent protocols)
+- [✅] **Task 075**: Create new rule: autonomous agent workflow (cleanup + sprint agent protocols)
 - [📋] **Task 076**: Create new rule: verification and cross-agent review workflow
 - [📋] **Task 077**: Ensure .cursor/rules/, .claude/rules/, .agent/rules/ are in sync (parity check)
 - [📋] **Task 078**: Add rules_version field to trent config + commit footer convention
@@ -129,5 +129,5 @@
 ---
 
 **Last Updated**: 2026-03-06
-**Phase 0 Progress**: 83/82 tasks specced — 12 COMPLETED [✅], remaining [📋] UNBLOCKED
-**Completed this session**: Tasks 002, 004, 005, 006, 007, 009, 010, 011, 013, 014, 042, 066
+**Phase 0 Progress**: Tasks specced — 21 COMPLETED [✅], remaining [📋] UNBLOCKED
+**Completed this session**: Tasks 002, 003, 004, 005, 006, 007, 009, 010, 011, 013, 014, 040, 041, 042, 060, 061, 062, 063, 064, 065, 066, 070, 073, 075

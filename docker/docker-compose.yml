@@ -120,6 +120,35 @@ services:
     networks:
       - trent_rules_network
 
+  # Firecrawl Platform Docs Crawler (weekly cron, updates .platforms/ and RAG)
+  firecrawl:
+    build:
+      context: ./firecrawl
+      dockerfile: Dockerfile
+    container_name: trent_firecrawl
+    profiles:
+      - platform-docs  # Start with: docker compose --profile platform-docs up -d
+    environment:
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_DB=${POSTGRES_DB:-rag_knowledge}
+      - POSTGRES_USER=${POSTGRES_USER:-trent}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-trent_secret}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
+      - RAG_SUBJECT=platform_docs
+      - CRAWL_SCHEDULE=${CRAWL_SCHEDULE:-0 2 * * 0}  # Sundays 2am UTC
+      - GIT_AUTO_COMMIT=${GIT_AUTO_COMMIT:-false}     # Set true in CI only
+    volumes:
+      - platform_docs_data:/data/platforms
+      - ${GIT_REPO_PATH:-.}:/repo:rw  # Mount repo root for git commits (optional)
+    depends_on:
+      postgres:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - trent_rules_network
+
 volumes:
   postgres_data:
     driver: local
@@ -132,6 +161,8 @@ volumes:
   video_cache:
     driver: local
   video_frames:
+    driver: local
+  platform_docs_data:
     driver: local
 
 networks:
