@@ -2,7 +2,7 @@
 id: 1
 title: 'Initialize template_v2 Folder Structure'
 type: feature
-status: pending
+status: completed
 priority: critical
 phase: 0
 subsystem: template-core
