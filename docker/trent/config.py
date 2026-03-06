@@ -95,8 +95,11 @@ def load_config() -> dict:
         # === OpenAI (Embeddings) ===
 
        'openai_api_key': os.getenv('OPENAI_API_KEY'),
- 
-        # === Research APIs ===
+
+        # === Gemini API (upcoming) ===
+        'gemini_api_key': os.getenv('GEMINI_API_KEY'),
+
+        # === Research APIs (plugins not yet implemented — keys reserved) ===
         'perplexity_api_key': os.getenv('PERPLEXITY_API_KEY'),
         'google_search_api_key': os.getenv('GOOGLE_SEARCH_API_KEY'),
         'google_search_engine_id': os.getenv('GOOGLE_SEARCH_ENGINE_ID'),
