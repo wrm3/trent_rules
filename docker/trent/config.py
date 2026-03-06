@@ -107,10 +107,17 @@ def load_config() -> dict:
         'anthropic_api_key': os.getenv('ANTHROPIC_API_KEY'),
 
         # === MediaWiki ===
-        'mediawiki_url': os.getenv('MEDIAWIKI_URL'),
+        'mediawiki_url': (
+            os.getenv('MEDIAWIKI_SERVER')
+            or os.getenv('MEDIAWIKI_URL')
+        ),
         'mediawiki_username': os.getenv('MEDIAWIKI_USERNAME'),
         'mediawiki_password': os.getenv('MEDIAWIKI_PASSWORD'),
         'mediawiki_api_key': os.getenv('MEDIAWIKI_API_KEY'),
+
+        # === Service URLs (env-driven for environment portability) ===
+        'pgadmin_url': os.getenv('PGADMIN_URL', 'http://localhost:8083'),
+        'trent_url': os.getenv('TRENT_URL', 'http://localhost:8082'),
 
         # === Template Installer ===
         'template_source_path': os.getenv('TEMPLATE_SOURCE_PATH'),
@@ -139,7 +146,9 @@ def load_config() -> dict:
     if config.get('gemini_api_key'):
         logger.info("Gemini API configured")
     if config.get('mediawiki_url'):
-        logger.info("MediaWiki configured")
+        logger.info(f"MediaWiki configured: {config['mediawiki_url']}")
+    if config.get('pgadmin_url'):
+        logger.info(f"pgAdmin URL: {config['pgadmin_url']}")
 
     return config
 

@@ -1,5 +1,7 @@
-# trent_rules_docker - Docker Compose Configuration
+# trent_rules - Docker Compose Configuration
 # Unified MCP Server with PostgreSQL for RAG, Research, and Video Analysis
+
+name: trent_rules
 
 services:
   # Main MCP Server (RAG, Research, Install, Video Analysis)
@@ -30,18 +32,18 @@ services:
       # Anthropic Configuration (for vision analysis)
       - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
 
-      # Perplexity Configuration (for research - NO DuckDuckGo)
-      - PERPLEXITY_API_KEY=${PERPLEXITY_API_KEY}
-
-      # Google Search Configuration (optional)
-      - GOOGLE_SEARCH_API_KEY=${GOOGLE_SEARCH_API_KEY}
-      - GOOGLE_SEARCH_ENGINE_ID=${GOOGLE_SEARCH_ENGINE_ID}
+      # Gemini Configuration (optional)
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
 
       # MediaWiki Configuration (optional)
-      - MEDIAWIKI_URL=${MEDIAWIKI_URL}
+      - MEDIAWIKI_SERVER=${MEDIAWIKI_SERVER:-}
       - MEDIAWIKI_USERNAME=${MEDIAWIKI_USERNAME}
       - MEDIAWIKI_PASSWORD=${MEDIAWIKI_PASSWORD}
       - MEDIAWIKI_API_KEY=${MEDIAWIKI_API_KEY}
+
+      # Service URLs (environment-aware — change per deployment)
+      - PGADMIN_URL=${PGADMIN_URL:-http://localhost:8083}
+      - TRENT_URL=${TRENT_URL:-http://localhost:8082}
 
       # GitHub Configuration (for install_trent tool)
       - GITHUB_TOKEN=${GITHUB_TOKEN}
@@ -110,12 +112,59 @@ services:
     profiles:
       - admin  # Only starts with: docker compose --profile admin up
     environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-admin@trent.local}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-admin}
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:?PGADMIN_EMAIL required}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:?PGADMIN_PASSWORD required}
     ports:
       - "8083:80"
     depends_on:
       - postgres
+    restart: unless-stopped
+    networks:
+      - trent_rules_network
+
+  # MediaWiki — private knowledge base (Postgres backend, no MySQL)
+  mediawiki:
+    build:
+      context: ./mediawiki
+      dockerfile: Dockerfile
+    container_name: trent_rules_mediawiki
+    profiles:
+      - mediawiki  # Start with: docker compose --profile mediawiki up -d
+    environment:
+      # Identity
+      - MEDIAWIKI_SITE_NAME=${MEDIAWIKI_SITE_NAME:-trent Knowledge Base}
+      - MEDIAWIKI_SERVER=${MEDIAWIKI_SERVER:-http://localhost:8880}
+      - MEDIAWIKI_PUBLIC=${MEDIAWIKI_PUBLIC:-false}
+      # Admin account (created on first run)
+      - MEDIAWIKI_ADMIN_USER=${MEDIAWIKI_ADMIN_USER:-WikiAdmin}
+      - MEDIAWIKI_ADMIN_PASSWORD=${MEDIAWIKI_ADMIN_PASSWORD:?MEDIAWIKI_ADMIN_PASSWORD required}
+      - MEDIAWIKI_ADMIN_EMAIL=${MEDIAWIKI_ADMIN_EMAIL:-admin@localhost}
+      # Database (shared Postgres instance)
+      - POSTGRES_HOST=postgres
+      - POSTGRES_PORT=5432
+      - POSTGRES_USER=${POSTGRES_USER:-trent}
+      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-trent_secret}
+      - MEDIAWIKI_DB_NAME=${MEDIAWIKI_DB_NAME:-mediawiki}
+      - MEDIAWIKI_DB_PREFIX=${MEDIAWIKI_DB_PREFIX:-mw_}
+      # Security keys — MUST be set in .env (generate: openssl rand -hex 32)
+      - MEDIAWIKI_SECRET_KEY=${MEDIAWIKI_SECRET_KEY:?MEDIAWIKI_SECRET_KEY required}
+      - MEDIAWIKI_UPGRADE_KEY=${MEDIAWIKI_UPGRADE_KEY:?MEDIAWIKI_UPGRADE_KEY required}
+      # Bot credentials for MCP mediawiki_* tools
+      - MEDIAWIKI_USERNAME=${MEDIAWIKI_USERNAME}
+      - MEDIAWIKI_PASSWORD=${MEDIAWIKI_PASSWORD}
+    ports:
+      - "8880:80"
+    volumes:
+      - mediawiki_images:/var/www/html/images
+    depends_on:
+      postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD-SHELL", "curl -sf http://localhost/wiki/Main_Page || exit 0"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     restart: unless-stopped
     networks:
       - trent_rules_network
@@ -163,6 +212,8 @@ volumes:
   video_frames:
     driver: local
   platform_docs_data:
+    driver: local
+  mediawiki_images:
     driver: local
 
 networks:

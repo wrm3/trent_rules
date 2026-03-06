@@ -123,6 +123,15 @@
 
 ---
 
+## Phase 3: Services & Infrastructure (Tasks 300-399) [🔄]
+
+- [✅] **Task 300**: Migrate MediaWiki to PostgreSQL + env-driven LocalSettings.php + docker-compose mediawiki profile
+- [✅] **Task 301**: MCP tool get_service_url — environment-aware URL resolver (home/work/OKE)
+- [✅] **Task 302**: pgAdmin admin-login hardening + security warning in trent_server_status
+- [✅] **Task 303**: Fix docker-compose project name from "docker" to "trent_rules"
+
+---
+
 ## Completed Tasks
 (None yet)
 
@@ -132,4 +141,4 @@
 **Phase 0 Progress**: 55/55 tasks COMPLETED [✅] — ALL PHASE 0 TASKS DONE
 **Phase 1 Progress**: 4/4 tasks COMPLETED [✅] — ALL PHASE 1 TASKS DONE
 **Phase 2 Progress**: 5/5 tasks COMPLETED [✅] — ALL PHASE 2 TASKS DONE
-**ALL PHASES COMPLETE** 🎉
+**Phase 3 Progress**: 4/4 tasks COMPLETED [✅] — ALL PHASE 3 TASKS DONE

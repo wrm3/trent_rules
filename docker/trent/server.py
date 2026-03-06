@@ -134,6 +134,9 @@ This server provides multiple tool categories:
 **Project Health:**
 - trent_health_report - Compute health score (0-100) for a trent-managed project; returns per-subsystem breakdown, stale claims, and blocked tasks
 
+**Service URLs:**
+- get_service_url - Returns the correct URL for mediawiki, pgadmin, trent, or postgres — environment-aware (works across home, work, OKE/Kubernetes)
+
 **Utilities:**
 - md_to_html - Convert markdown to styled HTML
 
@@ -195,6 +198,21 @@ async def trent_server_status() -> dict:
         features.append("mediawiki")
     features.append("template_installer")  # Always available
 
+    # Security warnings
+    warnings = []
+    pgadmin_password = os.environ.get("PGADMIN_PASSWORD", "")
+    if pgadmin_password in ("admin", "admin@trent.local", "", "CHANGE_ME_strong_password"):
+        warnings.append(
+            "pgAdmin is running with a weak or default password. "
+            "Set a strong PGADMIN_PASSWORD in .env before exposing pgAdmin externally."
+        )
+    mediawiki_admin_pw = os.environ.get("MEDIAWIKI_ADMIN_PASSWORD", "")
+    if mediawiki_admin_pw in ("CHANGE_ME", "CHANGE_ME_strong_password", ""):
+        warnings.append(
+            "MediaWiki MEDIAWIKI_ADMIN_PASSWORD is using a placeholder value. "
+            "Set a real password in .env before starting the mediawiki profile."
+        )
+
     return {
         'success': True,
         'status': 'healthy',
@@ -204,7 +222,13 @@ async def trent_server_status() -> dict:
         'features': features,
         'plugins': plugin_loader.list_plugins() if plugin_loader else [],
         'subjects': [s.id for s in subject_manager.list_subjects()] if subject_manager else [],
-        'default_subject': subject_manager.default_subject_id if subject_manager else None
+        'default_subject': subject_manager.default_subject_id if subject_manager else None,
+        'warnings': warnings if warnings else None,
+        'service_urls': {
+            'trent': config.get('trent_url', 'http://localhost:8082'),
+            'mediawiki': config.get('mediawiki_url') or 'not configured',
+            'pgadmin': config.get('pgadmin_url', 'http://localhost:8083'),
+        }
     }
 
 
