@@ -2,6 +2,11 @@
 # For public repository - blocks research, personal data, and sensitive files
 
 # ============================================================================
+# Temporary Notes & Working Documents (local only, never committed)
+# ============================================================================
+temp_docs/
+
+# ============================================================================
 # Research & Development (Private - development artifacts)
 # ============================================================================
 research/
