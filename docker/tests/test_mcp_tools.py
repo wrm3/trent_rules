@@ -233,19 +233,11 @@ MAIN_TOOL_TESTS = {
     ),
     "research_search": (
         {"query": "test"},
-        "Web search (needs PERPLEXITY or GOOGLE key)", True
-    ),
-    "research_scrape": (
-        {"url": "https://example.com"},
-        "Scrape web content", False
+        "Web search — plugin not yet implemented (placeholder)", True
     ),
     "research_deep": (
         {"topic": "test"},
-        "Deep research (needs PERPLEXITY or GOOGLE key)", True
-    ),
-    "research_comprehensive": (
-        {"query": "test"},
-        "Comprehensive research (needs PERPLEXITY or GOOGLE key)", True
+        "Deep research — plugin not yet implemented (placeholder)", True
     ),
     "mediawiki_search": (
         {"query": "Main Page"},
@@ -255,13 +247,9 @@ MAIN_TOOL_TESTS = {
         {"action": "read", "title": "Main Page"},
         "Read MediaWiki page (needs MEDIAWIKI config)", True
     ),
-    "install_trent": (
+    "trent_install": (
         {"target_path": "/tmp/trent_smoke_test", "dry_run": True},
-        "Template install (needs templates in container)", True
-    ),
-    "install_trent_full": (
-        {"target_path": "/tmp/trent_smoke_test_full", "dry_run": True},
-        "Full template install (needs templates in container)", True
+        "Template install (dry run)", True
     ),
 }
 

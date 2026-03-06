@@ -189,8 +189,8 @@ async def trent_server_status() -> dict:
         features.append("rag")
     if config.get('oracle_src_host'):
         features.append("oracle")
-    if config.get('perplexity_api_key') or config.get('google_search_api_key'):
-        features.append("research")
+    if config.get('gemini_api_key'):
+        features.append("gemini")
     if config.get('mediawiki_url'):
         features.append("mediawiki")
     features.append("template_installer")  # Always available

@@ -136,8 +136,8 @@ def load_config() -> dict:
     # Log which optional modules are configured
     if config.get('oracle_src_host'):
         logger.info("Oracle database configured")
-    if config.get('perplexity_api_key') or config.get('google_search_api_key'):
-        logger.info("Research APIs configured")
+    if config.get('gemini_api_key'):
+        logger.info("Gemini API configured")
     if config.get('mediawiki_url'):
         logger.info("MediaWiki configured")
 
