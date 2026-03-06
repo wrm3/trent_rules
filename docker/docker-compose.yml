@@ -112,8 +112,8 @@ services:
     profiles:
       - admin  # Only starts with: docker compose --profile admin up
     environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:?PGADMIN_EMAIL required}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:?PGADMIN_PASSWORD required}
+      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-admin@trent.local}
+      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-CHANGE_ME_before_starting}
     ports:
       - "8083:80"
     depends_on:
@@ -137,7 +137,7 @@ services:
       - MEDIAWIKI_PUBLIC=${MEDIAWIKI_PUBLIC:-false}
       # Admin account (created on first run)
       - MEDIAWIKI_ADMIN_USER=${MEDIAWIKI_ADMIN_USER:-WikiAdmin}
-      - MEDIAWIKI_ADMIN_PASSWORD=${MEDIAWIKI_ADMIN_PASSWORD:?MEDIAWIKI_ADMIN_PASSWORD required}
+      - MEDIAWIKI_ADMIN_PASSWORD=${MEDIAWIKI_ADMIN_PASSWORD:-CHANGE_ME_before_starting}
       - MEDIAWIKI_ADMIN_EMAIL=${MEDIAWIKI_ADMIN_EMAIL:-admin@localhost}
       # Database (shared Postgres instance)
       - POSTGRES_HOST=postgres
@@ -147,8 +147,8 @@ services:
       - MEDIAWIKI_DB_NAME=${MEDIAWIKI_DB_NAME:-mediawiki}
       - MEDIAWIKI_DB_PREFIX=${MEDIAWIKI_DB_PREFIX:-mw_}
       # Security keys — MUST be set in .env (generate: openssl rand -hex 32)
-      - MEDIAWIKI_SECRET_KEY=${MEDIAWIKI_SECRET_KEY:?MEDIAWIKI_SECRET_KEY required}
-      - MEDIAWIKI_UPGRADE_KEY=${MEDIAWIKI_UPGRADE_KEY:?MEDIAWIKI_UPGRADE_KEY required}
+      - MEDIAWIKI_SECRET_KEY=${MEDIAWIKI_SECRET_KEY:-CHANGE_ME_generate_with_openssl}
+      - MEDIAWIKI_UPGRADE_KEY=${MEDIAWIKI_UPGRADE_KEY:-CHANGE_ME_generate_with_openssl}
       # Bot credentials for MCP mediawiki_* tools
       - MEDIAWIKI_USERNAME=${MEDIAWIKI_USERNAME}
       - MEDIAWIKI_PASSWORD=${MEDIAWIKI_PASSWORD}

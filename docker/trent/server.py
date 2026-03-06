@@ -114,6 +114,7 @@ This server provides multiple tool categories:
 - memory_search_combined - Combined search across turns and captures
 - memory_sessions - List recent sessions for a project
 - memory_context - Token-budgeted context block for session-start injection
+- memory_setup_user - Create/update ~/.trent/user_config.json (cross-platform: Windows/macOS/Linux). Call with action='whoami' to check current identity, action='setup' to configure.
 
 **Oracle Database:**
 - oracle_query - Execute read queries (source database)
