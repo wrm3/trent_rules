@@ -15,9 +15,10 @@ from pathlib import Path
 from typing import Optional
 
 import psycopg2
+import psycopg2.extras
 import psycopg2.pool
 
-from crawler import CrawlTarget, CrawlTarget, PageResult, PlatformDocsCrawler, SnapshotManager, CRAWL_TARGETS
+from crawler import CrawlTarget, PageResult, PlatformDocsCrawler, SnapshotManager, CRAWL_TARGETS
 
 logger = logging.getLogger(__name__)
 

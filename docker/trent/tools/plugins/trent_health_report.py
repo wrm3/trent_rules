@@ -58,6 +58,7 @@ STATUS_PATTERNS = {
     r"\[🔄\]": "in_progress",
     r"\[📋\]": "ready",
     r"\[📝\]": "speccing",
+    r"\[🔍\]": "awaiting_verification",
     r"\[❌\]": "failed",
     r"\[⏸️\]": "paused",
     r"\[🌾\]": "harvested",
@@ -343,6 +344,7 @@ async def execute(
         "task_counts": {
             "completed": counts.get("completed", 0),
             "in_progress": counts.get("in_progress", 0),
+            "awaiting_verification": counts.get("awaiting_verification", 0),
             "ready": counts.get("ready", 0),
             "pending": counts.get("pending", 0),
             "failed": counts.get("failed", 0),

@@ -231,7 +231,7 @@ This project uses **trent** for task management.
 
 ### Task Location
 All task data is in `.trent/`:
-- `PLAN.md` - Product Requirements Document
+- `PRD.md` - Product Requirements Document
 - `TASKS.md` - Master task list (source of truth)
 - `PROJECT_CONTEXT.md` - Project mission
 - `BUGS.md` - Bug tracking

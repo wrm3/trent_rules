@@ -66,10 +66,8 @@ cd docker && docker-compose up -d --build trent_rules_docker  # Rebuild
 ## Rules & Configuration
 All detailed rules are in `.claude/rules/`. Key areas:
 - **00-04**: Core (response format, docs, git, code review, reusability)
-- **10-19**: Trent task management system
-- **20-23**: Agent memory, Cursor CLI
-- **30-32**: PowerShell, Python/UV
-- **41**: RAG knowledge base
+- **05-09**: Memory, Cursor CLI, Claude CLI, PowerShell, Python/UV
+- **20-32**: Trent task management system (vNext: tasks, infra, planning, QA, workflow, autonomous, verification, platform parity)
 - **SV**: Silicon Valley personalities
 
 ## Security

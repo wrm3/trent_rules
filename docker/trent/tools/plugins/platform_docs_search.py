@@ -31,7 +31,7 @@ def setup(context: dict):
     _db = context.get("db")
 
 
-def execute(
+async def execute(
     query: str,
     platform: Optional[str] = None,
     limit: int = 5,
