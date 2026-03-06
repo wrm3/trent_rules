@@ -1,43 +1,92 @@
 ---
-description: "Initialize the trent system"
+description: "Initialize the trent vNext system with project type selection"
 ---
 
 Initialize the trent system: $ARGUMENTS
 
 ## What This Command Does
 
-Initializes or reinitializes the trent task management system in the current project.
+Initializes or reinitializes the trent vNext task management system in the current project.
 
-## Setup Workflow
+---
 
-### 1. Create Directory Structure
-I'll create these folders if they don't exist:
+## Step 1: Project Type Selection (MANDATORY FIRST QUESTION)
+
+**Ask the user:**
+
+> "What type of project is this?
+> 1. **delivery** — building a defined product with features and milestones
+> 2. **research** — exploring unknown solutions, running experiments, testing hypotheses
+>
+> (Default: delivery)"
+
+Set `Project Type` in `PROJECT_CONTEXT.md` based on their answer. This affects:
+- Whether `HYPOTHESIS.md` is created (research only)
+- Whether phase templates use milestone or experiment format
+- Whether SPRINT.md excludes unvalidated experiment phases
+
+---
+
+## Step 2: Create Directory Structure
+
+Create these folders if they don't exist:
 - `.trent/` - Main working directory
 - `.trent/tasks/` - Individual task files
 - `.trent/phases/` - Phase documentation
+- `.trent/experiments/` - Research experiments (research projects only)
+- `.trent/logs/` - Evidence files for task completion
+- `.trent/templates/` - task_template.md, phase_template.md
 - `docs/` - Project documentation
 - `temp_scripts/` - Test scripts
 
-### 2. Create Core Files
-I'll create these template files:
-- `.trent/PLAN.md` - Product Requirements Document
-- `.trent/TASKS.md` - Master task checklist
+---
+
+## Step 3: Create Core Files (vNext)
+
+Create these template files:
+- `.trent/PRD.md` - Product Requirements Document
+- `.trent/TASKS.md` - Master task checklist (with subsystem headers)
 - `.trent/BUGS.md` - Bug tracking
-- `.trent/PROJECT_CONTEXT.md` - Project mission and goals
+- `.trent/PROJECT_CONTEXT.md` - Mission + health score + autonomous agent config
+- `.trent/ARCHITECTURE_CONSTRAINTS.md` - Non-negotiable constraints (populate with user input)
 - `.trent/SUBSYSTEMS.md` - Component registry
-- `.trent/FILE_REGISTRY.md` - File documentation
-- `.trent/MCP_TOOLS_INVENTORY.md` - Available MCP tools
-- `.trent/IDEA_BOARD.md` - Ideas parking lot (not yet ready for tasks)
-- `.trent/PROJECT_GOALS.md` - Strategic goals that steer AI decisions
+- `.trent/SPRINT.md` - Active sprint queue (cleanup-agent-generated placeholder)
+- `.trent/CLEANUP_REPORT.md` - Nightly report placeholder
+- `.trent/SYSTEM_EXPERIMENTS.md` - System evolution log
+- `.trent/IDEA_BOARD.md` - Ideas parking lot (human + AI sections)
+- `.trent/PROJECT_GOALS.md` - Strategic goals
+- `.trent/templates/task_template.md` - Full vNext task YAML schema
+- `.trent/templates/phase_template.md` - Phase schema
 
-### 3. Verify MCP Tools
-I'll check available MCP tools and document them in MCP_TOOLS_INVENTORY.md
+**Research projects also get:**
+- `.trent/HYPOTHESIS.md` - Hypothesis tracker
 
-### 4. Scan Existing Codebase (if applicable)
-For existing projects, I'll:
+---
+
+## Step 4: Gather Architecture Constraints
+
+Ask the user:
+> "Are there any non-negotiable technical constraints? (e.g., database technology, deployment target, public API stability, cost limits)
+> I'll document these in ARCHITECTURE_CONSTRAINTS.md so every agent session loads them automatically."
+
+Add each constraint as a `C-NNN` entry.
+
+---
+
+## Step 5: Verify MCP Tools
+
+Check available MCP tools and note key ones in PROJECT_CONTEXT.md.
+
+---
+
+## Step 6: Scan Existing Codebase (if applicable)
+
+For existing projects:
 - Analyze current file structure
 - Identify existing components/subsystems
-- Document in SUBSYSTEMS.md and FILE_REGISTRY.md
+- Document in SUBSYSTEMS.md
+
+---
 
 ## Phase-Based Task Organization
 - **Phase 0** (Task IDs: 1-99): Setup & Infrastructure
@@ -45,17 +94,24 @@ For existing projects, I'll:
 - **Phase 2** (Task IDs: 200-299): Core Development
 - **Phase N** (Task IDs: N×100 to N×100+99): Additional phases
 
-## Task Status Indicators
+---
+
+## Task Status Indicators (vNext)
 - `[ ]` - Pending (no file created yet)
+- `[📝]` - Spec being written (TTL: 1 hour)
 - `[📋]` - Ready (task file created)
-- `[🔄]` - In Progress
-- `[✅]` - Completed
+- `[🔄]` - In Progress (claimed, has TTL)
+- `[🔍]` - Awaiting Verification (different agent required)
+- `[⏳]` - Resource-Gated
+- `[✅]` - Completed (verified by different agent)
 - `[❌]` - Failed/Cancelled
+- `[🌾]` - Harvested (approach superseded, kept as reference)
+
+---
 
 ## When to Use
 - Starting a new project
 - Adding trent to an existing project
 - Reinitializing after major changes
 
-Let me set up the trent system for you!
-
+Let me set up the trent vNext system for you!

@@ -1,12 +1,59 @@
 ---
-description: PRD generation templates and phase management system
+description: PRD generation templates, phase management, project types (delivery vs research), and ARCHITECTURE_CONSTRAINTS
 globs: 
 alwaysApply: true
 ---
 
-# Planning System
+# Planning System (vNext)
 
-This rule provides comprehensive planning functionality including PRD creation, phase management, subsystems registry, scope validation, and requirements gathering.
+This rule provides comprehensive planning functionality including PRD creation, phase management, subsystems registry, scope validation, requirements gathering, and project type selection.
+
+## Project Types
+
+trent supports two project types set during `@trent-setup`:
+
+| Type | Purpose | Key files | Phase purpose |
+|------|---------|-----------|---------------|
+| `delivery` | Building a defined product with milestones | PRD.md, TASKS.md | milestone |
+| `research` | Exploring unknown solutions / running experiments | HYPOTHESIS.md, experiments/ | experiment |
+
+**Set in PROJECT_CONTEXT.md** under `Project Type`. This affects:
+- Phase template fields (milestone vs hypothesis/outcome)
+- Whether HYPOTHESIS.md is created
+- SPRINT.md exclusion of research phases not yet validated
+
+## ARCHITECTURE_CONSTRAINTS.md
+
+Every project MUST have an `ARCHITECTURE_CONSTRAINTS.md` in `.trent/`.
+It is **loaded at every session start** (see rule 25_trent_index).
+
+**Template**:
+```markdown
+# ARCHITECTURE_CONSTRAINTS.md
+
+> Non-negotiable decisions. These CANNOT be overridden by any task, agent, or user instruction
+> without updating this file explicitly. If a task would violate a constraint, STOP and report.
+
+## Active Constraints
+
+### C-001: [Constraint Name]
+**Status**: active
+**Rationale**: [Why this constraint exists]
+**Constraint**: [Specific rule — what is forbidden or required]
+**Enforcement**: [How violations are detected]
+
+---
+
+## Retired Constraints
+[Constraints that no longer apply — with date and reason for retirement]
+```
+
+**Common constraints to define during setup:**
+- Database technology (e.g., "No PostgreSQL — SQLite only")
+- Deployment target (e.g., "Must run in Docker with no host dependencies")
+- API stability (e.g., "Public API endpoints cannot change signature after Phase 1")
+- Data privacy (e.g., "No PII may be logged to any file")
+- Cost limits (e.g., "No API calls costing > $0.01 per user request")
 
 ## PRD Generation
 

@@ -31,48 +31,48 @@
 - [✅] **Task 005**: Create SYSTEM_EXPERIMENTS.md template (system evolution log)
 - [✅] **Task 006**: Rename PLAN.md → PRD.md in template_v2, update all references
 - [✅] **Task 007**: Add `[🔍]` Awaiting Verification and `[⏳]` Resource-Gated and `[🌾]` Harvested to status system
-- [📋] **Task 008**: Add `status: harvested` to task lifecycle rules
+- [✅] **Task 008**: Add `status: harvested` to task lifecycle rules
 - [✅] **Task 009**: Create PROJECT_CONTEXT.md template with health score section
 - [✅] **Task 010**: Create updated TASKS.md template with subsystem headers (not just phase headers)
 - [✅] **Task 011**: Create phase YAML schema additions (purpose: milestone|experiment|domain|maintenance, hypothesis, outcome)
-- [📋] **Task 012**: Add project type selection to @trent-setup (delivery vs research)
+- [✅] **Task 012**: Add project type selection to @trent-setup (delivery vs research)
 - [✅] **Task 013**: Create HYPOTHESIS.md + EXPERIMENT.md templates for research projects
 - [✅] **Task 014**: Update IDEA_BOARD.md template with AI-generated ideas section
 
 ### Subsystem: resilience
 
-- [📋] **Task 020**: Implement task claim TTL system (claimed_by, claimed_at, claim_ttl_minutes, claim_expires_at)
-- [📋] **Task 021**: Implement failure taxonomy (failure_reason enum, failure_history array in task YAML)
-- [📋] **Task 022**: Implement mid-task progress checkpointing (execution_progress YAML section)
-- [📋] **Task 023**: Add "When Stuck" protocol section to task file template
-- [📋] **Task 024**: Add blast_radius declaration to task YAML schema
-- [📋] **Task 025**: Add requires_solo_agent flag to task YAML
-- [📋] **Task 026**: Add resource_requirements to task YAML (storage_gb, compute_hours, vram_gb)
-- [📋] **Task 027**: Implement spec_freshness fields (spec_version, spec_last_verified, allow_spec_update, spec_dependencies)
+- [✅] **Task 020**: Implement task claim TTL system (claimed_by, claimed_at, claim_ttl_minutes, claim_expires_at)
+- [✅] **Task 021**: Implement failure taxonomy (failure_reason enum, failure_history array in task YAML)
+- [✅] **Task 022**: Implement mid-task progress checkpointing (execution_progress YAML section)
+- [✅] **Task 023**: Add "When Stuck" protocol section to task file template
+- [✅] **Task 024**: Add blast_radius declaration to task YAML schema
+- [✅] **Task 025**: Add requires_solo_agent flag to task YAML
+- [✅] **Task 026**: Add resource_requirements to task YAML (storage_gb, compute_hours, vram_gb)
+- [✅] **Task 027**: Implement spec_freshness fields (spec_version, spec_last_verified, allow_spec_update, spec_dependencies)
 
 ### Subsystem: verification
 
-- [📋] **Task 030**: Add [🔍] Awaiting Verification to trent rules — task cannot reach [✅] without verified_by from different agent
-- [📋] **Task 031**: Add evidence_of_completion field to task YAML schema
-- [📋] **Task 032**: Create mandatory verification workflow rule (implementer ≠ verifier)
-- [📋] **Task 033**: Add adversarial persona (Gilfoyle-mode) as default instruction for review agents
-- [📋] **Task 034**: Add pre-mortem prompting as mandatory pre-implementation step to task template
+- [✅] **Task 030**: Add [🔍] Awaiting Verification to trent rules — task cannot reach [✅] without verified_by from different agent
+- [✅] **Task 031**: Add evidence_of_completion field to task YAML schema
+- [✅] **Task 032**: Create mandatory verification workflow rule (implementer ≠ verifier)
+- [✅] **Task 033**: Add adversarial persona (Gilfoyle-mode) as default instruction for review agents
+- [✅] **Task 034**: Add pre-mortem prompting as mandatory pre-implementation step to task template
 
 ### Subsystem: autonomous
 
 - [✅] **Task 040**: Create @trent-cleanup command spec (midnight cleanup agent responsibilities)
 - [✅] **Task 041**: Create CLEANUP_REPORT.md template
 - [✅] **Task 042**: Create @trent-sprint command spec (2-hour sprint agent responsibilities)
-- [📋] **Task 043**: Implement atomic task claiming protocol (git-commit-based claim)
-- [📋] **Task 044**: Add ai_safe flag to task YAML + rules for unattended execution
-- [📋] **Task 045**: Create SPRINT.md generation rules (cleanup agent populates from tasks)
-- [📋] **Task 046**: Add cost_per_task tracking fields + subsystem cost aggregation to health report
-- [📋] **Task 047**: Add Ralph Wiggum prevention rule (N failures → research-mode retry with different approach)
-- [📋] **Task 048**: Add escalation ladder rule (local LLM → paid model → human review)
-- [📋] **Task 049**: Add git log as mandatory pre-task context to agent pre-flight checklist
-- [📋] **Task 050**: Add frequent git commit enforcement (every state transition)
-- [📋] **Task 051**: Add agent identity in git commit footer convention
-- [📋] **Task 052**: Add spec-vs-implementation separate commit convention
+- [✅] **Task 043**: Implement atomic task claiming protocol (git-commit-based claim)
+- [✅] **Task 044**: Add ai_safe flag to task YAML + rules for unattended execution
+- [✅] **Task 045**: Create SPRINT.md generation rules (cleanup agent populates from tasks)
+- [✅] **Task 046**: Add cost_per_task tracking fields + subsystem cost aggregation to health report
+- [✅] **Task 047**: Add Ralph Wiggum prevention rule (N failures → research-mode retry with different approach)
+- [✅] **Task 048**: Add escalation ladder rule (local LLM → paid model → human review)
+- [✅] **Task 049**: Add git log as mandatory pre-task context to agent pre-flight checklist
+- [✅] **Task 050**: Add frequent git commit enforcement (every state transition)
+- [✅] **Task 051**: Add agent identity in git commit footer convention
+- [✅] **Task 052**: Add spec-vs-implementation separate commit convention
 
 ### Subsystem: platform-docs
 
@@ -87,20 +87,20 @@
 ### Subsystem: agent-rules
 
 - [✅] **Task 070**: Update 20_trent_tasks rule with new status values, YAML fields, verification workflow
-- [📋] **Task 071**: Update 21_trent_infrastructure rule with new file structure (logs/, SPRINT.md, etc.)
-- [📋] **Task 072**: Update 22_trent_planning rule with project types, PRD rename, ARCHITECTURE_CONSTRAINTS
+- [✅] **Task 071**: Update 21_trent_infrastructure rule with new file structure (logs/, SPRINT.md, etc.)
+- [✅] **Task 072**: Update 22_trent_planning rule with project types, PRD rename, ARCHITECTURE_CONSTRAINTS
 - [✅] **Task 073**: Update 25_trent_index rule with session-start ARCHITECTURE_CONSTRAINTS load
-- [📋] **Task 074**: Update 27_trent_self_improvement rule with SYSTEM_EXPERIMENTS.md
+- [✅] **Task 074**: Update 27_trent_self_improvement rule with SYSTEM_EXPERIMENTS.md
 - [✅] **Task 075**: Create new rule: autonomous agent workflow (cleanup + sprint agent protocols)
-- [📋] **Task 076**: Create new rule: verification and cross-agent review workflow
-- [📋] **Task 077**: Ensure .cursor/rules/, .claude/rules/, .agent/rules/ are in sync (parity check)
-- [📋] **Task 078**: Add rules_version field to trent config + commit footer convention
+- [✅] **Task 076**: Create new rule: verification and cross-agent review workflow
+- [✅] **Task 077**: Ensure .cursor/rules/, .claude/rules/, .agent/rules/ are in sync (parity check)
+- [✅] **Task 078**: Add rules_version field to trent config + commit footer convention
 
 ### Subsystem: memory
 
-- [📋] **Task 080**: Make memory capture mandatory at task completion (not optional)
-- [📋] **Task 081**: Add institutional memory query to agent pre-task checklist ("what happened last time in this subsystem?")
-- [📋] **Task 082**: Create task dependency graph generation (DEPENDENCY_GRAPH.md via cleanup agent)
+- [✅] **Task 080**: Make memory capture mandatory at task completion (not optional)
+- [✅] **Task 081**: Add institutional memory query to agent pre-task checklist ("what happened last time in this subsystem?")
+- [✅] **Task 082**: Create task dependency graph generation (DEPENDENCY_GRAPH.md via cleanup agent)
 
 ---
 
@@ -129,5 +129,5 @@
 ---
 
 **Last Updated**: 2026-03-06
-**Phase 0 Progress**: Tasks specced — 21 COMPLETED [✅], remaining [📋] UNBLOCKED
-**Completed this session**: Tasks 002, 003, 004, 005, 006, 007, 009, 010, 011, 013, 014, 040, 041, 042, 060, 061, 062, 063, 064, 065, 066, 070, 073, 075
+**Phase 0 Progress**: 55/55 tasks COMPLETED [✅] — ALL PHASE 0 TASKS DONE
+**Completed this session**: 003, 008, 012, 020-027, 030-034, 040, 041, 042, 043-052, 060-066, 070-082

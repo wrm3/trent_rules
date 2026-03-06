@@ -1,11 +1,47 @@
 ---
-description: Self-improvement protocol for identifying and reporting issues in the trent system
+description: Self-improvement protocol for identifying and reporting issues in the trent system, integrated with SYSTEM_EXPERIMENTS.md
 globs: 
 alwaysApply: true
 ---
-# Trent System Self-Improvement Protocol
+# Trent System Self-Improvement Protocol (vNext)
 
 This rule defines the protocol for identifying, reporting, and resolving issues within the trent task management system itself.
+
+## SYSTEM_EXPERIMENTS.md Integration (NEW)
+
+Before proposing any system improvement, **always read `.trent/SYSTEM_EXPERIMENTS.md` first.**
+
+### Why?
+- Prevents re-proposing rejected experiments
+- Provides context on what was already tried
+- Tracks active experiments that may still be in monitoring phase
+
+### AI Contribution Protocol (Autonomous Sessions)
+During unattended sprint or cleanup runs, AI agents MAY add proposals to SYSTEM_EXPERIMENTS.md:
+
+```markdown
+### EXP-NNN: [Experiment Title]
+**Status**: proposed
+**Started**: YYYY-MM-DD
+**Proposed By**: {agent_id}
+**Hypothesis**: [What this change is expected to improve]
+**Change Made**: Not yet applied
+**Monitoring**: Pending human approval
+```
+
+AI agents MUST NOT:
+- Apply system-level rule changes without human approval
+- Modify `.cursor/rules/`, `.claude/rules/`, or `.agent/rules/` during autonomous operation
+- Increment `rules_version` without human review
+
+### Human Decision Flow
+When a user reviews SYSTEM_EXPERIMENTS.md at session start:
+1. `proposed` → `active` = human approves; AI may implement
+2. `proposed` → `rejected` = human declines; AI must never re-propose
+3. `active` → `completed` = outcome confirmed after monitoring
+4. `active` → `rejected` = experiment failed or unwanted
+
+---
 
 ## Purpose
 
