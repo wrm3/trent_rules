@@ -13,3 +13,5 @@
 # Template (baked into image)
 !template/
 !template/**
+!template_v2/
+!template_v2/**
