@@ -135,6 +135,23 @@ async def execute(
     merge_note = f" Merged: {list(existing_files.keys())}." if existing_files else ''
     skip_note = f" Preserved (skipped): {skip_files}." if skip_files else ''
 
+    # Post-install: generate .project_id and run user setup
+    project_name = target_path.replace('\\', '/').rstrip('/').split('/')[-1].lower().replace(' ', '-')[:20]
+    post_install_ps = (
+        f"$hash = (python -c \"import hashlib; print(hashlib.sha256(r'{target_path}'.encode()).hexdigest()[:8])\") 2>$null; "
+        f"if (-not $hash) {{ $hash = (Get-Random -Maximum 99999999).ToString('x8') }}; "
+        f"$projId = 'proj-{project_name}-' + $hash; "
+        f"Set-Content -Path '{target_path}\\.trent\\.project_id' -Value $projId; "
+        f"Write-Host \"Project ID: $projId\"; "
+        f"powershell -ExecutionPolicy Bypass -File '{target_path}\\.cursor\\hooks\\trent-setup-user.ps1'"
+    )
+    post_install_bash = (
+        f"hash=$(python3 -c \"import hashlib; print(hashlib.sha256('{target_path}'.encode()).hexdigest()[:8])\"); "
+        f"echo \"proj-{project_name}-$hash\" > '{target_path}/.trent/.project_id'; "
+        f"echo \"Project ID: proj-{project_name}-$hash\"; "
+        f"bash '{target_path}/.cursor/hooks/trent-setup-user.sh' 2>/dev/null || echo 'Run trent-setup-user.ps1 on Windows'"
+    )
+
     return {
         'success': True,
         'tool': 'trent_install',
@@ -143,9 +160,14 @@ async def execute(
             'powershell': ps_cmd,
             'bash': bash_cmd,
         },
+        'post_install': {
+            'powershell': post_install_ps,
+            'bash': post_install_bash,
+        },
         'instructions': (
-            f"Run the shell_command for your OS to install trent into '{target_path}'."
-            f"{merge_note}{skip_note}"
+            f"STEP 1: Run shell_command to install trent into '{target_path}'."
+            f"{merge_note}{skip_note} "
+            f"STEP 2: Run post_install to generate .project_id and set up user config (~/.trent/user_config.json)."
         ),
         'upgrade_hint': (
             "For upgrades: read agents.md/CLAUDE.md/GEMINI.md locally first and pass "
