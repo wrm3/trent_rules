@@ -31,6 +31,7 @@ TOOL_NAME = "trent_install"
 
 TOOL_DESCRIPTION = (
     "Install or upgrade the full trent development environment to a project directory. "
+    "Required parameter: target_path (the local directory path to install into). "
     "Returns a shell command (PowerShell + bash) to run locally — works with remote containers, no drive mounts needed. "
     "The command downloads template_v2/ as a ZIP from this MCP server and unzips it into target_path. "
     "For upgrades: pass existing_files with current content of agents.md/CLAUDE.md/GEMINI.md "
