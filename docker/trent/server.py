@@ -65,6 +65,7 @@ from .subjects import SubjectManager
 from .plugin_loader import PluginLoader
 from .memory_rest import MEMORY_ROUTES, init_memory_rest
 from .admin_db_rest import ADMIN_ROUTES, init_admin_db
+from .install_rest import INSTALL_ROUTES, init_install_rest
 
 # Initialize components
 db: Optional[RAGDatabase] = None
@@ -280,6 +281,7 @@ def main():
         # Initialize REST bridges with shared DB/embedding components
         init_memory_rest(db=db, embedding_generator=embedding_generator, config=config)
         init_admin_db(db=db)
+        init_install_rest(config=config)
 
         from starlette.applications import Starlette
         from starlette.routing import Mount
@@ -288,7 +290,7 @@ def main():
         if transport == 'sse':
             mcp_app = mcp.sse_app()
             app = Starlette(
-                routes=ADMIN_ROUTES + MEMORY_ROUTES + [Mount("/", app=mcp_app)],
+                routes=ADMIN_ROUTES + MEMORY_ROUTES + INSTALL_ROUTES + [Mount("/", app=mcp_app)],
             )
         else:
             # streamable-http: Starlette does NOT propagate lifespan to mounted
@@ -305,7 +307,7 @@ def main():
 
             app = Starlette(
                 lifespan=lifespan,
-                routes=ADMIN_ROUTES + MEMORY_ROUTES + [Mount("/", app=mcp_app)],
+                routes=ADMIN_ROUTES + MEMORY_ROUTES + INSTALL_ROUTES + [Mount("/", app=mcp_app)],
             )
 
         logger.info("MCP server ready")

@@ -46,18 +46,20 @@ ENV ORACLE_HOME=/opt/oracle/instantclient
 ENV LD_LIBRARY_PATH=/opt/oracle/instantclient:${LD_LIBRARY_PATH}
 
 # Copy requirements first for better caching
-COPY requirements.txt pyproject.toml ./
+COPY docker/requirements.txt docker/pyproject.toml ./
 
 # Install Python dependencies
 RUN pip install --no-cache-dir -r requirements.txt
 
 # Copy application code
-COPY trent/ ./trent/
+COPY docker/trent/ ./trent/
 
-# Templates are mounted at runtime via docker-compose volumes
-# from the project root templates/ and templates_full/ directories
-# Create placeholder dirs so the app doesn't error on startup
-RUN mkdir -p /app/templates /app/templates_full
+# Bake template_v2/ into the image so trent_install can serve it without GitHub calls
+# The install_rest endpoint zips this directory on demand and streams it to the caller
+COPY template_v2/ ./template_v2/
+
+# Create necessary directories
+RUN mkdir -p /app/data /app/logs /app/research_output /app/cache /app/frames
 
 # Create necessary directories
 RUN mkdir -p /app/data /app/logs /app/research_output /app/cache /app/frames
