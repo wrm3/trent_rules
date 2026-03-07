@@ -229,8 +229,14 @@ NEVER_EXTRACT: List[str] = [
     '.env',             # Environment secrets (any .env file)
 ]
 
-# Files where user content is preserved via section-marker merging
-MERGEABLE_FILES = {'agents.md', 'claude.md'}
+# Files where user content is preserved via section-marker merging.
+# The trent section (between markers) is updated from the template;
+# everything outside the markers is left untouched.
+MERGEABLE_FILES = {'agents.md', 'claude.md', 'gemini.md'}
+
+# Files that are NEVER overwritten on upgrade — only installed if missing.
+# These accumulate user-specific content over time (learned guardrails, etc.).
+SKIP_IF_EXISTS_FILES = {'guardrails.md'}
 
 
 # ============================================================
@@ -501,7 +507,7 @@ def merge_markdown_file(source_content: str, dest_content: str, filename: str) -
     """
     Merge trent-managed section from source into dest, preserving all other content.
 
-    For agents.md / CLAUDE.md: replaces the <!-- TRENT SYSTEM SECTION --> block
+    For agents.md / CLAUDE.md / GEMINI.md: replaces the trent marker block
     from source while leaving everything else in dest untouched.
     """
     fname = filename.lower()
@@ -509,6 +515,9 @@ def merge_markdown_file(source_content: str, dest_content: str, filename: str) -
         start_marker = '<!-- TRENT SYSTEM SECTION -->'
         end_marker = '<!-- END TRENT SYSTEM SECTION -->'
     elif fname == 'claude.md':
+        start_marker = '<!-- TRENT SYSTEM CONTEXT -->'
+        end_marker = '<!-- END TRENT SYSTEM CONTEXT -->'
+    elif fname == 'gemini.md':
         start_marker = '<!-- TRENT SYSTEM CONTEXT -->'
         end_marker = '<!-- END TRENT SYSTEM CONTEXT -->'
     else:
@@ -805,15 +814,25 @@ def run_install(
         result['error'] = f"Failed to download repo ZIP from {github_repo}: {exc}"
         return result
 
-    # ── Step 2: Identify mergeable files that exist locally ───────────────────
+    # ── Step 2: Bucket manifest entries by handling strategy ─────────────────
+    # mergeable: trent section updated, user content outside markers preserved
+    # skip_if_exists: never overwrite (user-owned accumulated content)
+    # regular: overwrite or skip according to force_overwrite
     mergeable_in_manifest = [
-        p for p in manifest if p.lower() in MERGEABLE_FILES
+        p for p in manifest if Path(p).name.lower() in MERGEABLE_FILES
+    ]
+    skip_if_exists_in_manifest = [
+        p for p in manifest
+        if Path(p).name.lower() in SKIP_IF_EXISTS_FILES
+        and p not in mergeable_in_manifest
     ]
     non_mergeable_manifest = [
-        p for p in manifest if p.lower() not in MERGEABLE_FILES
+        p for p in manifest
+        if p not in mergeable_in_manifest
+        and p not in skip_if_exists_in_manifest
     ]
 
-    # ── Step 3: Extract non-mergeable files ───────────────────────────────────
+    # ── Step 3: Extract regular files ─────────────────────────────────────────
     if non_mergeable_manifest:
         extract_result = extract_manifest_from_zip(
             zip_bytes=zip_bytes,
@@ -824,6 +843,20 @@ def run_install(
         result['copied_files'].extend(extract_result['files_fetched'])
         result['skipped_files'].extend(extract_result['files_skipped'])
         if extract_result['errors']:
+            result['warnings'].extend(extract_result['errors'])
+
+    # ── Step 3b: Extract skip-if-exists files (always skip if present) ────────
+    if skip_if_exists_in_manifest:
+        extract_result = extract_manifest_from_zip(
+            zip_bytes=zip_bytes,
+            manifest=skip_if_exists_in_manifest,
+            target_dir=target,
+            overwrite=False,  # Always skip if exists — user-owned content
+        )
+        result['copied_files'].extend(extract_result['files_fetched'])
+        result['skipped_files'].extend(extract_result['files_skipped'])
+        if extract_result['errors']:
+            result['warnings'].extend(extract_result['errors'])
             result['warnings'].extend(extract_result['errors'])
 
     # ── Step 4: Handle mergeable files ────────────────────────────────────────

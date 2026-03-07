@@ -84,6 +84,7 @@ MCP servers are configured in `mcp_config.json` at the project root. See `docker
 
 ## CRITICAL: Task Management Rules
 
+<!-- TRENT SYSTEM CONTEXT -->
 ### Direct Edit Policy
 
 Edit these files directly without asking for permission:
@@ -108,6 +109,7 @@ Always update BOTH files in the same response:
 2. TASKS.md entry: `[🔄]` → `[✅]`
 
 Never update one without the other.
+<!-- END TRENT SYSTEM CONTEXT -->
 
 ---
 
