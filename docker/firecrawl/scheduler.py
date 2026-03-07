@@ -19,23 +19,31 @@ import psycopg2
 import psycopg2.extras
 import psycopg2.pool
 
-from crawler import CrawlTarget, PageResult, PlatformDocsCrawler, SnapshotManager, CRAWL_TARGETS
+from crawler import CrawlTarget, PageResult, PlatformDocsCrawler, SnapshotManager, CRAWL_TARGETS, PLATFORMS_DIR
 
 logger = logging.getLogger(__name__)
 
-PLATFORMS_DIR = Path(__file__).parent / "platforms"
-CHANGELOG_PATH = Path(__file__).parent.parent.parent / ".platforms" / "CHANGELOG.md"
-CRAWL_STATUS_PATH = Path(__file__).parent.parent.parent / ".platforms" / "CRAWL_STATUS.json"
+REPO_ROOT = Path(os.environ.get("REPO_ROOT", str(Path(__file__).resolve().parent.parent.parent)))
+CHANGELOG_PATH = REPO_ROOT / ".platforms" / "CHANGELOG.md"
+CRAWL_STATUS_PATH = REPO_ROOT / ".platforms" / "CRAWL_STATUS.json"
 
 DB_CONFIG = {
     "host": os.environ.get("POSTGRES_HOST", "localhost"),
     "port": int(os.environ.get("POSTGRES_PORT", "5432")),
-    "dbname": os.environ.get("POSTGRES_DB", "trent_memory"),
+    "dbname": os.environ.get("POSTGRES_DB", "rag_knowledge"),
     "user": os.environ.get("POSTGRES_USER", "trent"),
     "password": os.environ.get("POSTGRES_PASSWORD", ""),
 }
 RAG_SUBJECT = os.environ.get("RAG_SUBJECT", "platform_docs")
 GIT_AUTO_COMMIT = os.environ.get("GIT_AUTO_COMMIT", "true").lower() == "true"
+
+# ---------------------------------------------------------------------------
+# AI Model Configuration (all controlled via .env)
+# ---------------------------------------------------------------------------
+EMBEDDING_MODEL = os.environ.get("EMBEDDING_MODEL", "text-embedding-3-small")
+EMBEDDING_DIMENSIONS = int(os.environ.get("EMBEDDING_DIMENSIONS", "1536"))
+EMBEDDING_CHUNK_MAX_CHARS = int(os.environ.get("EMBEDDING_CHUNK_MAX_CHARS", "2000"))
+EMBEDDING_CHUNK_OVERLAP = int(os.environ.get("EMBEDDING_CHUNK_OVERLAP", "200"))
 
 # Retry configuration
 MAX_CRAWL_ATTEMPTS = 3
@@ -47,7 +55,8 @@ RETRY_BASE_DELAY_SECONDS = 5   # doubles each attempt: 5 → 10 → 20
 # ---------------------------------------------------------------------------
 
 def get_db_connection():
-    return psycopg2.connect(**DB_CONFIG)
+    config = {**DB_CONFIG, "connect_timeout": 10, "options": "-c statement_timeout=30000"}
+    return psycopg2.connect(**config)
 
 
 def rag_ingest_page(conn, page: PageResult, changed_type: str) -> None:
@@ -60,7 +69,10 @@ def rag_ingest_page(conn, page: PageResult, changed_type: str) -> None:
             (RAG_SUBJECT, page.url),
         )
         for i, chunk in enumerate(chunks):
+            logger.debug(f"  Embedding chunk {i+1}/{len(chunks)} for {page.url}")
             embedding = _get_embedding(chunk)
+            # pgvector expects embedding as a string "[0.1,0.2,...]" — psycopg2 can't adapt a raw list
+            embedding_str = "[" + ",".join(str(v) for v in embedding) + "]"
             cur.execute(
                 """
                 INSERT INTO memory_captures (subject, content, embedding, metadata, created_at)
@@ -69,7 +81,7 @@ def rag_ingest_page(conn, page: PageResult, changed_type: str) -> None:
                 (
                     RAG_SUBJECT,
                     chunk,
-                    embedding,
+                    embedding_str,
                     psycopg2.extras.Json({
                         "url": page.url,
                         "title": page.title,
@@ -83,7 +95,7 @@ def rag_ingest_page(conn, page: PageResult, changed_type: str) -> None:
     conn.commit()
 
 
-def _chunk_markdown(text: str, max_chars: int = 2000, overlap: int = 200) -> list[str]:
+def _chunk_markdown(text: str, max_chars: int = EMBEDDING_CHUNK_MAX_CHARS, overlap: int = EMBEDDING_CHUNK_OVERLAP) -> list[str]:
     """Split markdown into overlapping chunks for embedding."""
     if len(text) <= max_chars:
         return [text]
@@ -91,27 +103,41 @@ def _chunk_markdown(text: str, max_chars: int = 2000, overlap: int = 200) -> lis
     start = 0
     while start < len(text):
         end = min(start + max_chars, len(text))
-        # Try to break on newline near the end
+        # Try to break on newline near the end (but only in the last 25% of the window)
         if end < len(text):
-            newline_pos = text.rfind("\n", start + max_chars // 2, end)
+            search_from = start + (max_chars * 3 // 4)  # only look in last 25%
+            newline_pos = text.rfind("\n", search_from, end)
             if newline_pos > start:
                 end = newline_pos
         chunks.append(text[start:end])
-        start = end - overlap
+        # Always advance by at least (max_chars - overlap) to prevent crawling/infinite loops
+        min_advance = max(1, max_chars - overlap)
+        start = start + min_advance
     return chunks
 
 
 def _get_embedding(text: str) -> list[float]:
-    """Generate embedding vector. Uses OpenAI if key set, else zero vector fallback."""
+    """Generate embedding vector using the model configured in EMBEDDING_MODEL env var."""
     api_key = os.environ.get("OPENAI_API_KEY", "")
     if api_key:
         import openai
-        client = openai.OpenAI(api_key=api_key)
-        resp = client.embeddings.create(model="text-embedding-3-small", input=text)
-        return resp.data[0].embedding
+        client = openai.OpenAI(api_key=api_key, timeout=30.0)
+        resp = client.embeddings.create(
+            model=EMBEDDING_MODEL,
+            input=text[:8000],
+        )
+        vec = resp.data[0].embedding
+        if len(vec) != EMBEDDING_DIMENSIONS:
+            logger.warning(
+                f"Embedding dimension mismatch: model returned {len(vec)}, "
+                f"EMBEDDING_DIMENSIONS={EMBEDDING_DIMENSIONS}. Update DB schema or fix .env."
+            )
+        return vec
     else:
-        logger.warning("No OPENAI_API_KEY set — using zero embedding vector (search will not work)")
-        return [0.0] * 1536
+        logger.warning(
+            f"No OPENAI_API_KEY set — using zero vector ({EMBEDDING_DIMENSIONS}d). Search will not work."
+        )
+        return [0.0] * EMBEDDING_DIMENSIONS
 
 
 def crawl_with_retry(
@@ -218,7 +244,7 @@ def update_changelog(changes: dict[str, dict[str, list[str]]], crawl_date: str) 
 
 def git_commit_snapshots(crawl_date: str, changes: dict[str, dict[str, list[str]]]) -> None:
     """Commit updated snapshots and changelog to git."""
-    repo_root = Path(__file__).parent.parent.parent
+    repo_root = REPO_ROOT
 
     try:
         subprocess.run(["git", "add", str(PLATFORMS_DIR), str(CHANGELOG_PATH)], cwd=repo_root, check=True)
@@ -256,7 +282,7 @@ def run_crawl(diff_only: bool = False, platforms: Optional[list[str]] = None) ->
     logger.info(f"Starting platform docs crawl — {crawl_date}")
 
     crawler = PlatformDocsCrawler()
-    snapshots = SnapshotManager()
+    snapshots = SnapshotManager(base_dir=PLATFORMS_DIR)
 
     # Use retry-aware crawl per target
     all_results: dict[str, list[PageResult]] = {}
@@ -327,10 +353,55 @@ def run_crawl(diff_only: bool = False, platforms: Optional[list[str]] = None) ->
     if GIT_AUTO_COMMIT:
         git_commit_snapshots(crawl_date, all_changes)
 
+def ingest_snapshots(platforms: Optional[list[str]] = None) -> None:
+    """
+    Read all existing .md snapshot files from PLATFORMS_DIR and ingest them to RAG.
+    Useful for backfilling the DB after snapshots already exist on disk.
+    """
+    snapshots = SnapshotManager(base_dir=PLATFORMS_DIR)
 
-# ---------------------------------------------------------------------------
-# Entry points: cron daemon and CLI
-# ---------------------------------------------------------------------------
+    # Collect snapshot dirs: filter by platform name (target name = subdir name)
+    if platforms:
+        dirs_to_scan = [PLATFORMS_DIR / p for p in platforms if (PLATFORMS_DIR / p).exists()]
+    else:
+        dirs_to_scan = [d for d in PLATFORMS_DIR.iterdir() if d.is_dir()]
+
+    if not dirs_to_scan:
+        logger.warning(f"No snapshot dirs found under {PLATFORMS_DIR} for platforms={platforms}")
+        return
+
+    all_pages: list[PageResult] = []
+    for platform_dir in dirs_to_scan:
+        pages = snapshots.load_all(platform_dir)
+        logger.info(f"  {platform_dir.name}: {len(pages)} snapshots found")
+        all_pages.extend(pages)
+
+    if not all_pages:
+        logger.warning("No snapshots found to ingest.")
+        return
+
+    logger.info(f"Ingesting {len(all_pages)} pages to RAG (subject={RAG_SUBJECT})...")
+    try:
+        conn = get_db_connection()
+        ingested = 0
+        for page in all_pages:
+            if "sitemap" in page.url.lower() or len(page.markdown.strip()) < 200:
+                logger.info(f"  SKIP (low value): {page.url}")
+                continue
+            logger.info(f"  Ingesting: {page.url}")
+            try:
+                rag_ingest_page(conn, page, "backfill")
+                ingested += 1
+                logger.info(f"  OK ({ingested}): {page.url}")
+            except Exception as e:
+                logger.error(f"  FAILED: {page.url}: {e}")
+                conn.rollback()
+        conn.close()
+        logger.info(f"Backfill ingest complete: {ingested}/{len(all_pages)} pages ingested.")
+    except Exception as e:
+        logger.error(f"RAG ingest failed: {e}")
+
+
 
 def start_cron_daemon() -> None:
     """Start a blocking cron-style loop using the CRAWL_SCHEDULE env var."""
@@ -359,14 +430,22 @@ def start_cron_daemon() -> None:
 if __name__ == "__main__":
     logging.basicConfig(level=logging.INFO, format="%(asctime)s %(levelname)s %(message)s")
 
+    logger.info(
+        f"AI Model Config — Embedding: {EMBEDDING_MODEL} ({EMBEDDING_DIMENSIONS}d), "
+        f"chunk={EMBEDDING_CHUNK_MAX_CHARS}chars/overlap={EMBEDDING_CHUNK_OVERLAP}"
+    )
+
     parser = argparse.ArgumentParser(description="Platform docs scheduler")
     parser.add_argument("--now", action="store_true", help="Run crawl immediately and exit")
     parser.add_argument("--diff-only", action="store_true", help="Show diff without saving or ingesting")
-    parser.add_argument("--platform", help="Crawl specific platform only")
+    parser.add_argument("--platform", help="Crawl specific platform only (e.g. claude-platform)")
     parser.add_argument("--daemon", action="store_true", help="Run as cron daemon (default behavior in Docker)")
+    parser.add_argument("--ingest-snapshots", action="store_true", help="Ingest existing on-disk snapshots to RAG (backfill, no crawl)")
     args = parser.parse_args()
 
-    if args.now or args.diff_only:
+    if args.ingest_snapshots:
+        ingest_snapshots(platforms=[args.platform] if args.platform else None)
+    elif args.now or args.diff_only:
         run_crawl(diff_only=args.diff_only, platforms=[args.platform] if args.platform else None)
     else:
         start_cron_daemon()

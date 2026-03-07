@@ -24,6 +24,8 @@ research_future_dev/
 *.pfx
 secrets/
 credentials/
+.env_docker_old
+/env
 
 # ============================================================================
 # API Keys & Tokens

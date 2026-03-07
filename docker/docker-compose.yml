@@ -1,11 +1,17 @@
 # trent_rules - Docker Compose Configuration
 # Unified MCP Server with PostgreSQL for RAG, Research, and Video Analysis
+#
+# .env is loaded from the PROJECT ROOT (../.env). Put one .env at repo root and run:
+#   cd docker && docker compose up -d
+# To reset DB/MediaWiki and re-init with current .env: docker compose down -v && docker compose up -d
 
-name: trent_rules
+name: trent_rules_docker
 
 services:
   # Main MCP Server (RAG, Research, Install, Video Analysis)
   trent:
+    env_file:
+      - ../.env
     build:
       context: .
       dockerfile: Dockerfile
@@ -17,7 +23,7 @@ services:
       - LOG_LEVEL=${LOG_LEVEL:-INFO}
       - MCP_HOST=0.0.0.0
       - MCP_PORT=8082
-      - MCP_TRANSPORT=sse  # Options: stdio, sse, streamable-http
+      - MCP_TRANSPORT=streamable-http  # Options: stdio, sse, streamable-http
 
       # PostgreSQL Configuration (for RAG)
       - POSTGRES_HOST=postgres
@@ -64,10 +70,7 @@ services:
       # Video analyzer storage
       - video_cache:/app/cache
       - video_frames:/app/frames
-      # Mount Windows drives for install_trent to write to host filesystem
-      - /g:/mnt/g
-      - /p:/mnt/p
-      - /m:/mnt/m
+
     depends_on:
       postgres:
         condition: service_healthy
@@ -83,6 +86,8 @@ services:
 
   # PostgreSQL Database (for RAG with pgvector)
   postgres:
+    env_file:
+      - ../.env
     image: pgvector/pgvector:pg16
     container_name: trent_rules_postgres
     environment:
@@ -107,6 +112,8 @@ services:
 
   # Optional: pgAdmin for database management
   pgadmin:
+    env_file:
+      - ../.env
     image: dpage/pgadmin4:latest
     container_name: trent_rules_pgadmin
     profiles:
@@ -124,6 +131,8 @@ services:
 
   # MediaWiki — private knowledge base (Postgres backend, no MySQL)
   mediawiki:
+    env_file:
+      - ../.env
     build:
       context: ./mediawiki
       dockerfile: Dockerfile
@@ -171,6 +180,8 @@ services:
 
   # Firecrawl Platform Docs Crawler (weekly cron, updates .platforms/ and RAG)
   firecrawl:
+    env_file:
+      - ../.env
     build:
       context: ./firecrawl
       dockerfile: Dockerfile
@@ -186,11 +197,19 @@ services:
       - OPENAI_API_KEY=${OPENAI_API_KEY}
       - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
       - RAG_SUBJECT=platform_docs
+      - PLATFORMS_DIR=/data/platforms
+      - REPO_ROOT=/repo
       - CRAWL_SCHEDULE=${CRAWL_SCHEDULE:-0 2 * * 0}  # Sundays 2am UTC
       - GIT_AUTO_COMMIT=${GIT_AUTO_COMMIT:-false}     # Set true in CI only
+      # AI Model Configuration (override in .env to change models)
+      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-text-embedding-3-small}
+      - EMBEDDING_DIMENSIONS=${EMBEDDING_DIMENSIONS:-1536}
+      - EMBEDDING_CHUNK_MAX_CHARS=${EMBEDDING_CHUNK_MAX_CHARS:-2000}
+      - EMBEDDING_CHUNK_OVERLAP=${EMBEDDING_CHUNK_OVERLAP:-200}
     volumes:
-      - platform_docs_data:/data/platforms
-      - ${GIT_REPO_PATH:-.}:/repo:rw  # Mount repo root for git commits (optional)
+      # Snapshots visible on host at <repo>/.platforms/snapshots/
+      - ../.platforms/snapshots:/data/platforms
+      - ..:/repo:rw  # Repo root for CHANGELOG.md, CRAWL_STATUS.json, and git
     depends_on:
       postgres:
         condition: service_healthy

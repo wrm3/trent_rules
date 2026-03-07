@@ -26,29 +26,46 @@ Unified MCP (Model Context Protocol) server providing RAG, research, MediaWiki, 
 
 ### 2. Configure Environment
 
+Compose loads **one `.env` from the project root** (parent of `docker/`). Create or edit `.env` there:
+
 ```bash
-# Copy example environment file
-cp .env.example .env
+# From repo root
+copy .env.example .env   # Windows
+# cp .env.example .env   # Linux/Mac
 
-# Edit with your API keys
-notepad .env  # Windows
-# or: nano .env  # Linux/Mac
+notepad .env   # Windows — set API keys and passwords
 ```
 
-**Minimum required for RAG:**
-```env
-OPENAI_API_KEY=sk-your-openai-key
-POSTGRES_PASSWORD=your_secure_password
-```
+**Required in `.env` for Docker:**
+
+| Variable | Required | Notes |
+|----------|----------|--------|
+| `POSTGRES_DB` | Yes | e.g. `rag_knowledge` |
+| `POSTGRES_USER` | Yes | e.g. `trent` |
+| `POSTGRES_PASSWORD` | Yes | Used by Postgres, trent, MediaWiki, Firecrawl |
+| `OPENAI_API_KEY` | Yes (RAG) | Embeddings |
+| `MEDIAWIKI_*` | If using MediaWiki profile | Admin + bot credentials; set `MEDIAWIKI_SECRET_KEY` and `MEDIAWIKI_UPGRADE_KEY` (e.g. `openssl rand -hex 32`) |
+| `PGADMIN_EMAIL` / `PGADMIN_PASSWORD` | If using admin profile | For pgAdmin login |
+| `GITHUB_TOKEN` | If using install_trent | Repo read access |
 
 ### 3. Start the Server
 
-```bash
-# Start PostgreSQL and MCP server
-docker-compose up -d
+From the **docker/** directory, pass the project-root `.env` so Compose gets all variables (no "variable is not set" warnings):
 
+```bash
+cd docker
+docker compose --env-file ../.env up -d
+```
+
+From the **repo root**:
+
+```bash
+docker compose -f docker/docker-compose.yml up -d
+```
+
+```bash
 # View logs
-docker-compose logs -f trent
+docker compose logs -f trent
 ```
 
 ### 4. Verify Deployment
@@ -79,9 +96,15 @@ docker-compose --profile admin up -d
 # Stop services
 docker-compose down
 
-# Stop and remove data volumes (DESTRUCTIVE)
+# Stop and remove data volumes (DESTRUCTIVE — resets DB and MediaWiki)
 docker-compose down -v
 ```
+
+**Reset database and MediaWiki:** To rebuild Postgres and MediaWiki with the credentials and names from your current `.env` (project root):
+
+1. Set `POSTGRES_DB`, `POSTGRES_USER`, `POSTGRES_PASSWORD` (and MediaWiki vars if you use that profile) in `.env`.
+2. From `docker/`: `docker compose down -v` (removes volumes).
+3. `docker compose up -d` (and `--profile mediawiki` or `--profile admin` if needed). Init scripts run with the new values; RAG and MediaWiki start clean.
 
 **Services:**
 | Service | Port | Description |

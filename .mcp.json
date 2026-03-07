@@ -1,0 +1,9 @@
+{
+    "mcpServers": {
+        "trent_rules_docker": {
+            "type": "url",
+            "url": "http://localhost:8082/mcp",
+            "disabled": false
+        }
+    }
+}

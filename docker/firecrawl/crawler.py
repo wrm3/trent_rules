@@ -17,7 +17,7 @@ import requests
 
 logger = logging.getLogger(__name__)
 
-PLATFORMS_DIR = Path(__file__).parent / "platforms"
+PLATFORMS_DIR = Path(os.environ.get("PLATFORMS_DIR", str(Path(__file__).parent / "platforms")))
 
 # ---------------------------------------------------------------------------
 # Crawl target definitions
@@ -31,6 +31,9 @@ class CrawlTarget:
     max_pages: int = 500
     exclude_patterns: list[str] = field(default_factory=list)
     include_patterns: list[str] = field(default_factory=list)
+    sitemap: str = "include"  # v2: "include" | "skip" | "only"
+    max_discovery_depth: Optional[int] = None  # v2: 1 = start URL + links on that page; None = API default
+    crawl_entire_domain: bool = False  # v2: if True, follow sibling/parent links, not just deeper paths
 
 
 CRAWL_TARGETS: list[CrawlTarget] = [
@@ -62,6 +65,16 @@ CRAWL_TARGETS: list[CrawlTarget] = [
         max_pages=300,
         exclude_patterns=["/samples/"],
     ),
+    CrawlTarget(
+        name="claude-platform",
+        base_url="https://platform.claude.com/docs/en/home",
+        platform_dir="claude",
+        max_pages=25,
+        include_patterns=["/docs/"],
+        sitemap="skip",  # discover via links only; sitemap was returning useless pages
+        max_discovery_depth=2,  # follow links on home + one more level so Quickstart, API ref, etc. are crawled
+        crawl_entire_domain=True,  # follow sibling paths (/docs/en/api, /docs/en/get-started), not just deeper only
+    ),
 ]
 
 
@@ -91,7 +104,8 @@ class PlatformDocsCrawler:
 
     def __init__(self):
         self.api_key = os.environ.get("FIRECRAWL_API_KEY", "")
-        self.firecrawl_base = "https://api.firecrawl.dev/v1"
+        # Use v2 API: supports sitemap "include"|"skip"|"only", better defaults, recommended over v1
+        self.firecrawl_base = "https://api.firecrawl.dev/v2"
         self.session = requests.Session()
         self.session.headers.update({"User-Agent": "trent-docs-crawler/1.0"})
 
@@ -131,7 +145,12 @@ class PlatformDocsCrawler:
             "url": target.base_url,
             "limit": target.max_pages,
             "scrapeOptions": {"formats": ["markdown"]},
+            "sitemap": target.sitemap,  # v2: "include" | "skip" | "only"
         }
+        if target.max_discovery_depth is not None:
+            payload["maxDiscoveryDepth"] = target.max_discovery_depth
+        if target.crawl_entire_domain:
+            payload["crawlEntireDomain"] = True
         if target.exclude_patterns:
             payload["excludePaths"] = target.exclude_patterns
         if target.include_patterns:
@@ -303,6 +322,30 @@ class SnapshotManager:
             else:
                 result["unchanged"].append(page.url)
         return result
+
+    def load_all(self, platform_dir: Path) -> list[PageResult]:
+        """Load all .md snapshots from a platform directory (for backfill ingest)."""
+        pages = []
+        if not platform_dir.exists():
+            return pages
+        for md_path in sorted(platform_dir.glob("*.md")):
+            meta_path = md_path.with_suffix(".json")
+            try:
+                markdown = md_path.read_text(encoding="utf-8")
+                metadata = json.loads(meta_path.read_text(encoding="utf-8")) if meta_path.exists() else {}
+                url = metadata.get("url", str(md_path))
+                title = metadata.get("title", md_path.stem)
+                pages.append(PageResult(
+                    url=url,
+                    platform=platform_dir.name,
+                    title=title,
+                    markdown=markdown,
+                    content_hash=hashlib.sha256(markdown.encode()).hexdigest()[:12],
+                    metadata=metadata,
+                ))
+            except Exception as e:
+                logger.warning(f"  Could not load snapshot {md_path}: {e}")
+        return pages
 
 
 # ---------------------------------------------------------------------------
