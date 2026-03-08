@@ -1,4 +1,4 @@
-﻿# Anthropic Agent SDK - Base Infrastructure
+# Anthropic Agent SDK - Base Infrastructure
 
 Core SDK infrastructure for Claude Code SubAgents with shared context, workflows, and structured agent-to-agent communication.
 

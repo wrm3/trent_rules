@@ -154,7 +154,7 @@ textarea{flex:0 0 100px;background:#0f172a;color:#e2e8f0;border:none;border-bott
         <button class="btn" onclick="runQ()">▶ Run (Ctrl+Enter)</button>
         <span id="qmeta"></span>
       </div>
-      <textarea id="qbox" placeholder="SELECT * FROM agent_turns ORDER BY created_at DESC LIMIT 20"
+      <textarea id="qbox" placeholder="Write a SELECT query…"
         onkeydown="if(event.ctrlKey&&event.key==='Enter'){event.preventDefault();runQ();}"></textarea>
       <div class="qres" id="qres"><div class="msg">Write a SELECT query above and press ▶ Run</div></div>
     </div>
@@ -199,6 +199,13 @@ async function loadTables(){
 async function sel(schema,tname){
   active={schema,tname};page=1;
   document.querySelectorAll('.titem').forEach(el=>el.classList.toggle('active',el.id==='ti-'+tname));
+  // Update SQL Runner textarea to reflect selected table
+  const qbox=document.getElementById('qbox');
+  if(qbox&&!qbox.value.trim()){
+    qbox.value=`SELECT * FROM ${tname} ORDER BY 1 DESC LIMIT 20`;
+  } else if(qbox){
+    qbox.value=`SELECT * FROM ${tname} ORDER BY 1 DESC LIMIT 20`;
+  }
   loadData();loadSchema(schema,tname);
 }
 async function loadData(){

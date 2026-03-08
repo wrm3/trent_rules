@@ -4,6 +4,29 @@ globs: []
 alwaysApply: false
 ---
 
+# Agent Memory Protocol
+
+## 🔍 Session Start: User Identity Check (MANDATORY)
+
+**At the start of any session where memory tools will be used, check for user identity:**
+
+```
+Does ~/.trent/user_config.json exist on this machine?
+```
+
+- **If YES** → read `user_id` and `machine_id`, pass them to all memory tool calls
+- **If NO** → prompt the user:
+
+> "I notice your trent user identity hasn't been set up on this machine yet.
+> This means memory sessions won't be tagged to you personally.
+> Run this tool to fix it:
+> `memory_setup_user(action='setup', user_id='usr_yourname', display_name='Your Name')`
+> Or to check current status: `memory_setup_user(action='whoami')`"
+
+**Do NOT block the session** — just prompt once, then continue.
+
+---
+
 # Gemini/Antigravity Memory Capture Protocol
 
 ## Why This Rule Exists
@@ -69,11 +92,9 @@ Capture when ANY of these occur:
 
 ## Identity
 
-Antigravity installation_id is available at:
-`~/.gemini/antigravity/installation_id`
-
-This should be used as `machine_id` when the trent user_config.json is
-created on a Gemini/Antigravity system.
+`user_id` and `machine_id` come from `~/.trent/user_config.json`.
+If that file doesn't exist, call `memory_setup_user(action='setup', ...)` to create it.
+machine_id is a generated UUID — no OS-native APIs needed, works on Windows/macOS/Linux.
 
 ## Fallback
 
@@ -140,12 +161,9 @@ memory_capture_session(
 
 ## VS Code Machine Identity
 
-VS Code stores a stable device ID at:
-`%APPDATA%\Cursor\User\globalStorage\storage.json`
-Key: `telemetry.devDeviceId`
-
-This can be used as `machine_id` in user_config.json when the Windows
-MachineGuid or Antigravity installation_id are unavailable.
+`user_id` and `machine_id` come from `~/.trent/user_config.json`.
+If that file doesn't exist, call `memory_setup_user(action='setup', ...)` to create it.
+machine_id is a generated UUID stored in `~/.trent/machine_id` — works on all platforms.
 
 ## Integration
 

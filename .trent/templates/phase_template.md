@@ -1,74 +1,101 @@
 ---
 phase: {N}
 name: '{Phase Name}'
-status: planning
+purpose: milestone | experiment | domain | maintenance
+
+# --- DELIVERY PROJECT FIELDS ---
+# purpose: milestone
+# milestone_name: '{Short name for this milestone — e.g., "Alpha Release"}'
+# status: planning|in_progress|completed|cancelled|paused
+
+# --- RESEARCH PROJECT FIELDS ---
+# purpose: experiment
+# experiment_type: proof_of_concept | comparison | parameter_sweep | ablation | baseline
+# hypothesis: '{One sentence: "We believe that X will Y because Z"}'
+# outcome: validated | invalidated | inconclusive | superseded | in_progress
+# lessons_learned: ''
+
+# --- SHARED FIELDS ---
+subsystems: []          # Which subsystems this phase touches
 task_range: '{N*100}-{N*100+99}'
-prerequisites: []
-estimated_duration: 'TBD'
+prerequisites: []       # Phase numbers that must complete first
 started_date: ''
 completed_date: ''
+pivoted_from: null      # Phase number if this is a pivot
+pivot_reason: ''
 ---
 
 # Phase {N}: {Phase Name}
 
 ## Overview
-{Brief description of the phase goals and scope. What problem does this phase solve? What value does it deliver?}
-
-## Status
-- **Status**: [ ] Planning | [🔄] In Progress | [✅] Completed | [❌] Cancelled
-- **Task Range**: {N×100} to {N×100+99}
-- **Start Date**: TBD
-- **Target Completion**: TBD
+{Brief description of the phase goals and scope — 2-4 sentences}
 
 ## Objectives
-- {Objective 1: Clear, actionable goal}
-- {Objective 2: Measurable outcome}
-- {Objective 3: Specific deliverable}
+- {Objective 1}
+- {Objective 2}
 
 ## Deliverables
-- [ ] {Deliverable 1: Tangible output}
-- [ ] {Deliverable 2: Working component}
-- [ ] {Deliverable 3: Documentation or artifact}
-
-## Technical Considerations
-- **Subsystems**: {List affected subsystems}
-- **Dependencies**: {External dependencies}
-- **Prerequisites**: {Prior phases that must complete}
-- **Risks**: {Known risks or challenges}
+- [ ] {Deliverable 1}
+- [ ] {Deliverable 2}
 
 ## Acceptance Criteria
-Criteria that must be met to mark this phase complete:
-- [ ] {Criterion 1: Specific, measurable}
-- [ ] {Criterion 2: Verifiable outcome}
-- [ ] {Criterion 3: Quality standard}
-
-## Tasks in This Phase
-
-### Completed
-(None yet)
-
-### In Progress
-(None yet)
-
-### Pending
-- [ ] Task {N×100}: {First task description}
-- [ ] Task {N×100+1}: {Second task description}
-
-## Progress Log
-| Date | Update |
-|------|--------|
-| {YYYY-MM-DD} | Phase created |
-
-## Notes
-{Any additional context, decisions, or considerations}
+- [ ] {Criterion 1: specific, measurable, verifiable}
+- [ ] {Criterion 2: specific, measurable, verifiable}
 
 ---
 
-## Pivot Information (if applicable)
-*Only include this section if this phase resulted from a pivot*
+<!-- DELIVERY PHASES: use Milestone section below -->
+<!--
+## Milestone: {milestone_name}
 
-- **Pivoted From**: Phase {M}
-- **Pivot Reason**: {Why direction changed}
-- **Preserved Work**: {What carries forward}
-- **Pivot Date**: {YYYY-MM-DD}
+**Target Date**: YYYY-MM-DD
+**Definition of Done**:
+- All acceptance criteria above are met
+- Code reviewed by a different agent
+- No open blockers in subsystems: {list}
+- Handoff document in docs/ if needed
+-->
 
+---
+
+<!-- RESEARCH PHASES: use Experiment section below -->
+<!--
+## Experiment Details
+
+**Hypothesis**: {Same as YAML}
+**Experiment Type**: {Same as YAML}
+
+### Setup / Prerequisites
+- {Data required}
+- {Hardware / resource requirements}
+- {Environment setup}
+
+### Configuration
+- {Key parameter 1}: {value}
+- {Key parameter 2}: {value}
+
+### Success Metric
+- {Metric}: {target value} — measured by {method}
+
+### Failure Conditions
+- {What constitutes a clear failure — stop early if this happens}
+
+### Results
+*(Filled in after completion)*
+
+**Outcome**: validated | invalidated | inconclusive
+**Summary**: {2-4 sentences on what happened}
+
+### Carry Forward
+*(If validated — what to bring into the next experiment)*
+- {Finding 1}
+
+### Archive
+*(If invalidated or superseded — what to preserve for context)*
+- {Context note 1}
+-->
+
+---
+
+## Notes
+{Architecture decisions, risks, technical debt, constraints — free-form}

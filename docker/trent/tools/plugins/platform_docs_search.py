@@ -62,7 +62,7 @@ async def execute(
         sql += " ORDER BY embedding <=> %s::vector LIMIT %s"
         params.extend([embed_str, limit])
 
-        with _db.cursor() as cur:
+        with _db.get_cursor() as cur:
             cur.execute(sql, params)
             rows = cur.fetchall()
 
@@ -79,7 +79,9 @@ async def execute(
 
         results = []
         for row in rows:
-            content, metadata, similarity = row
+            content = row["content"]
+            metadata = row["metadata"] or {}
+            similarity = row["similarity"]
             if isinstance(metadata, str):
                 import json
                 metadata = json.loads(metadata)

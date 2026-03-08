@@ -1,11 +1,75 @@
 ---
-description: Self-improvement protocol for identifying and reporting issues in the trent system
+description: Self-improvement protocol for identifying and reporting issues in the trent system, integrated with SYSTEM_EXPERIMENTS.md
 globs: 
 alwaysApply: true
 ---
-# Trent System Self-Improvement Protocol
+# Trent System Self-Improvement Protocol (vNext)
 
 This rule defines the protocol for identifying, reporting, and resolving issues within the trent task management system itself.
+
+## SYSTEM_EXPERIMENTS.md Integration (NEW)
+
+Before proposing any system improvement, **always do two things first:**
+
+1. **Read `.trent/SYSTEM_EXPERIMENTS.md`** — check Rejected Ideas before proposing
+2. **Call `memory_search`** to check if a similar experiment was tried in a previous session:
+   ```
+   memory_search(query="experiment: {brief description of proposed change}", project_id="{project_id}")
+   ```
+   If results show a previous attempt, surface them before proposing again.
+
+### Why?
+- Prevents re-proposing rejected experiments
+- Provides context on what was already tried (even across sessions)
+- Tracks active experiments that may still be in monitoring phase
+
+### AI Contribution Protocol (Autonomous Sessions)
+During unattended sprint or cleanup runs, AI agents MAY add proposals to SYSTEM_EXPERIMENTS.md:
+
+```markdown
+### EXP-NNN: [Experiment Title]
+**Status**: proposed
+**Started**: YYYY-MM-DD
+**Proposed By**: {agent_id}
+**Hypothesis**: [What this change is expected to improve]
+**Change Made**: Not yet applied
+**Monitoring**: Pending human approval
+**experiment_result**:
+  outcome: null
+  measured_by: []
+  task_failure_rate_before: null
+  task_failure_rate_after: null
+  notes: ""
+  closed_date: null
+```
+
+AI agents MUST NOT:
+- Apply system-level rule changes without human approval
+- Modify `.cursor/rules/`, `.claude/rules/`, or `.agent/rules/` during autonomous operation
+- Increment `rules_version` without human review
+
+### Human Decision Flow
+When a user reviews SYSTEM_EXPERIMENTS.md at session start:
+1. `proposed` → `active` = human approves; AI may implement
+2. `proposed` → `rejected` = human declines; AI must never re-propose
+3. `active` → `completed` = outcome confirmed after monitoring
+4. `active` → `rejected` = experiment failed or unwanted
+
+### Closing an Experiment (MANDATORY memory capture)
+When moving an experiment to `completed` or `rejected`, **call `memory_capture_insight`**:
+```
+memory_capture_insight(
+    project_id  = "{project_id}",
+    category    = "system_experiment",
+    topic       = "EXP-NNN: {title}",
+    insight     = "{outcome summary — what worked, what didn't, lessons learned}",
+    platform    = "{cursor|claude_code|gemini_antigravity}"
+)
+```
+This enables future sessions to find experiment outcomes via `memory_search`
+even when SYSTEM_EXPERIMENTS.md has been reset or the project has been reinstalled.
+
+---
 
 ## Purpose
 

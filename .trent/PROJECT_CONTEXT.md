@@ -1,70 +1,96 @@
-# Project Context: trent_rules
+# Project Context: {Project Name}
 
 ## Mission
-Build the next evolution of the trent AI task management system — an autonomous, resilient,
-multi-agent workflow engine that works even when the developer isn't at the keyboard.
+{One-sentence project mission statement — what problem this project solves and for whom}
+
+## Project Type
+**Type**: delivery | research
+*(Set during @trent-setup. delivery = building a defined product. research = exploring unknown solutions.)*
 
 ## Current Phase
-**Phase 0: trent vNext Planning & Template v2**
-
-Capture all lessons learned from project analyses (Maestro2, VisionLang), design the
-next version of the trent system, and build it out in `template_v2/` without disrupting
-the live system in `.cursor/`, `.claude/`, `.agent/`.
-
-## Architecture Principles
-
-### Non-Negotiable Constraints
-1. **Do NOT modify** `.agent/`, `.cursor/`, `.claude/`, `.platforms/`, `agents.md`,
-   `CLAUDE.md`, `GEMINI.md`, `GUARDRAILS.md` in the project root — these keep the live
-   system running during development.
-2. **Do NOT disrupt** the Docker trent server — it is in active use.
-3. All new template work goes in `template_v2/`.
-4. The live `template/` folder is the reference baseline — copy and improve, don't replace.
-
-### Design Philosophy
-- Autonomous-first: every workflow must work without a human present
-- Resilient by default: task claims expire, checkpoints are written, failures are data
-- Verified not assumed: tasks require cross-agent verification before closing
-- Living not static: specs can update, docs stay current, memory is captured
-- Research-aware: delivery and research projects get different default behaviors
-
-## Success Criteria
-
-### Primary Objectives
-- [ ] template_v2 contains complete, improved trent system
-- [ ] All 42 improvements from potential_changes.md implemented or explicitly deferred
-- [ ] Firecrawl automation integrated for living platform documentation
-- [ ] Task spec files created for all Phase 0 tasks
-- [ ] template_v2 installable via updated trent_install MCP tool
-
-### Quality Standards
-- Each new rule file has a clear purpose, no overlap with others
-- All new YAML fields have examples in task templates
-- New status values have visual indicators (Windows-safe)
-- Breaking changes from template/ to template_v2/ are documented
-
-## Scope Boundaries
-
-### In Scope (template_v2/)
-- New and updated `.trent/` templates and rules
-- New `.cursor/rules/`, `.claude/rules/`, `.agent/rules/` content
-- Firecrawl Docker integration
-- New MCP tools for platform doc search
-- Updated task/phase YAML schemas
-
-### Out of Scope (this phase)
-- Modifying live `.cursor/`, `.claude/`, `.agent/` configs
-- Modifying Docker trent server internals
-- Database-driven version (post-Maestro2)
-- Changes to existing template/ folder
-
-## Key References
-- `potential_changes.md` — Full 42-item improvement roadmap (the design document)
-- `template/` — Current v1 template (reference baseline)
-- `docker/` — Live MCP server (do not disrupt)
+**Phase {N}**: {Phase Name}
+**Status**: planning | in_progress | completed
+**Objective**: {What this phase accomplishes — one sentence}
 
 ---
 
-**Last Updated**: 2026-03-05
-**Project Status**: Active — Phase 0
-**Current Phase**: Phase 0 - trent vNext Planning & Template v2
+## Project Health Score
+<!-- Updated by @trent-cleanup nightly — DO NOT EDIT MANUALLY -->
+
+**Overall Health**: {score}/100 | {healthy | degraded | critical}
+**Last Updated**: {YYYY-MM-DD}
+
+| Subsystem | Health | Pending | In Progress | Blocked | Notes |
+|-----------|--------|---------|-------------|---------|-------|
+| {name} | {score}/100 | {n} | {n} | {n} | {note} |
+
+**Health Calculation**: (completed / total_non_cancelled) × 100
+Penalties: stuck [🔄] past TTL (-5), [🔍] > 4h (-3), failure_history > 2 (-10), subsystem with 0 completed (-15)
+
+---
+
+## Architecture Constraints
+**⚠️ MANDATORY: Read ARCHITECTURE_CONSTRAINTS.md before any coding.**
+
+Top constraints (inline for quick reference):
+1. {Constraint 1 — one line}
+2. {Constraint 2 — one line}
+3. {Constraint 3 — one line}
+
+**Full list**: `.trent/ARCHITECTURE_CONSTRAINTS.md`
+
+---
+
+## Active Sprint
+**Sprint File**: `.trent/SPRINT.md`
+**Generated**: {timestamp}
+**Valid Until**: {timestamp} (2h window)
+**Tasks in Sprint**: {n}
+
+---
+
+## Autonomous Agent Configuration
+
+```yaml
+# Unattended execution settings — edit as needed
+sprint_interval_hours: 2
+cleanup_time: "00:00"          # UTC
+max_sprint_tasks: 15
+default_claim_ttl_minutes: 60
+rules_version: "5.0.0"
+
+escalation_ladder:
+  - local_llm                  # free, simple tasks
+  - claude_sonnet              # standard implementation
+  - claude_opus                # complex/escalated tasks
+  - human_review               # 3+ failures or critical blast_radius
+
+escalation_threshold_failures: 3  # Ralph Wiggum limit
+```
+
+### Human Approval Required For
+- Tasks with `ai_safe: false`
+- Tasks with `blast_radius: high` or `critical`
+- Tasks with `requires_solo_agent: true` (when multiple agents active)
+- Phase completion gates
+- Architecture constraint changes
+
+---
+
+## Subsystem Registry
+*(Brief list — full registry in SUBSYSTEMS.md)*
+- {subsystem-name}: {one-line description}
+
+## Key Files
+- `.trent/PRD.md` — Product Requirements Document
+- `.trent/TASKS.md` — Master task list (source of truth)
+- `.trent/SPRINT.md` — Active sprint queue (auto-generated by cleanup agent)
+- `.trent/ARCHITECTURE_CONSTRAINTS.md` — Non-negotiable constraints
+- `.trent/BUGS.md` — Bug tracking
+- `.trent/SYSTEM_EXPERIMENTS.md` — System evolution log
+- `.trent/IDEA_BOARD.md` — Ideas (human + AI sections)
+
+---
+
+**Last Updated**: {YYYY-MM-DD}
+**Project Status**: Not Started | In Progress | Completed

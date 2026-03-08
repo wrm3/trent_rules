@@ -666,3 +666,4 @@ git tag phase-{N}-complete
 5. **Complete commit/skip** before starting Phase N+1
 
 **Phase Gate Violation**: Starting new phase without approval = BLOCKED
+

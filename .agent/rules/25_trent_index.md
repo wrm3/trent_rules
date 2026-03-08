@@ -3,87 +3,108 @@ description:
 globs: 
 alwaysApply: true
 ---
-# trent System Overview
+# trent System Overview (vNext)
 
 Whenever you use this rule, start your message with the following:
 
 "Accessing trent system overview..."
 
-The trent system is a consolidated, practical task management framework optimized for daily coding work with minimal context overhead.
+The trent system is a consolidated, practical task management framework with autonomous multi-agent support.
 
-## 🚨 Session Start Protocol (MANDATORY)
+## 🚨 Session Start Protocol (MANDATORY — 4 STEPS)
 
-**When user mentions tasks, phases, project status, or any trent-related operation, FIRST run sync validation:**
+**When user mentions tasks, phases, project status, or any trent-related operation:**
 
-```markdown
-📋 TRENT SYNC VALIDATION (Session Start)
-
-**Step 1: Goals Check**
-- Does PROJECT_GOALS.md exist?
-  - If NO → generate from PROJECT_CONTEXT.md vision + success criteria automatically
-  - If YES → does it contain template placeholders ({Goal name}, {Measurable outcome}, {Target})?
-    - If YES → treat as MISSING, auto-generate from PROJECT_CONTEXT.md before proceeding
-    - If NO → load normally ✅
-
-**Step 2: Task Sync Check**
-- Comparing .trent/tasks/ files against TASKS.md entries...
-- [Results: X synced, Y mismatches, Z orphans]
-
-**Step 3: Phase Sync Check**
-- Comparing .trent/phases/ files against TASKS.md headers...
-- [Results: X synced, Y mismatches, Z orphans]
-
-**Step 4: SUBSYSTEMS.md Staleness Check**
-- Scan TASKS.md for unique subsystem references in [subsystems:] fields of task files
-- Compare against entries defined in SUBSYSTEMS.md
-- If TASKS.md task files reference subsystems NOT listed in SUBSYSTEMS.md:
-  → Flag: "⚠️ SUBSYSTEMS.md is stale — missing entries for: [list]"
-  → Offer to add stub entries for missing subsystems before proceeding
-- If SUBSYSTEMS.md is blank/template (fewer than 3 defined subsystems):
-  → Flag: "⚠️ SUBSYSTEMS.md appears to be a blank template"
-  → Offer to regenerate from task file subsystem fields + project context
-
-**Status**: [ALL SYNCED ✅ / ISSUES FOUND ⚠️]
+### Step 1: Load Context
+```
+📌 SESSION CONTEXT
+Mission: [from PROJECT_CONTEXT.md, 1 line]
+Type: delivery | research
+Phase: [current phase name and status]
+Goals: G-01: [name] | G-02: [name]  (from PROJECT_GOALS.md if exists)
+Ideas: [N] active (from IDEA_BOARD.md if exists)
 ```
 
-**If issues found**: Fix them BEFORE proceeding with user's request.
+### Step 2: Load Architecture Constraints (MANDATORY)
+Read `.trent/ARCHITECTURE_CONSTRAINTS.md` and display:
+```
+ACTIVE CONSTRAINTS:
+  C-001: [Name] — [one-line summary]
+  C-002: [Name] — [one-line summary]
+Full constraints: .trent/ARCHITECTURE_CONSTRAINTS.md
+```
+If no constraints are defined yet, skip this block.
+**You MUST NOT start any implementation that violates an active constraint.**
+
+### Step 3: Sync Validation
+```
+📋 TRENT SYNC VALIDATION
+
+Task Sync: Comparing .trent/tasks/ files against TASKS.md entries...
+  [Results: X synced, Y mismatches, Z orphans]
+
+Phase Sync: Comparing .trent/phases/ files against TASKS.md headers...
+  [Results: X synced, Y mismatches, Z orphans]
+
+Sprint Status: [SPRINT.md valid (generated {time}) / STALE — run @trent-cleanup]
+
+Status: [ALL SYNCED ✅ / ISSUES FOUND ⚠️]
+```
+**If issues found**: Fix them BEFORE proceeding.
+
+### Step 4: Health Summary (from PROJECT_CONTEXT.md if available)
+```
+Project Health: {score}/100 ({healthy | degraded | critical})
+Critical subsystems: [any with score < 50]
+```
+
+---
 
 ## Trent Rule Files
 
 | # | File | Description |
 |---|------|-------------|
-| 20 | `20_trent_tasks.md` | Task management, status enforcement, completion workflows |
-| 21 | `21_trent_infrastructure.md` | File organization, platform compatibility, scope control |
-| 22 | `22_trent_planning.md` | PRD generation, phase management, subsystems, questionnaire |
-| 23 | `23_trent_qa.md` | Bug tracking, quality assurance, fix documentation |
-| 24 | `24_trent_workflow.md` | Task expansion, sprint planning, flow visualization |
-| 25 | `25_trent_index.md` | System overview (this file) |
-| 26 | `26_trent_agents_multi.md` | Parallel agent execution, git worktrees |
-| 27 | `27_trent_self_improvement.md` | System issue detection and resolution |
-| 28 | `28_trent_project_files.md` | agents.md/CLAUDE.md management, templates |
-| 29 | `29_trent_codebase_analysis.md` | Codebase integration analysis command |
-| 30 | `30_trent_ideas_goals.md` | IDEA_BOARD.md and PROJECT_GOALS.md |
-- **Multi-Tool Compatibility**: Coexistence with other AI systems
-- **Template Maintenance**: Templates for new project installation
+| 20 | `20_trent_tasks` | Task management, status enforcement, vNext completion workflows |
+| 21 | `21_trent_infrastructure` | File organization, platform compatibility, scope control |
+| 22 | `22_trent_planning` | PRD generation, phase management, project types (delivery/research) |
+| 23 | `23_trent_qa` | Bug tracking, quality assurance, fix documentation |
+| 24 | `24_trent_workflow` | Task expansion, sprint planning, flow visualization |
+| 25 | `25_trent_index` | System overview (this file) |
+| 26 | `26_trent_agents_multi` | Parallel agent execution, git worktrees |
+| 27 | `27_trent_self_improvement` | System issue detection, SYSTEM_EXPERIMENTS integration |
+| 28 | `28_trent_project_files` | agents.md/CLAUDE.md management, templates |
+| 29 | `29_trent_codebase_analysis` | Codebase integration analysis command |
+| 30 | `30_trent_ideas_goals` | IDEA_BOARD.md (human + AI sections) and PROJECT_GOALS.md |
+| 31 | `31_trent_autonomous` | Cleanup agent + sprint agent protocols |
+| 32 | `32_trent_verification` | Cross-agent verification workflow (implementer ≠ verifier) |
+| 66 | `66_platform_parity` | Cross-IDE rule sync enforcement |
 
 ## Directory Structure
 ```
 .trent/
-├── tasks/                # Active task files (taskNNN_name.md)
-├── phases/               # Phase documentation (phaseN_name.md)
-├── memory/               # Historical archives (using Cursor's built-in memory)
-├── TASKS.md              # Master task checklist (organized by phase)
-├── BUGS.md               # Bug tracking (subset of TASKS.md)
-├── PROJECT_CONTEXT.md    # Project mission
-├── PLAN.md               # Product Requirements Document
-├── SUBSYSTEMS.md         # Component registry
-├── FILE_REGISTRY.md      # File documentation
-├── IDEA_BOARD.md         # Ideas parking lot (not ready for tasks yet)
-├── PROJECT_GOALS.md      # Strategic goals — AI loads at session start
-└── ACTIVE_BACKLOG.md     # Subsystem-indexed view of pending tasks (auto-generated by @trent-cleanup)
+├── tasks/                    # Active task files (taskNNN_name.md)
+├── phases/                   # Phase documentation (phaseN_name.md)
+├── experiments/              # Research experiment files (research projects only)
+├── logs/                     # Evidence files (.trent/logs/taskNNN_evidence.log)
+├── templates/                # task_template.md, phase_template.md
+├── examples/                 # Example files for onboarding
+├── reference/                # YAML schema docs, emoji guide
+├── TASKS.md                  # Master task checklist (source of truth)
+├── BUGS.md                   # Bug tracking
+├── PROJECT_CONTEXT.md        # Mission, health score, autonomous config
+├── PRD.md                    # Product Requirements Document
+├── SUBSYSTEMS.md             # Component registry
+├── ARCHITECTURE_CONSTRAINTS.md  # Non-negotiable constraints (loaded every session)
+├── SPRINT.md                 # Active sprint queue (auto-generated by cleanup agent)
+├── CLEANUP_REPORT.md         # Latest nightly cleanup report
+├── SYSTEM_EXPERIMENTS.md     # System evolution log
+├── IDEA_BOARD.md             # Ideas parking lot (human + AI sections)
+├── HYPOTHESIS.md             # Research hypotheses (research projects only)
+└── PROJECT_GOALS.md          # Strategic goals
 
-docs/                     # Project documentation (migration files, setup summaries)
-temp_scripts/             # Test and utility scripts
+docs/           # Project documentation (setup summaries, migration files)
+temp_scripts/   # Test and utility scripts
+research/       # Research project artifacts (research projects only)
 ```
 
 ## Phase-Based Task Numbering
@@ -109,6 +130,10 @@ temp_scripts/             # Test and utility scripts
 - **No Rule Conflicts**: Clean, predictable activation
 
 ### Commands Available (Unified `trent-` prefix, grouped alphabetically)
+
+**Autonomous Agent Commands (NEW in vNext):**
+- `@trent-cleanup` - Midnight cleanup agent (sync, TTL reset, SPRINT.md generation, health report)
+- `@trent-sprint` - 2-hour sprint agent (claim tasks, implement, submit for verification)
 
 **Bug Commands:**
 - `@trent-bug-report` - Report a bug
@@ -149,6 +174,5 @@ temp_scripts/             # Test and utility scripts
 ---
 
 *This consolidated system provides a solid, practical workhorse optimized for daily coding work with minimal context overhead while preserving 95% of original functionality.*
-
 
 

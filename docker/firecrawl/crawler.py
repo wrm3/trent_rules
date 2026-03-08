@@ -39,11 +39,14 @@ class CrawlTarget:
 CRAWL_TARGETS: list[CrawlTarget] = [
     CrawlTarget(
         name="cursor",
-        base_url="https://docs.cursor.com",
+        base_url="https://cursor.com/en-US/docs",
         platform_dir="cursor",
-        max_pages=300,
-        exclude_patterns=["/changelog/", "/blog/"],
-        include_patterns=["/docs/", "/api/", "/settings/", "/context/", "/composer/"],
+        max_pages=100,
+        exclude_patterns=["/changelog/", "/blog/", "/es/", "/ja/", "/fr/", "/de/", "/ko/", "/zh/"],
+        include_patterns=["/docs/", "/en-US/docs/"],
+        sitemap="skip",           # cursor.com/llms.txt exists — depth crawl is better
+        max_discovery_depth=4,    # 4 levels as requested
+        crawl_entire_domain=True, # follow sibling /docs/* paths
     ),
     CrawlTarget(
         name="claude",
@@ -74,6 +77,15 @@ CRAWL_TARGETS: list[CrawlTarget] = [
         sitemap="skip",  # discover via links only; sitemap was returning useless pages
         max_discovery_depth=2,  # follow links on home + one more level so Quickstart, API ref, etc. are crawled
         crawl_entire_domain=True,  # follow sibling paths (/docs/en/api, /docs/en/get-started), not just deeper only
+    ),
+    CrawlTarget(
+        name="claude-code",
+        base_url="https://code.claude.com/docs/en/overview",
+        platform_dir="claude",  # stored alongside other claude docs in .platforms/Claude/
+        max_pages=100,
+        sitemap="skip",          # sitemap not useful on this domain
+        max_discovery_depth=3,   # overview page → section index → detail pages
+        crawl_entire_domain=True,  # follow sibling /docs/en/* paths, not just deeper paths
     ),
 ]
 

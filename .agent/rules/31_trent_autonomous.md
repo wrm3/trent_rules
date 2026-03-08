@@ -1,0 +1,289 @@
+---
+description: Autonomous multi-agent protocols for trent — cleanup agent, sprint agent, TTL, verification, escalation
+globs: 
+alwaysApply: true
+---
+# Trent Autonomous Agent Protocols
+
+This rule governs all unattended (autonomous) agent behavior in trent projects.
+
+## The Two Autonomous Agents
+
+| Agent | Trigger | Purpose |
+|-------|---------|---------|
+| **Cleanup Agent** | Midnight daily | Sync, TTL resets, health scoring, SPRINT.md generation |
+| **Sprint Agent** | Every 2 hours | Claims and implements tasks from SPRINT.md |
+
+Both agents operate **without a human at the keyboard**. Safety mechanisms replace human judgment.
+
+---
+
+## MUST-KNOW Before Acting Autonomously
+
+**Before an autonomous agent does anything, it MUST:**
+
+1. Run `git pull` — never work on stale state
+2. Read `PROJECT_CONTEXT.md` — verify autonomous config allows this operation
+3. Read `ARCHITECTURE_CONSTRAINTS.md` — NEVER violate an active constraint
+4. Read `SPRINT.md` — verify it is not expired (generated within 2 hours)
+5. Read `ARCHITECTURE_CONSTRAINTS.md` `can_agents_commit_directly` flag — if false, stop
+
+---
+
+## Task Claim Pre-Validation (MANDATORY HARD GATE)
+
+**Before claiming any task, call `trent_validate_task`:**
+
+```
+trent_validate_task(
+    project_path = "{absolute path to project root}",
+    task_id      = "{task_id}",
+    blast_radius = "{from task YAML}",
+    subsystems   = [{from task YAML}],
+    files_to_modify = [{planned files}],
+    ai_safe      = {from task YAML}
+)
+```
+
+**Act on the result:**
+
+| Result | Action |
+|---|---|
+| `valid=true, warnings=[]` | Proceed normally |
+| `valid=true, warnings=[...]` | Proceed — log warnings in claim commit message |
+| `valid=false, violations=[...]` | **STOP — escalate to human. Do NOT claim the task.** |
+
+This is a hard gate, not a soft suggestion. A `valid=false` result means the task
+cannot be autonomously executed regardless of other conditions.
+
+---
+
+## Task Claim TTL System
+
+### Purpose
+Prevent tasks from being locked by crashed or context-exhausted agents.
+
+### Claim Protocol
+```yaml
+status: in-progress
+claimed_by: "{agent_id}"
+claimed_at: "{ISO-8601}"
+claim_ttl_minutes: {estimated_duration_minutes * 1.5}
+claim_expires_at: "{claimed_at + claim_ttl_minutes}"
+last_heartbeat: "{same as claimed_at}"
+```
+
+**Commit the claim BEFORE writing any code:**
+```bash
+git add .trent/tasks/task{ID}_*.md
+git commit -m "claim(task-{ID}): {agent_id} starting work"
+git push
+```
+
+### Heartbeat
+For tasks estimated > 30 minutes, update `last_heartbeat` every 15 minutes:
+```bash
+git add .trent/tasks/task{ID}_*.md
+git commit -m "heartbeat(task-{ID}): still active at {checkpoint}"
+git push
+```
+
+### TTL Expiry Check (Cleanup Agent Only)
+A claim is stale if: `now > claim_expires_at` AND `last_heartbeat < claim_expires_at`
+
+**Stale claim reset:**
+```yaml
+status: pending
+claimed_by: null
+claimed_at: null
+claim_expires_at: null
+last_heartbeat: null
+```
+Add entry to `failure_history` with `reason: "TTL expired"`.
+
+---
+
+## Failure Taxonomy
+
+### Failure Reason Enum (required in `failure_history[].reason`)
+
+| Code | Description |
+|------|-------------|
+| `dependency_unavailable` | Required service, API, or DB was unreachable |
+| `test_failure` | Automated tests failed after implementation |
+| `spec_incorrect` | Spec said to do X but X turned out to be wrong/impossible |
+| `ttl_expired` | Claim abandoned — agent crashed or ran out of context |
+| `verification_rejected` | Verifier found defects, implementation rejected |
+| `blast_radius_exceeded` | Implementation would modify out-of-scope files |
+| `constraint_violation` | Would violate ARCHITECTURE_CONSTRAINTS.md rule |
+| `external_service_down` | External dependency unavailable (rate limit, outage) |
+| `agent_context_limit` | Agent ran out of context window mid-task |
+| `spec_conflict` | Spec conflicts with another task's spec or completed implementation |
+| `human_escalation` | Escalated to human — not a failure, but recorded as an attempt boundary |
+| `ralph_wiggum_loop` | Repeated same failing approach 3+ times (see Ralph Wiggum Rule below) |
+
+---
+
+## Ralph Wiggum Prevention Rule
+
+🚨 **If `failure_history.length >= 3` for the same task:**
+1. Do NOT attempt the task again without human review
+2. Set `status: failed` and update TASKS.md to `[❌]`
+3. Add to CLEANUP_REPORT.md "Actions Required" section
+4. Log reason as `ralph_wiggum_loop` if all failures have the same root cause
+
+**Named after Ralph Wiggum**: "I'm helping!"... doing the same wrong thing repeatedly.
+
+---
+
+## Escalation Ladder
+
+When a task cannot be completed autonomously, escalate in this order:
+
+```
+1. local_llm     — Free, fast. Use for simple tasks, boilerplate, formatting.
+2. claude_sonnet — Standard implementation quality. Default for most tasks.
+3. claude_opus   — Complex reasoning, architectural decisions, debugging hard bugs.
+4. human_review  — Required when:
+                   • failure_history.length >= 3
+                   • blast_radius: high AND ai_safe: false
+                   • ARCHITECTURE_CONSTRAINTS.md constraint would be violated
+                   • External credential/secret required that is not available
+                   • Task involves deleting or modifying files outside its subsystem
+```
+
+Escalation threshold is set in `PROJECT_CONTEXT.md` → `escalation_threshold_failures`.
+
+---
+
+## The Verification Requirement
+
+**An agent CANNOT mark its own task as `[✅]`.**
+
+### Correct Completion Flow
+```
+Implementer: status: awaiting-verification → fills evidence_of_completion → commits → pushes
+Verifier: different agent reads task + evidence → verifies → sets status: completed → commits
+```
+
+### Evidence of Completion (Required Fields)
+```yaml
+evidence_of_completion:
+  type: test_output | compile_log | runtime_log | manual_check
+  path: ".trent/logs/task{id}_evidence.log"
+```
+
+### Verifier Checklist
+1. Read the task file — not the implementer's summary
+2. Run the verification steps in the `## Verification` section
+3. Check acceptance criteria one by one
+4. If all pass → set `verified_by: {your_agent_id}`, `verified_date: {today}`, `status: completed`
+5. If any fail → add to `failure_history`, reset to `status: pending`
+
+### Adversarial Verification Persona (Default)
+When reviewing, adopt the **Gilfoyle persona**: cold, technically precise, looking for what's wrong.
+- "Does this actually work, or does it just look like it works?"
+- "What happens in the failure case?"
+- "Would this break if {specific edge case}?"
+
+Do NOT rubber-stamp. If evidence is a compile log but acceptance criteria requires a test suite, reject it.
+
+---
+
+## Blast Radius Policy
+
+| Blast Radius | Behavior |
+|--------------|---------|
+| `low` | Any agent may claim. ai_safe tasks proceed unattended. |
+| `medium` | Any agent may claim. Requires extra evidence (not just compile check). |
+| `high` | Requires human approval OR verification by a different model tier. Cannot be in SPRINT.md unless `ai_safe: true` AND explicitly approved by human. |
+
+**`blast_radius_reason` required** for medium and high.
+
+---
+
+## Solo Agent Tasks
+
+Tasks with `requires_solo_agent: true`:
+- May ONLY be claimed if no other agent is currently active in the same subsystem
+- Sprint agent MUST check: are any other claims active in the same subsystem before claiming?
+- If another agent is active → skip this task, do not block on it
+
+---
+
+## AI Safe Flag
+
+`ai_safe: true` — Agent may execute without human checkpoint.
+`ai_safe: false` — Agent MUST pause before starting and report to human.
+
+**Setting `ai_safe: false` on a task does not prevent it from being spec'd — only from being autonomously implemented.**
+
+---
+
+## Resource-Gated Tasks
+
+Tasks with `status: resource_gated` (`[⏳]`):
+- MUST NOT be claimed by any agent
+- Cleanup agent reports them in CLEANUP_REPORT.md
+- If gated > 14 days: escalate to human in the report
+- Gate is lifted by human setting `status: pending` and clearing `resource_requirements` flag
+
+---
+
+## Git Commit Conventions for Agents
+
+Every commit made by an autonomous agent MUST include an agent footer:
+
+```
+git commit -m "feat(subsystem): implement task NNN
+
+Brief description of what was done.
+
+Task: #NNN
+Phase: N
+Agent: {agent_id}
+Model: {model_name}
+Rules-Version: {rules_version}
+Tokens-Used: {input}/{output}
+Est-Cost: ${cost}"
+```
+
+**Commit cadence:**
+- Claim commit (immediately, before any code)
+- After each logical checkpoint (not every file save)
+- After completing implementation
+- After verification is confirmed
+
+---
+
+## Project Health Score (Cleanup Agent Responsibility)
+
+Updated nightly in `PROJECT_CONTEXT.md`:
+
+```
+score = (completed / total_non_cancelled) * 100
+penalties:
+  -5  for each [🔄] task past its TTL
+  -3  for each [🔍] task > 4 hours old
+  -10 for each task with failure_history.length > 2
+  -15 for subsystem with 0 completed tasks
+  
+final = max(0, score - penalties)
+status: healthy (≥80) | degraded (50-79) | critical (<50)
+```
+
+Per-subsystem scores are written to the SUBSYSTEMS.md Health column and PROJECT_CONTEXT.md.
+
+---
+
+## SYSTEM_EXPERIMENTS Integration
+
+When an autonomous agent identifies a potential improvement to the trent system itself:
+1. Read `SYSTEM_EXPERIMENTS.md` to avoid re-proposing rejected experiments
+2. Add a new entry to `## Active Experiments` with `status: proposed`
+3. Do NOT apply the change — only propose it
+4. Include the proposal in CLEANUP_REPORT.md "AI Ideas" section
+
+---
+
+*Rule 31 — part of the trent vNext autonomous execution layer.*

@@ -12,20 +12,20 @@ if (-not (Test-Path $logDir)) {
 }
 
 # Get hook event name from input
+$hookEvent = "unknown"
+$conversationId = "unknown"
 try {
     $eventData = $inputJson | ConvertFrom-Json
-    $hookEvent = $eventData.hook_event_name
-    if (-not $hookEvent) { $hookEvent = "unknown" }
-} catch {
-    $hookEvent = "unknown"
-}
+    if ($eventData.hook_event_name) { $hookEvent = $eventData.hook_event_name }
+    if ($eventData.conversation_id) { $conversationId = $eventData.conversation_id }
+} catch {}
 
-# Date prefix for log files (allows easy cleanup of older logs)
+# Date prefix for log files
 $datePrefix = Get-Date -Format "yyyy-MM-dd"
 $logFile = "$logDir/${datePrefix}_agent-audit.log"
 
 # Write the timestamped JSON entry to the audit log
-$logEntry = "[$timestamp] [$hookEvent] $inputJson"
+$logEntry = "[$timestamp] [$hookEvent] conv=$conversationId $inputJson"
 Add-Content -Path $logFile -Value $logEntry
 
 # Output empty response

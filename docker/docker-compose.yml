@@ -19,44 +19,19 @@ services:
     ports:
       - "8082:8082"  # HTTP/SSE transport
     environment:
-      # Server Configuration
-      - LOG_LEVEL=${LOG_LEVEL:-INFO}
+      # Hardcoded container-internal values (cannot come from env_file)
       - MCP_HOST=0.0.0.0
       - MCP_PORT=8082
-      - MCP_TRANSPORT=streamable-http  # Options: stdio, sse, streamable-http
-
-      # PostgreSQL Configuration (for RAG)
+      - MCP_TRANSPORT=streamable-http
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
-      - POSTGRES_DB=${POSTGRES_DB:-rag_knowledge}
-      - POSTGRES_USER=${POSTGRES_USER:-trent}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-trent_secret}
-
-      # OpenAI Configuration (for embeddings and research)
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-
-      # Anthropic Configuration (for vision analysis)
-      - ANTHROPIC_API_KEY=${ANTHROPIC_API_KEY}
-
-      # Gemini Configuration (optional)
-      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
-
-      # MediaWiki Configuration (optional)
-      - MEDIAWIKI_SERVER=${MEDIAWIKI_SERVER:-}
-      - MEDIAWIKI_USERNAME=${MEDIAWIKI_USERNAME}
-      - MEDIAWIKI_PASSWORD=${MEDIAWIKI_PASSWORD}
-      - MEDIAWIKI_API_KEY=${MEDIAWIKI_API_KEY}
-
-      # Service URLs (environment-aware — change per deployment)
-      - PGADMIN_URL=${PGADMIN_URL:-http://localhost:8083}
-      - TRENT_URL=${TRENT_URL:-http://localhost:8082}
-
-      # GitHub Configuration (for install_trent tool)
-      - GITHUB_TOKEN=${GITHUB_TOKEN}
-      - GITHUB_REPO=${GITHUB_REPO:-wrm3/trent_rules}
-
-      # Video Processing Configuration
       - VIDEO_CACHE_DIR=/app/cache
+      # All other vars come from env_file (../.env) — NOT listed here to avoid
+      # Windows shell interpolation overriding .env values with empty strings.
+      # Vars sourced from env_file: POSTGRES_DB, POSTGRES_USER, POSTGRES_PASSWORD,
+      # OPENAI_API_KEY, ANTHROPIC_API_KEY, GEMINI_API_KEY, MEDIAWIKI_*, GITHUB_TOKEN,
+      # PGADMIN_URL, TRENT_URL, LOG_LEVEL, GITHUB_REPO, FIRECRAWL_API_KEY,
+      # EMBEDDING_*, FRAME_INTERVAL, MAX_FRAMES, PLAYLIST_LIMIT
       - VIDEO_FRAMES_DIR=/app/frames
       - VIDEO_STATE_FILE=/app/data/video_state.json
       - FRAME_INTERVAL=${FRAME_INTERVAL:-30}
@@ -90,10 +65,6 @@ services:
       - ../.env
     image: pgvector/pgvector:pg16
     container_name: trent_rules_postgres
-    environment:
-      - POSTGRES_DB=${POSTGRES_DB:-rag_knowledge}
-      - POSTGRES_USER=${POSTGRES_USER:-trent}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-trent_secret}
     volumes:
       - postgres_data:/var/lib/postgresql/data
       # Initialization scripts
@@ -119,8 +90,9 @@ services:
     profiles:
       - admin  # Only starts with: docker compose --profile admin up
     environment:
-      - PGADMIN_DEFAULT_EMAIL=${PGADMIN_EMAIL:-admin@trent.local}
-      - PGADMIN_DEFAULT_PASSWORD=${PGADMIN_PASSWORD:-CHANGE_ME_before_starting}
+      # pgAdmin validates email strictly — set explicitly, do NOT use env_file passthrough
+      - PGADMIN_DEFAULT_EMAIL=fstrent@gmail.com
+      - PGADMIN_DEFAULT_PASSWORD=knowledge_base
     ports:
       - "8083:80"
     depends_on:
@@ -189,27 +161,17 @@ services:
     profiles:
       - platform-docs  # Start with: docker compose --profile platform-docs up -d
     environment:
+      # Static overrides — container-internal values that differ from host .env
       - POSTGRES_HOST=postgres
       - POSTGRES_PORT=5432
-      - POSTGRES_DB=${POSTGRES_DB:-rag_knowledge}
-      - POSTGRES_USER=${POSTGRES_USER:-trent}
-      - POSTGRES_PASSWORD=${POSTGRES_PASSWORD:-trent_secret}
-      - OPENAI_API_KEY=${OPENAI_API_KEY}
-      - FIRECRAWL_API_KEY=${FIRECRAWL_API_KEY:-}
       - RAG_SUBJECT=platform_docs
-      - PLATFORMS_DIR=/data/platforms
+      - PLATFORMS_DIR=/repo/.platforms
       - REPO_ROOT=/repo
-      - CRAWL_SCHEDULE=${CRAWL_SCHEDULE:-0 2 * * 0}  # Sundays 2am UTC
-      - GIT_AUTO_COMMIT=${GIT_AUTO_COMMIT:-false}     # Set true in CI only
-      # AI Model Configuration (override in .env to change models)
-      - EMBEDDING_MODEL=${EMBEDDING_MODEL:-text-embedding-3-small}
-      - EMBEDDING_DIMENSIONS=${EMBEDDING_DIMENSIONS:-1536}
-      - EMBEDDING_CHUNK_MAX_CHARS=${EMBEDDING_CHUNK_MAX_CHARS:-2000}
-      - EMBEDDING_CHUNK_OVERLAP=${EMBEDDING_CHUNK_OVERLAP:-200}
+      # All other vars (FIRECRAWL_API_KEY, OPENAI_API_KEY, POSTGRES_DB/USER/PASSWORD,
+      # EMBEDDING_*, CRAWL_SCHEDULE, GIT_AUTO_COMMIT) come from env_file above
     volumes:
-      # Snapshots visible on host at <repo>/.platforms/snapshots/
-      - ../.platforms/snapshots:/data/platforms
-      - ..:/repo:rw  # Repo root for CHANGELOG.md, CRAWL_STATUS.json, and git
+      # Snapshots written directly into repo .platforms/ (visible on host, git-tracked)
+      - ..:/repo:rw  # Repo root for .platforms/, CHANGELOG.md, CRAWL_STATUS.json, and git
     depends_on:
       postgres:
         condition: service_healthy

@@ -1,4 +1,4 @@
-﻿# Cursor Primitives Integration for Agent SDK
+# Cursor Primitives Integration for Agent SDK
 
 This module provides Agent SDK agents with access to Cursor's core primitives:
 

@@ -1,4 +1,4 @@
-﻿# Context Storage and Persistence System
+# Context Storage and Persistence System
 
 **Part of Task 052: Anthropic Agent SDK Integration**
 

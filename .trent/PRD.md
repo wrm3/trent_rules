@@ -1,215 +1,169 @@
-# PRD: trent vNext — Autonomous Multi-Agent Workflow Engine
+# PRD: [Your Project Name]
 
-**Version**: 1.0
-**Created**: 2026-03-05
-**Status**: Active Planning
+## 1. Product overview
 
----
+### 1.1 Document title and version
+- PRD: [Your Project Name]
+- Version: 1.0
 
-## 1. Product Overview
-
-### 1.1 Summary
-
-trent vNext is the next evolution of the trent AI-assisted task management system. The
-current system (v5.x) is optimized for human-supervised single-agent work. vNext is
-designed for **autonomous multi-agent operation** — agents working on scheduled sprints,
-without a human present, on multiple projects simultaneously.
-
-The core insight from analyzing real projects (Maestro2: 725-task delivery project;
-VisionLang: sequential research experiments): the failure modes of large projects are
-not organizational — they are **structural gaps in the task system itself**. Tasks get
-stuck invisibly, agents lie about completion, specs go stale, dead agents hold locks
-forever, and a single failing subsystem blocks everything else with no visibility.
-
-vNext addresses these gaps while remaining backward-compatible with existing projects.
-
-### 1.2 The Design Document
-All 42 proposed improvements are documented with full rationale in:
-`potential_changes.md` — read this before implementing any task in this project.
-
----
+### 1.2 Product summary
+[2-3 paragraph summary of what this project does, who it's for, and why it matters. Include the key value proposition and how it solves user problems.]
 
 ## 2. Goals
 
-### 2.1 Business Goals
-- Enable solo developer to run autonomous agents on multiple projects overnight/while at day job
-- Reduce $3-4K/month AI spend through cost-per-task visibility and escalation ladders
-- Race China on VisionLang compression technology by multiplying output via automation
-- Create a system sellable/deployable to other developers (MCP + template install)
+### 2.1 Business goals
+- [Business goal 1]
+- [Business goal 2]
+- [Business goal 3]
 
-### 2.2 Technical Goals
-- Tasks cannot get invisibly stuck (TTL lease system)
-- Agents cannot self-report completion without cross-verification
-- Specs stay current (living docs + spec freshness)
-- Failure is data, not just a status flag (failure taxonomy)
-- Platform docs stay current automatically (Firecrawl + RAG)
+### 2.2 User goals
+- [User goal 1]
+- [User goal 2]
+- [User goal 3]
 
-### 2.3 Non-Goals
-- Database-driven backend (deferred post-Maestro2)
-- Real-time agent orchestration UI (Maestro2 provides this)
-- Replacing `.cursor/`, `.claude/`, `.agent/` live configs (additive only)
+### 2.3 Non-goals
+- [What this project explicitly will NOT do]
+- [Feature/scope exclusion 1]
+- [Feature/scope exclusion 2]
 
----
+## 3. User personas
 
-## 3. Phases
+### 3.1 Key user types
+- [User type 1]
+- [User type 2]
+- [User type 3]
 
-### Phase 0: Template v2 Foundation (Tasks 001-099)
-Build the complete improved template in `template_v2/`. This is the primary deliverable.
+### 3.2 Basic persona details
+- **[Persona name 1]**: [Brief description and needs]
+- **[Persona name 2]**: [Brief description and needs]
+- **[Persona name 3]**: [Brief description and needs]
 
-**Subsystems**:
-- `template-core` — `.trent/` structure, YAML schemas, status system
-- `platform-docs` — Firecrawl integration, living docs automation
-- `agent-rules` — Updated rules for `.cursor/`, `.claude/`, `.agent/`
-- `verification` — Cross-agent review workflow, [🔍] status
-- `resilience` — TTL leases, checkpointing, failure taxonomy
-- `autonomous` — SPRINT.md, cleanup agent spec, health scores
+### 3.3 Role-based access
+- **[Role 1]**: [Access level and permissions]
+- **[Role 2]**: [Access level and permissions]
+- **[Role 3]**: [Access level and permissions]
 
-### Phase 1: Docker Integration (Tasks 100-199)
-Add new MCP tools to the trent Docker server:
-- `platform_docs_search` — query living platform docs
-- `trent_health_report` — generate project health score
-- Firecrawl crawl scheduler
+## 4. Phases
 
-### Phase 2: Installation & Deployment (Tasks 200-299)
-- Update `trent_install` to deploy from `template_v2/`
-- Migration guide from template v1 to v2
-- Update `_trent_shared.py` manifests
+*Detailed phase management is in TASKS.md. This section provides high-level overview only.*
 
----
+### 4.1 Phase Overview
 
-## 4. Key Design Decisions
+Project work is organized into phases, each with a reserved task ID range:
 
-### 4.1 New Task Status Values
-```
-[ ]  = Pending (no file yet) — same as v1
-[📋] = Ready (file created) — same as v1
-[🔄] = In Progress — same as v1, now has TTL
-[🔍] = Awaiting Verification — NEW: impl done, reviewer not yet run
-[✅] = Completed — same as v1, now requires verified_by
-[❌] = Failed/Cancelled — same as v1
-[⏳] = Resource-Gated — NEW: ready but blocked on storage/compute
-[🌾] = Harvested — NEW: done but approach abandoned, kept as reference
-[⏸️] = Paused — same as v1
-```
+- **Phase 0: Setup & Infrastructure** (Task IDs: 1-99)
+  - [Setup objectives and deliverables]
+  - Status: [ ] Pending
 
-### 4.2 New Task YAML Fields
-```yaml
-# Autonomy
-ai_safe: true | false
-requires_solo_agent: true | false
-blast_radius: low | medium | high
+- **Phase 1: Foundation** (Task IDs: 100-199)
+  - [Foundation objectives and deliverables]
+  - Status: [ ] Pending
 
-# Resilience
-claimed_by: agent-id
-claimed_at: ISO-timestamp
-claim_ttl_minutes: 120
-claim_expires_at: ISO-timestamp
-estimated_duration_minutes: 60
+- **Phase 2: Core Development** (Task IDs: 200-299)
+  - [Core development objectives and deliverables]
+  - Status: [ ] Pending
 
-# Verification
-requires_verification: true
-verified_by: agent-id (different from implementing agent)
-evidence_of_completion:
-  type: test_output | compile_log | runtime_log
-  path: .trent/logs/task001_test.log
+### 4.2 Phase References
+- **Master Location**: TASKS.md (phase headers with task lists)
+- **Detail Files**: `.trent/phases/phase{N}_{name}.md`
+- **Template**: `.trent/templates/phase_template.md`
+- **Commands**: `@trent-phase-add`, `@trent-phase-pivot`, `@trent-phase-sync-check`
 
-# Failure
-failure_history:
-  - attempt: 1
-    agent: cursor-agent-01
-    failure_reason: compilation_error | test_failure | spec_outdated | approach_wrong | resource_unavailable | escalation_needed | timeout | agent_timeout
-    failure_note: human-readable description
-    failure_log: path-to-log
+### 4.3 Adding New Phases
+- Phases can be added at any time
+- Gaps in numbering allowed for pivots
 
-# Spec management
-spec_version: 1
-spec_last_verified: YYYY-MM-DD
-allow_spec_update: true | false
-spec_dependencies:
-  - name: library-name
-    pinned_version: "1.2.3"
-    last_verified: YYYY-MM-DD
+## 5. User experience
 
-# Progress (for checkpointing)
-execution_progress:
-  last_checkpoint: step_N_of_M
-  checkpoint_date: ISO-timestamp
-  completed_steps: []
-  remaining_steps: []
+### 5.1 Entry points & first-time user flow
+**For [User Type 1]:**
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
 
-# Cost tracking
-execution_cost:
-  model_used: model-name
-  input_tokens: 0
-  output_tokens: 0
-  estimated_cost_usd: 0.00
-```
+### 5.2 Core experience
+**[Core User Flow 1]:**
+1. [Step 1]
+2. [Step 2]
+3. [Step 3]
 
-### 4.3 New Template Files
-```
-template_v2/.trent/
-├── ARCHITECTURE_CONSTRAINTS.md  ← NEW: non-negotiable constraints
-├── SPRINT.md                    ← NEW: active work queue (≤15 tasks)
-├── SYSTEM_EXPERIMENTS.md        ← NEW: system evolution log
-├── PRD.md                       ← RENAMED from PLAN.md
-├── TASKS.md                     ← UPDATED: new statuses + subsystem headers
-├── BUGS.md                      ← same
-├── PROJECT_CONTEXT.md           ← UPDATED: includes health score section
-├── PROJECT_GOALS.md             ← same
-├── SUBSYSTEMS.md                ← same
-├── FILE_REGISTRY.md             ← same
-├── IDEA_BOARD.md                ← UPDATED: AI-generated ideas section
-├── tasks/                       ← task files with new YAML schema
-├── phases/                      ← phase files with purpose/hypothesis fields
-└── logs/                        ← NEW: execution evidence logs
-```
+### 5.3 Advanced features & edge cases
+- [Advanced scenario 1]
+- [Edge case handling 1]
+- [Error recovery flow]
 
-### 4.4 Project Types
-At `@trent-setup`, the system asks: **Delivery or Research project?**
+### 5.4 UI/UX highlights
+- [UI principle 1]
+- [UX consideration 1]
+- [Interaction pattern 1]
 
-| Behavior | Delivery | Research |
-|----------|----------|----------|
-| Default template | PRD.md + phases | HYPOTHESIS.md + EXPERIMENT.md |
-| Task failure | Problem to fix | Data to learn from |
-| Phase purpose | milestone delivery | hypothesis validation |
-| TASKS.md headers | Subsystem | Experiment batch |
+## 6. Narrative
+[Write a compelling narrative that tells the story of a user successfully using your product.]
 
----
+## 7. Success metrics
 
-## 5. Firecrawl Integration
+### 7.1 User-centric metrics
+- [Metric 1]: [Target value]
+- [Metric 2]: [Target value]
 
-### Architecture
-```
-docker/firecrawl/          ← NEW Docker service
-├── Dockerfile
-├── crawler.py             ← Firecrawl-based crawler
-├── scheduler.py           ← Cron scheduler
-└── config.yaml            ← Targets, schedule, output paths
+### 7.2 Business metrics
+- [Metric 1]
+- [Metric 2]
 
-Weekly schedule:
-  → crawl cursor docs → .platforms/cursor/YYYY-MM-DD/
-  → crawl claude docs → .platforms/claude/YYYY-MM-DD/
-  → crawl gemini docs → .platforms/gemini/YYYY-MM-DD/
-  → diff against last crawl
-  → commit changed pages
-  → ingest changed pages into pgvector RAG
-  → write .platforms/CHANGELOG.md
+### 7.3 Technical metrics
+- [Metric 1]: [Target value]
+- [Metric 2]: [Target value]
 
-New MCP tool: platform_docs_search(query, platform)
-  → semantic search over indexed platform docs
-  → returns current relevant pages
-```
+## 8. Technical considerations
 
----
+### 8.1 Affected subsystems
+- **Primary subsystems** (directly modified/extended):
+  - [Subsystem 1]: [How it's affected]
 
-## 6. Success Metrics
-- Tasks can never be invisibly stuck (TTL + cleanup agent)
-- No task marked [✅] without a different agent's verified_by
-- Platform docs updated weekly without manual intervention
-- Cost per task tracked and visible in health reports
-- template_v2 fully installable via trent_install
+- **Secondary subsystems** (indirectly affected):
+  - [Subsystem 1]: [How it's affected]
 
----
+### 8.2 Integration points
+- [Integration 1]
+- [Integration 2]
 
-**Reference**: `potential_changes.md` — 42-item roadmap with full rationale
-**Baseline**: `template/` — current v1 template
+### 8.3 Data storage & privacy
+- [Storage approach]
+- [Privacy consideration 1]
+
+### 8.4 Scalability & performance
+- [Scalability consideration 1]
+- [Performance target 1]
+
+### 8.5 Potential challenges
+- [Challenge 1 and mitigation]
+- [Challenge 2 and mitigation]
+
+## 9. Milestones & sequencing
+
+### 9.1 Project estimate
+- **[Size: Small/Medium/Large]**: [Time estimate]
+
+### 9.2 Team size & composition
+- [Team size]: [Roles]
+
+### 9.3 Phase Sequencing
+*See TASKS.md for detailed phase breakdown and task assignments.*
+
+- **Phase 0: Setup** 
+  - Key deliverables: [TBD]
+
+- **Phase 1: Foundation**
+  - Key deliverables: [TBD]
+
+- **Phase 2: Core Development**
+  - Key deliverables: [TBD]
+
+## 10. User stories
+
+### 10.1 [User Story Title 1]
+- **ID**: US-001
+- **Description**: As a [user type], I want to [action], so that [benefit].
+- **Acceptance Criteria**:
+  - [Criterion 1]
+  - [Criterion 2]

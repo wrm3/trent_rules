@@ -40,7 +40,7 @@ class RAGDatabase:
 
         host = self.config.get('postgres_host') or os.getenv('POSTGRES_HOST')
         port = self.config.get('postgres_port') or os.getenv('POSTGRES_PORT', '5432')
-        database = self.config.get('postgres_database') or os.getenv('POSTGRES_DATABASE', 'rag_work_knowledge')
+        database = self.config.get('postgres_db') or self.config.get('postgres_database') or os.getenv('POSTGRES_DB') or os.getenv('POSTGRES_DATABASE', 'knowledge_base')
         user = self.config.get('postgres_user') or os.getenv('POSTGRES_USER', 'postgres')
         password = self.config.get('postgres_password') or os.getenv('POSTGRES_PASSWORD')
 

@@ -47,7 +47,7 @@ All three share agents, skills, and commands. Content is identical; file extensi
 ```
 ✅ Skills - Same format as Claude Code/Cursor
 ✅ Workflows - Slash commands (/workflow-name)
-✅ Artifacts - task.md, implementation_plan.md, walkthrough.md
+✅ Artifacts - task.md, implementation_PRD.md, walkthrough.md
 ✅ Knowledge Items - Auto-generated persistent memory
 ✅ GUARDRAILS.md - Learned failure constraints
 ✅ Multi-model - Gemini + Claude + GPT
