@@ -96,6 +96,85 @@ When initializing or updating the system, automatically create:
 - **Migration files, conversion summaries, setup reports**: Place in `docs/` folder, NOT in `.trent/`
 - **Core planning documents only**: Keep `.trent/` clean and focused
 
+---
+
+## 🚨 trent_install: Existing Project Detection (MANDATORY)
+
+**Before calling `trent_install`, you MUST detect whether this is a fresh or existing project.**
+
+### Detection Criteria
+
+Run this check FIRST:
+
+```
+□ Does .trent/TASKS.md exist AND have more than 20 lines?
+□ Does .trent/tasks/ have more than 5 task files?
+□ Does .trent/PROJECT_CONTEXT.md exist with non-template content?
+
+If ANY of the above is TRUE → this is an EXISTING PROJECT install.
+If ALL are FALSE → this is a FRESH install. Proceed normally.
+```
+
+### Fresh Install Protocol
+Proceed with `trent_install` normally.
+
+### Existing Project Install Protocol
+
+**STOP. Do NOT call trent_install blindly. Instead:**
+
+1. **Read first** — Read `.trent/TASKS.md`, `PROJECT_CONTEXT.md`, and any `ARCHITECTURE_CONSTRAINTS.md`
+2. **Read instruction files** — Read existing `CLAUDE.md` and `agents.md` to pass as `existing_files` to preserve customizations
+3. **Call trent_install** with `existing_files` parameter containing the content to preserve
+4. **After install**: Compare old vs new `.trent/` and report what changed to the user
+5. **NEVER overwrite** these user-data files:
+   - `.trent/TASKS.md`
+   - `.trent/tasks/` (all task files)
+   - `.trent/phases/` (all phase files)
+   - `.trent/BUGS.md`
+   - `.trent/logs/`
+   - `.trent/IDEA_BOARD.md`
+   - `.trent/ARCHITECTURE_CONSTRAINTS.md`
+
+### Backup Folder Migration Detection
+
+**After any `trent_install`, scan the project root for previous trent data:**
+
+```
+□ Look for: .trent_YYYYMMDD/ folders (e.g., .trent_20260307/)
+□ Look for: .trent_backup/, .trent_old/, .trent_prev/
+```
+
+**If backup folder found AND the new `.trent/` has blank/template files:**
+
+```markdown
+⚠️ PREVIOUS TRENT DATA DETECTED
+
+Found: {backup_folder_name}/ in project root.
+New .trent/ appears to have template/blank files.
+
+This looks like an upgrade install that needs data migration.
+
+Recommended action: Migrate the following from {backup_folder_name}/ to .trent/:
+- TASKS.md (task history — preserve this)
+- tasks/ (all task files — preserve these)
+- phases/ (phase files — preserve these)
+- BUGS.md (bug history — preserve this)
+- logs/ (execution history — preserve this)
+- ARCHITECTURE_CONSTRAINTS.md (project constraints — preserve this)
+- IDEA_BOARD.md (captured ideas — preserve this)
+
+The following will be REPLACED by new install versions:
+- PROJECT_CONTEXT.md → populated from old data
+- SUBSYSTEMS.md → regenerated (staleness check will run)
+- PROJECT_GOALS.md → regenerated if template placeholders found
+- .project_id → keep the NEW install's .project_id
+
+Proceed with migration? (yes/no)
+```
+
+**If user confirms**: Copy the preserve list from backup to `.trent/`, keeping new `.project_id`.
+**If user declines**: Leave as-is, note that old data is in `{backup_folder_name}/`.
+
 ## Tool Integration (MCP)
 
 ### Tool-First Principle

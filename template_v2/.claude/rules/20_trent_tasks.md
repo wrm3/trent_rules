@@ -98,21 +98,16 @@ Phase 2: task201_implement_api_endpoints.md
 **Status Indicators**:
 - `[ ]` = Task listed but **NO detailed file created yet** ⚠️ **BLOCKED - DO NOT START**
 - `[📋]` = Task file created and ready to start ✅ **UNBLOCKED - CAN PROCEED**
-- `[📝]` = Spec being written by an agent (TTL: 1 hour — if expired, reset to `[📋]`)
-- `[🔄]` = In Progress (actively claimed by agent, has TTL) - **Requires [📋] first**
-- `[🔍]` = Awaiting Verification (implementation done, pending review by a DIFFERENT agent)
-- `[⏳]` = Resource-Gated (waiting on GPU/storage/API credits/hardware/human decision)
-- `[✅]` = Completed (verified by a different agent than the implementer)
-- `[❌]` = Failed/Cancelled (after max retries or explicit cancellation)
-- `[⏸️]` = Paused (work stopped, may resume later — used for phases during pivots)
-- `[🌾]` = Harvested (task body reused as input for different approach — original preserved)
+- `[🔄]` = In Progress (actively working) - **Requires [📋] first**
+- `[✅]` = Completed
+- `[❌]` = Failed or blocked
+- `[⏸️]` = Paused (work stopped, may resume later) - **Used for phases during pivots**
 
-**🔴 CRITICAL RULE: Cannot Skip [📋] or [🔍]**
+**🔴 CRITICAL RULE: Cannot Skip [📋]**
 ```
-CORRECT: [ ] → [📋] → [🔄] → [🔍] → [✅]
+CORRECT: [ ] → [📋] → [🔄] → [✅]
 WRONG:   [ ] → [🔄] (VIOLATION - no file created!)
 WRONG:   [ ] → [✅] (VIOLATION - no file, no audit trail!)
-WRONG:   [🔄] → [✅] (VIOLATION - implementer cannot self-verify!)
 ```
 
 **Before changing `[ ]` to `[📋]`**:
@@ -124,30 +119,8 @@ WRONG:   [🔄] → [✅] (VIOLATION - implementer cannot self-verify!)
 **Status Transitions**:
 - **Ready**: Create file with YAML, update TASKS.md to `[📋]`
 - **Start**: Update status to `in-progress`, update TASKS.md to `[🔄]` (requires `[📋]` first)
-- **Complete**: Update status to `awaiting-verification`, update TASKS.md to `[🔍]` — wait for verifier
-- **Verified**: Verifier (different agent) sets `status: completed`, update TASKS.md to `[✅]`
+- **Complete**: Update status to `completed`, update TASKS.md to `[✅]`
 - **Fail**: Update status to `failed`, update TASKS.md to `[❌]`
-- **Harvest**: Use when a task's work product is still valuable even though the original approach was abandoned
-
-### Harvested Task Lifecycle
-
-A task is `harvested` when:
-- The implementation approach was superseded (e.g., pivoted to a different architecture)
-- The task's work informed a new direction but wasn't completed as originally specified
-- Another task rendered this one obsolete, but the research/code has reference value
-
-**Harvesting a task:**
-```yaml
-status: harvested
-```
-Update TASKS.md: any status → `[🌾]`
-
-**Rules for harvested tasks:**
-- NEVER delete harvested task files — they are reference material
-- Add a note at the top of the harvested task explaining what superseded it
-- Reference the harvest in the new task's `project_context` field
-- Harvested tasks do NOT count toward completion metrics (excluded from health score)
-- Cleanup agent may prompt for archiving after 90 days
 
 
 ### � MANDATORY: Pre-Work File Verification (REGULATORY REQUIREMENT)
@@ -201,6 +174,51 @@ retroactive_reason: 'Discovered and fixed during development session'
 - ✅ MUST include `retroactive: true` in YAML
 - ✅ MUST include `retroactive_reason` explaining why
 - ❌ Should be the EXCEPTION, not the rule
+
+---
+
+#### 🔄 Legacy Task Schema Detection and Upgrade Protocol
+
+A task file is considered **legacy schema** if its YAML frontmatter is missing ANY of these vNext fields:
+- `blast_radius`
+- `requires_verification`
+- `spec_version`
+- `execution_cost`
+- `ai_safe`
+
+**Rule**: Do NOT retroactively upgrade all legacy task files at once — only upgrade on first touch.
+
+**On First Touch (before claiming or editing a legacy task):**
+
+```
+□ Check task file YAML for vNext fields
+  → If ALL vNext fields present: proceed normally ✅
+  → If ANY vNext fields missing: this is a legacy schema file
+
+□ For legacy schema files:
+  1. Upgrade the YAML to include vNext fields with sensible defaults:
+     blast_radius: "low"
+     requires_verification: false
+     spec_version: "1.0"
+     execution_cost: "low"
+     ai_safe: true
+  2. Add tag to YAML: tags: [legacy-upgraded]
+  3. Commit the upgrade separately before claiming the task:
+     git commit -m "chore(task-{ID}): upgrade legacy YAML schema to vNext"
+  4. Then proceed with claiming/editing the task normally
+```
+
+**Default values for legacy upgrades:**
+```yaml
+blast_radius: "low"          # Conservative — human can adjust
+requires_verification: false  # Conservative — won't block sprint agent
+spec_version: "1.0"
+execution_cost: "low"
+ai_safe: true                 # Conservative default
+tags: [legacy-upgraded]
+```
+
+**Important**: Do NOT change `status`, `priority`, `title`, `id`, `subsystems`, or any existing fields during upgrade. Only ADD the missing vNext fields.
 
 #### Self-Check Before Task Completion
 
@@ -456,8 +474,6 @@ git commit -m "{type}({subsystems}): {task_title}
 
 Task: #{task_id}
 Phase: {phase}
-Agent: {agent_id}
-Rules-Version: 5.1.0
 
 {brief_summary}"
 ```
@@ -570,15 +586,6 @@ Shall I update these files? (yes/no/skip)
   → Using phrases like "pre-existing error", "unrelated error", "was already there",
     "existing lint warning", "TypeScript error", "compile error" WITHOUT logging a bug
     = SYSTEM VIOLATION (see 23_trent_qa.md Zero-Tolerance Error Reporting)
-
-□ Did I capture institutional memory? (MEMORY CHECK — Tasks 080 + 081)
-  → Before starting any task: run memory_search for the subsystem
-    query: "what happened last time in {subsystem}?"
-    Use memory_context MCP tool if available for token-budgeted context
-  → After completing a task: capture session summary via memory_capture_session
-    Include: what was built, what failed, what was learned, what to watch out for
-  → This is MANDATORY — not optional — for all tasks with blast_radius: medium or high
-  → Skipping memory capture for a completed task = SYSTEM VIOLATION
 ```
 
 **Failure to Complete Workflow = SYSTEM VIOLATION**
@@ -659,3 +666,4 @@ git tag phase-{N}-complete
 5. **Complete commit/skip** before starting Phase N+1
 
 **Phase Gate Violation**: Starting new phase without approval = BLOCKED
+

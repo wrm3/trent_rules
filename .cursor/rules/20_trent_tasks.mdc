@@ -175,6 +175,51 @@ retroactive_reason: 'Discovered and fixed during development session'
 - ✅ MUST include `retroactive_reason` explaining why
 - ❌ Should be the EXCEPTION, not the rule
 
+---
+
+#### 🔄 Legacy Task Schema Detection and Upgrade Protocol
+
+A task file is considered **legacy schema** if its YAML frontmatter is missing ANY of these vNext fields:
+- `blast_radius`
+- `requires_verification`
+- `spec_version`
+- `execution_cost`
+- `ai_safe`
+
+**Rule**: Do NOT retroactively upgrade all legacy task files at once — only upgrade on first touch.
+
+**On First Touch (before claiming or editing a legacy task):**
+
+```
+□ Check task file YAML for vNext fields
+  → If ALL vNext fields present: proceed normally ✅
+  → If ANY vNext fields missing: this is a legacy schema file
+
+□ For legacy schema files:
+  1. Upgrade the YAML to include vNext fields with sensible defaults:
+     blast_radius: "low"
+     requires_verification: false
+     spec_version: "1.0"
+     execution_cost: "low"
+     ai_safe: true
+  2. Add tag to YAML: tags: [legacy-upgraded]
+  3. Commit the upgrade separately before claiming the task:
+     git commit -m "chore(task-{ID}): upgrade legacy YAML schema to vNext"
+  4. Then proceed with claiming/editing the task normally
+```
+
+**Default values for legacy upgrades:**
+```yaml
+blast_radius: "low"          # Conservative — human can adjust
+requires_verification: false  # Conservative — won't block sprint agent
+spec_version: "1.0"
+execution_cost: "low"
+ai_safe: true                 # Conservative default
+tags: [legacy-upgraded]
+```
+
+**Important**: Do NOT change `status`, `priority`, `title`, `id`, `subsystems`, or any existing fields during upgrade. Only ADD the missing vNext fields.
+
 #### Self-Check Before Task Completion
 
 **Before marking ANY task complete, verify in this order:**
