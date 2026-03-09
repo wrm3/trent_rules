@@ -2,6 +2,21 @@
 # For public repository - blocks research, personal data, and sensitive files
 
 # ============================================================================
+# Migration working directories (completed — production is in .cursor/.claude/.agent)
+# ============================================================================
+.hybrid/claude/
+.hybrid/cursor/
+.hybrid/cursor_original/
+
+# Rule backup snapshots (created during migrations, local only)
+.cursor/rules_backup_*/
+.claude/rules_backup_*/
+.agent/rules_backup_*/
+
+# Superseded tools (evolved into docker/trent/admin_db_rest.py)
+portable-db-explorer/
+
+# ============================================================================
 # Temporary Notes & Working Documents (local only, never committed)
 # ============================================================================
 temp_docs/
@@ -26,6 +41,7 @@ secrets/
 credentials/
 .env_docker_old
 /env
+*.zip
 
 # ============================================================================
 # API Keys & Tokens
