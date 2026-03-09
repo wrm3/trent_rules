@@ -22,6 +22,11 @@ pgvector>=0.2.4
 sqlparse>=0.5.3
 
 # ==============================================================
+# YAML Parsing (for trent task file frontmatter in visualizer)
+# ==============================================================
+PyYAML>=6.0
+
+# ==============================================================
 # Research Tools (NO DuckDuckGo!)
 # Uses Perplexity, Google Custom Search, direct sources
 # ==============================================================

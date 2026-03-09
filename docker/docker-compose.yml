@@ -37,6 +37,9 @@ services:
       - FRAME_INTERVAL=${FRAME_INTERVAL:-30}
       - MAX_FRAMES=${MAX_FRAMES:-10}
       - PLAYLIST_LIMIT=${PLAYLIST_LIMIT:-50}
+      # Trent task visualizer — set to mount path for the project to visualize
+      # Override in .env: TRENT_PROJECT_PATH=/projects/trent_rules
+      - TRENT_PROJECT_PATH=${TRENT_PROJECT_PATH:-/projects/trent_rules}
     volumes:
       # Persist data and logs
       - trent_rules_data:/app/data
@@ -45,6 +48,8 @@ services:
       # Video analyzer storage
       - video_cache:/app/cache
       - video_frames:/app/frames
+      # trent project for task visualizer (read-only, set TRENT_PROJECT_HOST_PATH in .env)
+      - ${TRENT_PROJECT_HOST_PATH:-G:/trent_rules}:/projects/trent_rules:ro
 
     depends_on:
       postgres:
@@ -131,8 +136,8 @@ services:
       - MEDIAWIKI_SECRET_KEY=${MEDIAWIKI_SECRET_KEY:-CHANGE_ME_generate_with_openssl}
       - MEDIAWIKI_UPGRADE_KEY=${MEDIAWIKI_UPGRADE_KEY:-CHANGE_ME_generate_with_openssl}
       # Bot credentials for MCP mediawiki_* tools
-      - MEDIAWIKI_USERNAME=${MEDIAWIKI_USERNAME}
-      - MEDIAWIKI_PASSWORD=${MEDIAWIKI_PASSWORD}
+      - MEDIAWIKI_USERNAME=${MEDIAWIKI_USERNAME:-}
+      - MEDIAWIKI_PASSWORD=${MEDIAWIKI_PASSWORD:-}
     ports:
       - "8880:80"
     volumes:

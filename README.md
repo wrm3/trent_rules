@@ -1,228 +1,165 @@
 # trent
 
-## AI Development System for Cursor IDE
+## AI Development System — Hybrid Agents & Skills Architecture
 
-**AI-powered task management and development tools for Cursor IDE and Claude Code.**
+**File-based task management + specialized AI agents + on-demand skills for Cursor, Claude Code, Codex, and OpenCode.**
 
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://www.apache.org/licenses/LICENSE-2.0)
-[![Version](https://img.shields.io/badge/version-2.0.0-green.svg)](#)
+[![Version](https://img.shields.io/badge/version-6.0.0-green.svg)](#)
 
 ---
 
 ## What is trent?
 
-**trent** is a file-based task management and AI development system designed for Cursor IDE. It provides:
+**trent** is a structured AI development system built around three layers:
 
-- **Task Management** - File-based tracking with enforced workflows
-- **34+ AI Agents** - Specialized agents for backend, frontend, DevOps, QA, and more
-- **29+ AI Skills** - CI/CD, cloud, document manipulation, research, and more
-- **Oracle Database Tools** - Query and execute via MCP (no API keys needed)
-- **Project Planning** - PRDs, phases, and quality assurance
+1. **Minimal always-apply rules** (~281 lines) — session start, git workflow, enforcement guardrails
+2. **19 specialized agents** — domain owners for tasks, planning, QA, verification, and more
+3. **25 on-demand skills** — explicit workflows invoked when needed
 
-### How It Works
+The `.trent/` folder is the persistent project backbone: tasks, phases, PRDs, bugs, goals, and memory — all file-based and IDE-independent.
+
+### Why Hybrid?
+
+The old monolithic rules system loaded ~5,480 lines on every response. The hybrid loads ~281 lines always, with agents and skills loaded only when relevant. **95% context reduction** means more of your context window goes to your actual code.
+
+---
+
+## Platform Support
+
+| Platform | Config Location | Rules | Agents | Skills | Commands |
+|---|---|---|---|---|---|
+| Cursor IDE | `.cursor/` | `.mdc` rules | `.cursor/agents/` | `.cursor/skills/` | `@trent-*` |
+| Claude Code | `.claude/` | `.md` rules | `.claude/agents/` | `.claude/skills/` | `/trent-*` |
+| Codex (OpenAI) | `.codex/` | via INSTALL.md | copied to project | copied to project | natural language |
+| OpenCode | `.opencode/` | via INSTALL.md | copied to project | copied to project | natural language |
+| Gemini/Agent | `.agent/` | `.md` rules | N/A | `.agent/skills/` | workflows |
+
+---
+
+## Architecture
 
 ```
-+---------------------------------------------------------+
-|            .trent/ (Task Data)                          |
-|  +-- PLAN.md        (Product Requirements)              |
-|  +-- TASKS.md       (Master task list)                  |
-|  +-- BUGS.md        (Bug tracking)                      |
-|  +-- tasks/         (Individual task files)              |
-+---------------------------------------------------------+
-                          ^
-                          |
-                   +------v------+
-                   |   Cursor    |
-                   |    IDE      |
-                   |  .cursor/   |
-                   |   rules/    |
-                   |   skills/   |
-                   |   agents/   |
-                   +------+------+
-                          |
-                   +------v------+
-                   |   Docker    |
-                   |  MCP Server |
-                   |  (Oracle,   |
-                   |   md_to_html)|
-                   +-------------+
+trent/
+├── .cursor/            # Cursor IDE config
+│   ├── rules/          # 8 always-apply .mdc rules (~281 lines total)
+│   ├── agents/         # 19 specialized agents
+│   ├── skills/         # 25 on-demand skills
+│   └── commands/       # 24 @trent-* commands
+├── .claude/            # Claude Code config (parity with .cursor/)
+│   ├── rules/          # 8 always-apply .md rules
+│   ├── agents/         # 19 specialized agents
+│   ├── skills/         # 25 on-demand skills
+│   └── commands/       # 24 /trent-* commands
+├── .agent/             # Gemini/Antigravity config
+│   ├── rules/          # 8 always-apply .md rules
+│   ├── skills/         # 25 on-demand skills
+│   └── workflows/      # workflow equivalents
+├── .codex/             # OpenAI Codex bootstrap
+│   └── INSTALL.md
+├── .opencode/          # OpenCode bootstrap
+│   └── INSTALL.md
+├── docker/             # MCP server (RAG, research, Oracle, memory)
+└── .trent/             # THIS PROJECT's task data
 ```
 
 ---
 
-## Quick Start
+## The 19 Agents
 
-See **[CURSOR_SETUP.md](CURSOR_SETUP.md)** for complete setup instructions.
+| Agent | Purpose |
+|---|---|
+| `trent-task-manager` | Task CRUD, TASKS.md sync, phase completion gate |
+| `trent-planner` | PRDs, phases, subsystems, planning questionnaire |
+| `trent-qa-engineer` | Bug tracking, BUGS.md, quality gates |
+| `trent-verifier` | Adversarial two-stage verification (spec compliance → code quality) |
+| `trent-workflow-manager` | Task expansion, sprint planning, complexity scoring |
+| `trent-infrastructure` | File organization, scope control, project structure |
+| `trent-autonomous` | Unattended sprint/cleanup, TTL management, blast radius |
+| `trent-self-improvement` | System audits, inconsistency detection |
+| `trent-project-files` | AGENTS.md and CLAUDE.md maintenance |
+| `trent-platform-parity` | Cross-IDE sync, Firecrawl registry |
+| `trent-multi-agent` | Parallel agent coordination, git worktrees |
+| `trent-memory` | Session memory capture, user identity |
+| `trent-cursor-cli` | Cursor CLI quick reference |
+| `trent-claude-cli` | Claude Code CLI quick reference |
+| `trent-codebase-analyst` | External codebase analysis for integration |
+| `trent-ideas-goals` | IDEA_BOARD.md, PROJECT_GOALS.md |
+| `trent-code-reviewer` | Security, performance, reusability reviews |
+| `trent-python-dev` | Python standards, UV environment management |
+| `trent-project-manager` | New project init, .trent/ grooming and healing |
 
-### TL;DR
+---
+
+## The 25 Skills
+
+**Task Management:** `trent-task-new` · `trent-task-update` · `trent-task-sync-check` · `trent-status`
+
+**Phase Management:** `trent-phase-add` · `trent-phase-pivot` · `trent-phase-sync-check` · `trent-phase-archive`
+
+**Planning:** `trent-plan` · `trent-setup` · `trent-sprint` · `trent-cleanup` · `trent-workflow`
+
+**Quality:** `trent-review` · `trent-qa` · `trent-qa-report` · `trent-bug-report` · `trent-bug-fix`
+
+**Ideas & Goals:** `trent-idea-capture` · `trent-idea-review` · `trent-goal-update` · `trent-harvest`
+
+**Utilities:** `trent-git-commit` · `trent-grooming` · `trent-visualizer`
+
+---
+
+## MCP Server (Docker)
+
+The Docker MCP server provides tools for RAG, research, Oracle DB, MediaWiki, and memory:
 
 ```bash
-# 1. Clone
-git clone <repo-url> trent_rules
-cd trent_rules
-
-# 2. Start Docker MCP server
-cd docker && docker-compose up -d
-
-# 3. Add to Cursor MCP settings
-# { "mcpServers": { "trent": { "url": "http://localhost:8084/mcp" } } }
-
-# 4. Use in Cursor chat
-# @trent-status
+cd docker && docker compose up -d
 ```
 
----
+**Key tools:** `rag_search` · `rag_ingest_text` · `research_deep` · `oracle_query` · `oracle_execute` · `memory_search` · `memory_capture_session` · `trent_install` · `trent_health_report` · `md_to_html`
 
-## Project Structure
-
-```
-trent_rules/
-├── .cursor/              # AI configuration (auto-loaded by Cursor)
-│   ├── agents/           # 34+ specialized agents
-│   ├── skills/           # 29+ AI skills
-│   ├── rules/            # 25 rules (.mdc format)
-│   ├── commands/         # 19 @trent-* commands
-│   └── hooks/            # PowerShell hooks
-├── .trent/               # Task management data
-│   ├── PLAN.md           # Product Requirements Document
-│   ├── TASKS.md          # Master task list (source of truth)
-│   ├── BUGS.md           # Bug tracking
-│   ├── PROJECT_CONTEXT.md # Project mission
-│   ├── SUBSYSTEMS.md     # Component registry
-│   ├── tasks/            # Individual task files
-│   └── phases/           # Phase documentation
-├── docker/               # MCP server (single Docker container)
-├── docs/                 # Project documentation
-├── AGENTS.md             # AI agent instructions
-├── CLAUDE.md             # Claude-specific context
-├── CURSOR_SETUP.md       # Setup guide
-├── LICENSE               # Apache 2.0
-└── NOTICE                # Attribution
-```
+Admin UI: `http://localhost:8082/admin/db` (DB Explorer) · `http://localhost:8082/admin/trent` (Task Visualizer)
 
 ---
 
-## Features
+## Task Status System
 
-### Task Management
-- Create, update, and track tasks with enforced status progression
-- Priority levels (Critical, High, Medium, Low)
-- Task dependencies and sub-tasks
-- Automatic task expansion for complex work
-- Phase-based task numbering (Phase N = IDs N*100 to N*100+99)
-
-### Project Planning
-- Product Requirements Documents (PRD)
-- Feature specifications and user stories
-- Phase management with pivot support
-- Scope validation and over-engineering prevention
-
-### Bug Tracking
-- Centralized bug tracking in BUGS.md
-- Severity classification (Critical/High/Medium/Low)
-- Bug-to-task relationships
-- Resolution tracking through task completion
-
-### Quality Assurance
-- Comprehensive code review agents
-- Test runner integration
-- Quality metrics and reporting
+| Indicator | Meaning |
+|---|---|
+| `[ ]` | Listed in TASKS.md, no file yet |
+| `[📋]` | Task file created, ready to start |
+| `[🔄]` | In progress |
+| `[🔍]` | Awaiting cross-agent verification |
+| `[✅]` | Completed |
+| `[❌]` | Failed/Cancelled |
+| `[⏸️]` | Paused (phase pivot) |
 
 ---
 
-## MCP Tools
+## Installation
 
-The Docker MCP server provides these tools (no API keys required):
+### Cursor IDE
+trent ships with your project via `.cursor/` config. For a new project, use the `trent_install` MCP tool or run `@trent-setup`.
 
-| Tool | Description |
-|------|-------------|
-| `oracle_query` | Read-only SQL queries on Oracle databases |
-| `oracle_execute` | Write operations on Oracle (INSERT, UPDATE, DDL) |
-| `md_to_html` | Convert markdown to styled, self-contained HTML |
-| `trent_server_status` | Health check |
+### Claude Code
+Same as Cursor — `.claude/` config ships with the project. Run `/trent-setup`.
 
----
+### Codex (OpenAI)
+See `.codex/INSTALL.md` — paste the bootstrap URL into your Codex prompt.
 
-## Specialized Agents
-
-| Agent | Description |
-|-------|-------------|
-| `backend-developer` | API design, server logic |
-| `frontend-developer` | React, TypeScript, UI |
-| `full-stack-developer` | End-to-end features |
-| `database-expert` | Schema design, queries |
-| `devops-engineer` | CI/CD, infrastructure |
-| `docker-specialist` | Containerization |
-| `kubernetes-specialist` | K8s management |
-| `security-auditor` | Security reviews |
-| `code-reviewer` | Code quality |
-| `orchestrator` | Multi-agent coordination |
-| ... and 24+ more! | |
+### OpenCode
+See `.opencode/INSTALL.md` — paste the bootstrap URL into your OpenCode prompt.
 
 ---
 
-## Key Commands
+## Security
 
-Use these in Cursor chat with `@` prefix:
-
-| Command | Description |
-|---------|-------------|
-| `@trent-status` | Project status overview |
-| `@trent-task-new` | Create a new task |
-| `@trent-task-update` | Update task status |
-| `@trent-plan` | Project planning |
-| `@trent-review` | Code review |
-| `@trent-qa` | Quality assurance |
-| `@trent-git-commit` | Structured git commits |
-| `@trent-workflow` | Task expansion, sprint planning |
-| `@trent-analyze-codebase` | Deep merge your own projects |
-| `@trent-harvest` | Harvest ideas from external sources |
-
-See `cursor_inventory.txt` for the complete list of all items.
+- Never commit API keys, tokens, or passwords
+- Use environment variables for secrets (`.env` at repo root, never committed)
+- Oracle credentials passed per-query via MCP tool parameters
+- Always use parameterized queries
 
 ---
 
-## Team Collaboration
-
-### Git Workflow
-
-```bash
-# Initial setup
-git add .trent/ .cursor/
-git commit -m "Add trent system"
-git push
-
-# Daily workflow
-git pull                    # Get latest changes
-# Work on tasks in Cursor
-git add .trent/             # Stage task changes
-git commit -m "Update tasks"
-git push
-```
-
----
-
-## Use Cases
-
-### Solo Developer
-Install in all projects. All planning stays consistent across projects.
-
-### Small Team
-Everyone uses Cursor with the same configuration. All work tracked in shared `.trent/` files.
-
----
-
-## Documentation
-
-- **[CURSOR_SETUP.md](CURSOR_SETUP.md)** - Setup guide for new users
-- **[AGENTS.md](AGENTS.md)** - Full agent/skill/command reference
-- **[CLAUDE.md](CLAUDE.md)** - Claude-specific project context
-- **[cursor_inventory.txt](cursor_inventory.txt)** - Complete inventory
-
----
-
-## License
-
-Copyright 2025-2026 Warren R. Martel III. All rights reserved.
-
-Licensed under the MIT License. See [LICENSE](LICENSE) for full terms and [NOTICE](NOTICE) for attribution.
+**Version**: 6.0.0 — Hybrid Architecture  
+**Last Updated**: 2026-03-09  
+**Supported Platforms**: Cursor IDE · Claude Code · Codex · OpenCode · Gemini/Agent

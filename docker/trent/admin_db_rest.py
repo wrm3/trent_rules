@@ -4,18 +4,25 @@ admin_db_rest.py — Portable Database Explorer for trent
 Starlette routes + psycopg2. No SQLAlchemy, no FastAPI required.
 
 Routes (added to ADMIN_ROUTES list, merged into server.py's Starlette app):
-  GET  /admin/db                           — Browser UI (self-contained HTML)
-  GET  /admin/db/tables                    — Schema introspection JSON
+  GET  /admin/db                               — Browser UI (self-contained HTML)
+  GET  /admin/db/tables                        — Schema introspection JSON
   GET  /admin/db/tables/{schema}/{table}/data  — Paginated rows JSON
-  POST /admin/db/query                     — Read-only SQL runner JSON
+  POST /admin/db/query                         — Read-only SQL runner JSON
+  GET  /admin/trent                            — Task dependency visualizer UI
+  GET  /admin/trent/data                       — Task graph data JSON
+  GET  /admin/trent/task/{task_id}             — Raw task file content JSON
 """
+import os
 import re
+import glob as _glob
 import time
 import logging
 import uuid as _uuid
 from datetime import datetime as _dt, date as _date
 from decimal import Decimal as _Dec
 from typing import Optional
+
+import yaml
 
 from starlette.requests import Request
 from starlette.responses import JSONResponse, HTMLResponse
@@ -30,6 +37,18 @@ _DANGEROUS = re.compile(
     r"\b(INSERT|UPDATE|DELETE|DROP|ALTER|TRUNCATE|CREATE|GRANT|REVOKE|COPY|EXECUTE|CALL)\b",
     re.IGNORECASE,
 )
+
+# JSONB-related error patterns for user-friendly hints
+_JSONB_ERROR_PATTERNS = [
+    ("operator does not exist: jsonb", "JSONB columns cannot use ~ directly. Try:\n  column::text ~ 'pattern'\nor\n  column @> '{\"key\":\"value\"}'::jsonb"),
+    ("jsonb ~", "Use ::text cast for regex on JSONB: column::text ~ 'pattern'"),
+    ("cannot cast type json", "Cast JSONB to text first: column::text"),
+    ("operator does not exist: jsonb =", "For JSONB equality use: column @> '{\"key\":\"val\"}'::jsonb"),
+    ("invalid input syntax for type json", "Check your JSONB literal — must be valid JSON in single quotes: '{\"key\":\"val\"}'::jsonb"),
+]
+
+# Default trent project path (override via TRENT_PROJECT_PATH env var)
+_TRENT_PROJECT_PATH = os.environ.get("TRENT_PROJECT_PATH", "")
 
 _db = None
 
@@ -122,12 +141,22 @@ tr:hover td{background:#1e293b}
 .badge{font-size:9px;border-radius:2px;padding:1px 4px;margin-left:4px;vertical-align:middle}
 .pk{background:#78350f;color:#fde68a}.fk{background:#2e1065;color:#ddd6fe}.nullable{background:#0c4a6e;color:#7dd3fc}
 .sql-pane{height:100%;display:flex;flex-direction:column}
-.sql-bar{display:flex;gap:8px;padding:7px 12px;background:#1e293b;border-bottom:1px solid #334155;align-items:center;font-size:11px;color:#64748b;flex-shrink:0}
-textarea{flex:0 0 100px;background:#0f172a;color:#e2e8f0;border:none;border-bottom:1px solid #334155;padding:8px 12px;font-family:monospace;font-size:12px;resize:none;outline:none;width:100%}
+.sql-bar{display:flex;gap:8px;padding:7px 12px;background:#1e293b;border-bottom:1px solid #334155;align-items:center;font-size:11px;color:#64748b;flex-shrink:0;flex-wrap:wrap}
+textarea{flex:0 0 120px;background:#0f172a;color:#e2e8f0;border:none;border-bottom:1px solid #334155;padding:8px 12px;font-family:monospace;font-size:12px;resize:vertical;outline:none;width:100%;min-height:80px}
 .qres{flex:1;overflow:auto}
 .msg{padding:24px;color:#334155;text-align:center;font-size:12px}
 .err{color:#f87171}
+.hint{color:#fbbf24;font-size:11px;background:#1c1700;border:1px solid #78350f;border-radius:3px;padding:6px 10px;margin:8px 12px;white-space:pre-wrap;font-family:monospace}
+.pgcode{color:#94a3b8;font-size:10px}
+.err-box{background:#1a0505;border:1px solid #7f1d1d;border-radius:3px;padding:8px 12px;margin:8px 12px;color:#f87171;font-family:monospace;font-size:11px;white-space:pre-wrap;text-align:left;cursor:text;user-select:text}
 .sh{padding:4px 12px;font-size:10px;color:#475569;background:#1e293b;border-bottom:1px solid #334155;flex-shrink:0}
+.badge-type{font-size:9px;border-radius:2px;padding:1px 4px;margin-left:4px;vertical-align:middle;background:#0c4a6e;color:#7dd3fc}
+.badge-jsonb{background:#4c1d95;color:#ddd6fe}
+.badge-text{background:#052e16;color:#86efac}
+.badge-int{background:#1c1917;color:#d6d3d1}
+.badge-ts{background:#0c1a2e;color:#93c5fd}
+.snip-select{background:#1e293b;color:#94a3b8;border:1px solid #334155;border-radius:3px;font-size:11px;padding:2px 6px;cursor:pointer;font-family:monospace}
+.snip-select option{background:#1e293b;color:#e2e8f0}
 </style>
 </head>
 <body>
@@ -152,6 +181,17 @@ textarea{flex:0 0 100px;background:#0f172a;color:#e2e8f0;border:none;border-bott
     <div id="panel-sql" class="panel sql-pane">
       <div class="sql-bar">
         <button class="btn" onclick="runQ()">▶ Run (Ctrl+Enter)</button>
+        <select class="snip-select" onchange="insertSnippet(this)" title="JSONB query helpers">
+          <option value="">📄 JSONB snippets…</option>
+          <option value="WHERE {col}::text ~ '{pattern}'">Regex on JSONB column</option>
+          <option value="WHERE {col} @> '{&quot;key&quot;:&quot;val&quot;}'::jsonb">Match JSON key/value</option>
+          <option value="WHERE {col} ? 'key'">Has JSON key</option>
+          <option value="WHERE {col} #>> '{key,nested}' = 'value'">Nested JSON path</option>
+          <option value="{col}::text AS {col}_text">Cast JSONB to text</option>
+          <option value="jsonb_pretty({col}) AS {col}_pretty">Pretty-print JSONB</option>
+          <option value="jsonb_array_length({col})">Array length</option>
+          <option value="jsonb_object_keys({col})">List all keys</option>
+        </select>
         <span id="qmeta"></span>
       </div>
       <textarea id="qbox" placeholder="Write a SELECT query…"
@@ -199,14 +239,28 @@ async function loadTables(){
 async function sel(schema,tname){
   active={schema,tname};page=1;
   document.querySelectorAll('.titem').forEach(el=>el.classList.toggle('active',el.id==='ti-'+tname));
-  // Update SQL Runner textarea to reflect selected table
-  const qbox=document.getElementById('qbox');
-  if(qbox&&!qbox.value.trim()){
-    qbox.value=`SELECT * FROM ${tname} ORDER BY 1 DESC LIMIT 20`;
-  } else if(qbox){
-    qbox.value=`SELECT * FROM ${tname} ORDER BY 1 DESC LIMIT 20`;
+  // Build SELECT query — auto-cast JSONB columns to ::text for usability
+  const t=tables.find(x=>x.schema===schema&&x.table_name===tname);
+  let selectCols='*';
+  if(t&&t.columns){
+    const cols=t.columns.map(c=>{
+      const dt=(c.data_type||'').toLowerCase();
+      if(dt==='jsonb'||dt==='json')return `"${c.name}"::text AS "${c.name}"`;
+      return `"${c.name}"`;
+    });
+    if(cols.some(c=>c.includes('::text')))selectCols=cols.join(', ');
   }
+  const qbox=document.getElementById('qbox');
+  if(qbox)qbox.value=`SELECT ${selectCols}\nFROM ${tname}\nORDER BY 1 DESC\nLIMIT 20`;
   loadData();loadSchema(schema,tname);
+}
+function insertSnippet(sel){
+  if(!sel.value)return;
+  const ta=document.getElementById('qbox');
+  const pos=ta.selectionStart,val=ta.value;
+  ta.value=val.slice(0,pos)+' '+sel.value+val.slice(pos);
+  ta.focus();ta.selectionStart=ta.selectionEnd=pos+sel.value.length+1;
+  sel.value='';
 }
 async function loadData(){
   if(!active)return;
@@ -227,9 +281,21 @@ function loadSchema(schema,tname){
   const t=tables.find(x=>x.schema===schema&&x.table_name===tname);
   if(!t)return;
   const cols=t.columns.map(c=>{
+    const dt=(c.data_type||'').toLowerCase();
+    let typeBadge='';
+    if(dt==='jsonb'||dt==='json'){
+      typeBadge=`<span class="badge-type badge-jsonb">${dt.toUpperCase()}</span>`;
+    } else if(dt.includes('text')||dt.includes('varchar')||dt.includes('char')){
+      typeBadge=`<span class="badge-type badge-text">TEXT</span>`;
+    } else if(dt.includes('int')||dt.includes('serial')||dt.includes('numeric')||dt.includes('float')){
+      typeBadge=`<span class="badge-type badge-int">NUM</span>`;
+    } else if(dt.includes('timestamp')||dt.includes('date')||dt.includes('time')){
+      typeBadge=`<span class="badge-type badge-ts">TS</span>`;
+    }
     const b=[
       c.is_primary_key?'<span class="badge pk">PK</span>':'',
       c.is_nullable?'<span class="badge nullable">NULL</span>':'',
+      typeBadge,
     ].filter(Boolean).join('');
     return `<div class="sc-row"><span>${c.name}${b}</span><span style="color:#64748b">${c.data_type}</span></div>`;
   }).join('');
@@ -246,11 +312,20 @@ async function runQ(){
   const res=document.getElementById('qres'),meta=document.getElementById('qmeta');
   res.innerHTML='<div class="msg">running…</div>';meta.textContent='';
   try{
-    const d=await api('/admin/db/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sql})});
+    const r=await fetch('/admin/db/query',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({sql})});
+    const d=await r.json();
+    if(!r.ok||d.error){
+      let html=`<div class="err-box">${escHtml(d.error||'Query failed')}</div>`;
+      if(d.pgcode)html+=`<div style="padding:2px 12px 4px"><span class="pgcode">SQLSTATE: ${d.pgcode}</span></div>`;
+      if(d.hint)html+=`<div class="hint">💡 ${escHtml(d.hint)}</div>`;
+      res.innerHTML=html;
+      return;
+    }
     meta.textContent=`${d.row_count} rows · ${d.execution_ms}ms${d.truncated?' (truncated at 1000)':''}`;
     res.innerHTML=grid(d.rows,d.columns);
-  }catch(e){res.innerHTML=`<div class="msg err">${e.message}</div>`;}
+  }catch(e){res.innerHTML=`<div class="err-box">${escHtml(e.message)}</div>`;}
 }
+function escHtml(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
 loadTables();
 </script>
 </body>
@@ -456,18 +531,362 @@ async def handle_query(request: Request) -> JSONResponse:
     except Exception as e:
         elapsed_ms = round((time.monotonic() - start) * 1000, 2)
         first_line = str(e).split("\n")[0]
-        return JSONResponse(
-            {"error": f"Query error ({elapsed_ms}ms): {first_line}"},
-            status_code=400,
-        )
+        err_str = str(e).lower()
+
+        # Extract PostgreSQL SQLSTATE code if available
+        pgcode = getattr(e, "pgcode", None)
+
+        # Match against known JSONB / type error patterns for helpful hints
+        hint = None
+        for pattern, msg in _JSONB_ERROR_PATTERNS:
+            if pattern.lower() in err_str:
+                hint = msg
+                break
+
+        response_body: dict = {
+            "error": f"Query error ({elapsed_ms}ms): {first_line}",
+            "elapsed_ms": elapsed_ms,
+        }
+        if pgcode:
+            response_body["pgcode"] = pgcode
+        if hint:
+            response_body["hint"] = hint
+
+        return JSONResponse(response_body, status_code=400)
+
+
+# ---------------------------------------------------------------------------
+# Trent Task Visualizer
+# ---------------------------------------------------------------------------
+
+_TRENT_VIZ_HTML = r"""<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<title>trent Task Visualizer</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:monospace;background:#0f172a;color:#e2e8f0;font-size:13px;height:100vh;display:flex;flex-direction:column;overflow:hidden}
+header{background:#1e293b;padding:10px 16px;display:flex;align-items:center;gap:14px;border-bottom:1px solid #334155;flex-shrink:0}
+header h1{font-size:14px;color:#a78bfa;font-weight:600}
+#st{font-size:11px;color:#64748b}
+.toolbar{display:flex;gap:8px;padding:6px 12px;background:#1e293b;border-bottom:1px solid #334155;flex-shrink:0;align-items:center;font-size:11px}
+.btn{background:#1e40af;color:#e2e8f0;border:none;padding:3px 10px;border-radius:3px;cursor:pointer;font-size:11px;font-family:monospace}
+.btn:hover{background:#1d4ed8}
+.btn.active{background:#5b21b6}
+.main{display:flex;flex:1;overflow:hidden}
+#canvas{flex:1;overflow:auto;position:relative;padding:16px}
+.sidebar{width:220px;background:#1e293b;border-left:1px solid #334155;overflow-y:auto;flex-shrink:0;font-size:11px}
+.sidebar h2{padding:8px 12px;font-size:10px;color:#475569;text-transform:uppercase;letter-spacing:.06em;border-bottom:1px solid #334155}
+#detail{padding:10px 12px;white-space:pre-wrap;color:#94a3b8;font-size:10px}
+/* DAG nodes */
+.phase-lane{background:#0d1526;border:1px solid #1e3a5f;border-radius:6px;padding:10px 14px;margin-bottom:16px}
+.phase-title{font-size:11px;font-weight:600;color:#38bdf8;margin-bottom:10px;padding-bottom:6px;border-bottom:1px solid #1e3a5f}
+.nodes-grid{display:flex;flex-wrap:wrap;gap:8px}
+.node{border-radius:4px;padding:6px 10px;cursor:pointer;border:1px solid transparent;min-width:140px;max-width:200px;font-size:11px;transition:border-color .15s;position:relative}
+.node:hover{border-color:#64748b}
+.node.selected{border-color:#a78bfa;box-shadow:0 0 0 1px #a78bfa}
+.node-id{font-size:9px;color:#64748b;margin-bottom:2px}
+.node-title{font-size:11px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.node-badges{margin-top:3px;display:flex;gap:3px;flex-wrap:wrap}
+.badge{font-size:8px;padding:1px 4px;border-radius:2px}
+/* Status colors */
+.s-completed{background:#052e16;border-color:#166534;color:#86efac}
+.s-in-progress{background:#0c1a4a;border-color:#1e40af;color:#93c5fd}
+.s-awaiting-verification{background:#1a0d4a;border-color:#5b21b6;color:#ddd6fe}
+.s-pending{background:#0f172a;border-color:#334155;color:#94a3b8}
+.s-failed{background:#2d0505;border-color:#7f1d1d;color:#fca5a5}
+.s-ghost{background:#0c0f16;border-color:#1e293b;color:#475569;border-style:dashed}
+.s-archived{background:#1a1209;border-color:#78350f;color:#fcd34d;opacity:.75}
+/* Priority badges */
+.p-critical{background:#7f1d1d;color:#fca5a5}
+.p-high{background:#431407;color:#fdba74}
+.p-medium{background:#0c2a1a;color:#86efac}
+.p-low{background:#1e293b;color:#64748b}
+.archived-badge{background:#78350f;color:#fcd34d}
+/* Legend */
+.legend{display:flex;gap:10px;flex-wrap:wrap;align-items:center;margin-left:auto;font-size:10px}
+.l-item{display:flex;align-items:center;gap:4px}
+.l-dot{width:8px;height:8px;border-radius:2px}
+</style>
+</head>
+<body>
+<header>
+  <h1>&#9670; trent Task Visualizer</h1>
+  <span id="st">loading…</span>
+  <div class="legend">
+    <div class="l-item"><div class="l-dot s-completed"></div>done</div>
+    <div class="l-item"><div class="l-dot s-in-progress"></div>active</div>
+    <div class="l-item"><div class="l-dot s-awaiting-verification"></div>verify</div>
+    <div class="l-item"><div class="l-dot s-pending"></div>pending</div>
+    <div class="l-item"><div class="l-dot s-failed"></div>failed</div>
+    <div class="l-item"><div class="l-dot s-archived" style="opacity:1"></div>archived</div>
+    <div class="l-item"><div class="l-dot s-ghost"></div>ghost</div>
+  </div>
+</header>
+<div class="toolbar">
+  <button class="btn active" id="btn-phase" onclick="setView('phase')">Phase Swimlanes</button>
+  <button class="btn" id="btn-flat" onclick="setView('flat')">Flat List</button>
+  <button class="btn" onclick="location.reload()">↻ Refresh</button>
+  <span style="margin-left:auto;color:#475569">Click a task node for details</span>
+</div>
+<div class="main">
+  <div id="canvas"><div style="padding:24px;color:#334155">Loading task data…</div></div>
+  <div class="sidebar">
+    <h2>Task Detail</h2>
+    <div id="detail">Select a node</div>
+  </div>
+</div>
+<script>
+'use strict';
+let data=null,view='phase',selected=null;
+async function load(){
+  try{
+    const r=await fetch('/admin/trent/data');
+    data=await r.json();
+    document.getElementById('st').textContent=`${data.nodes.length} tasks · ${data.phases.length} phases`;
+    render();
+  }catch(e){
+    document.getElementById('st').textContent='Error: '+e.message;
+    document.getElementById('canvas').innerHTML=`<div style="padding:24px;color:#f87171">${e.message}</div>`;
+  }
+}
+function setView(v){
+  view=v;
+  document.getElementById('btn-phase').classList.toggle('active',v==='phase');
+  document.getElementById('btn-flat').classList.toggle('active',v==='flat');
+  render();
+}
+function statusClass(s){
+  const m={'completed':'s-completed','in-progress':'s-in-progress','in_progress':'s-in-progress',
+    'awaiting-verification':'s-awaiting-verification','awaiting_verification':'s-awaiting-verification',
+    'pending':'s-pending','failed':'s-failed','ghost':'s-ghost','archived':'s-archived'};
+  return m[s]||'s-pending';
+}
+function statusEmoji(s){
+  const m={completed:'✅','in-progress':'🔄','in_progress':'🔄','awaiting-verification':'🔍',
+    'awaiting_verification':'🔍',pending:'📋',failed:'❌',ghost:'👻',archived:'📦'};
+  return m[s]||'📋';
+}
+function nodeHtml(n){
+  const sc=statusClass(n.status)+(n.archived?' s-archived':'');
+  const pc=n.priority?`<span class="badge p-${n.priority}">${n.priority}</span>`:'';
+  const br=n.blast_radius&&n.blast_radius!=='low'?`<span class="badge" style="background:#4c1d95;color:#ddd6fe">${n.blast_radius}</span>`:'';
+  const ar=n.archived?`<span class="badge archived-badge">📦 archived</span>`:'';
+  const sel=selected===n.id?' selected':'';
+  return `<div class="node ${sc}${sel}" id="nd-${n.id}" onclick="selectNode('${n.id}')">
+    <div class="node-id">#${n.id}</div>
+    <div class="node-title" title="${escHtml(n.title)}">${statusEmoji(n.status)} ${escHtml(n.title||'').slice(0,40)}</div>
+    <div class="node-badges">${pc}${br}${ar}</div>
+  </div>`;
+}
+function render(){
+  if(!data)return;
+  const canvas=document.getElementById('canvas');
+  if(view==='phase'){
+    const byPhase={};
+    data.nodes.forEach(n=>{
+      const ph=n.phase!=null?n.phase:'?';
+      if(!byPhase[ph])byPhase[ph]=[];
+      byPhase[ph].push(n);
+    });
+    const phases=Object.keys(byPhase).sort((a,b)=>Number(a)-Number(b));
+    canvas.innerHTML=phases.map(ph=>{
+      const pname=(data.phases.find(p=>String(p.phase)===String(ph))||{}).name||'';
+      const nodes=byPhase[ph].map(nodeHtml).join('');
+      const total=byPhase[ph].length;
+      const done=byPhase[ph].filter(n=>n.status==='completed'||n.archived).length;
+      return `<div class="phase-lane">
+        <div class="phase-title">Phase ${ph}: ${escHtml(pname)} (${done}/${total})</div>
+        <div class="nodes-grid">${nodes}</div>
+      </div>`;
+    }).join('');
+  } else {
+    const nodes=data.nodes.map(nodeHtml).join('');
+    canvas.innerHTML=`<div class="nodes-grid">${nodes}</div>`;
+  }
+}
+async function selectNode(id){
+  selected=id;
+  render();
+  const det=document.getElementById('detail');
+  det.textContent='Loading…';
+  try{
+    const r=await fetch('/admin/trent/task/'+encodeURIComponent(id));
+    const d=await r.json();
+    if(d.error){det.textContent=d.error;return;}
+    let out=`ID: ${d.id}\nTitle: ${d.title}\nStatus: ${d.status}\nPriority: ${d.priority||'—'}\nPhase: ${d.phase||'—'}\nBlast: ${d.blast_radius||'—'}\nFile: ${d.file||'—'}\n`;
+    if(d.dependencies&&d.dependencies.length)out+=`\nDeps: ${d.dependencies.join(', ')}`;
+    if(d.subsystems&&d.subsystems.length)out+=`\nSubsystems: ${d.subsystems.join(', ')}`;
+    if(d.project_context)out+=`\n\nContext:\n${d.project_context}`;
+    det.textContent=out;
+  }catch(e){det.textContent=e.message;}
+}
+function escHtml(s){return String(s||'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}
+load();
+</script>
+</body>
+</html>"""
+
+
+def _parse_yaml_frontmatter(content: str) -> dict:
+    """Extract YAML frontmatter from markdown content."""
+    if not content.startswith("---"):
+        return {}
+    end = content.find("\n---", 3)
+    if end < 0:
+        return {}
+    try:
+        return yaml.safe_load(content[3:end]) or {}
+    except Exception:
+        return {}
+
+
+async def handle_trent_ui(request: Request) -> HTMLResponse:
+    """Serve the trent task visualizer UI."""
+    return HTMLResponse(_TRENT_VIZ_HTML)
+
+
+async def handle_trent_data(request: Request) -> JSONResponse:
+    """Return task graph data — nodes (tasks) and phases."""
+    project_path = request.query_params.get("project", _TRENT_PROJECT_PATH)
+    if not project_path:
+        return JSONResponse({"error": "No project path configured. Set TRENT_PROJECT_PATH env var."}, status_code=400)
+
+    trent_dir = os.path.join(project_path, ".trent")
+    if not os.path.isdir(trent_dir):
+        return JSONResponse({"error": f".trent/ not found at: {trent_dir}"}, status_code=404)
+
+    nodes: list[dict] = []
+    file_ids: set[str] = set()
+
+    # Scan active task files
+    active_files = _glob.glob(os.path.join(trent_dir, "tasks", "*.md"))
+    # Scan archived task files in phases/phaseN/ subfolders
+    archived_files = _glob.glob(os.path.join(trent_dir, "phases", "*", "*.md"))
+
+    for fpath in active_files + archived_files:
+        fname = os.path.basename(fpath)
+        if not fname.startswith("task"):
+            continue
+        is_archived = "phases" + os.sep in fpath.replace(trent_dir, "")
+
+        try:
+            with open(fpath, encoding="utf-8") as f:
+                meta = _parse_yaml_frontmatter(f.read())
+        except Exception:
+            meta = {}
+
+        task_id = str(meta.get("id", fname.split("_")[0].replace("task", "")))
+        file_ids.add(task_id)
+
+        nodes.append({
+            "id": task_id,
+            "title": meta.get("title", fname),
+            "status": meta.get("status", "pending"),
+            "priority": meta.get("priority", ""),
+            "phase": meta.get("phase"),
+            "subsystems": meta.get("subsystems") or [],
+            "dependencies": [str(d) for d in (meta.get("dependencies") or [])],
+            "blast_radius": meta.get("blast_radius", "low"),
+            "ai_safe": meta.get("ai_safe", True),
+            "archived": is_archived,
+            "file": os.path.relpath(fpath, project_path).replace("\\", "/"),
+        })
+
+    # Parse TASKS.md for ghost nodes (in TASKS.md but no task file)
+    tasks_md = os.path.join(trent_dir, "TASKS.md")
+    if os.path.isfile(tasks_md):
+        with open(tasks_md, encoding="utf-8") as f:
+            current_phase = None
+            for line in f:
+                pm = re.match(r"^#+\s+Phase\s+(\d+):", line)
+                if pm:
+                    current_phase = int(pm.group(1))
+                    continue
+                tm = re.match(r"^\|\s*\[.+?\]\s*\|\s*(\d+)\s*\|(.+?)\|", line)
+                if tm:
+                    tid = tm.group(1)
+                    if tid not in file_ids:
+                        nodes.append({
+                            "id": tid,
+                            "title": tm.group(2).strip()[:80],
+                            "status": "ghost",
+                            "priority": "",
+                            "phase": current_phase,
+                            "subsystems": [],
+                            "dependencies": [],
+                            "blast_radius": "low",
+                            "ai_safe": True,
+                            "archived": False,
+                            "file": None,
+                        })
+
+    # Parse phase definition files
+    phases: list[dict] = []
+    for pfile in _glob.glob(os.path.join(trent_dir, "phases", "phase*.md")):
+        # Skip if it's inside a phaseN/ subfolder (those are archived tasks)
+        if os.path.dirname(pfile) != os.path.join(trent_dir, "phases"):
+            continue
+        try:
+            with open(pfile, encoding="utf-8") as f:
+                pmeta = _parse_yaml_frontmatter(f.read())
+            if "phase" in pmeta:
+                phases.append({
+                    "phase": pmeta["phase"],
+                    "name": pmeta.get("name", ""),
+                    "status": pmeta.get("status", "planning"),
+                })
+        except Exception:
+            continue
+
+    return JSONResponse({"nodes": nodes, "phases": phases, "project": project_path})
+
+
+async def handle_trent_task_detail(request: Request) -> JSONResponse:
+    """Return task file metadata by task ID."""
+    task_id = request.path_params["task_id"]
+    project_path = request.query_params.get("project", _TRENT_PROJECT_PATH)
+    if not project_path:
+        return JSONResponse({"error": "No project path configured"}, status_code=400)
+
+    trent_dir = os.path.join(project_path, ".trent")
+
+    # Search active then archived
+    search_patterns = [
+        os.path.join(trent_dir, "tasks", f"task{task_id}_*.md"),
+        os.path.join(trent_dir, "phases", "*", f"task{task_id}_*.md"),
+    ]
+    found_file = None
+    for pattern in search_patterns:
+        matches = _glob.glob(pattern)
+        if matches:
+            found_file = matches[0]
+            break
+
+    if not found_file:
+        return JSONResponse({"error": f"Task {task_id} not found"}, status_code=404)
+
+    try:
+        with open(found_file, encoding="utf-8") as f:
+            content = f.read()
+        meta = _parse_yaml_frontmatter(content)
+        meta["file"] = os.path.relpath(found_file, project_path).replace("\\", "/")
+        meta["id"] = task_id
+        return JSONResponse(meta)
+    except Exception as e:
+        return JSONResponse({"error": str(e)}, status_code=500)
 
 
 # ---------------------------------------------------------------------------
 # Route list — imported by server.py
 # ---------------------------------------------------------------------------
 ADMIN_ROUTES = [
-    Route("/admin/db",                                    handle_admin_ui,       methods=["GET"]),
-    Route("/admin/db/tables",                             handle_list_tables,    methods=["GET"]),
-    Route("/admin/db/tables/{schema}/{table}/data",       handle_get_table_data, methods=["GET"]),
-    Route("/admin/db/query",                              handle_query,          methods=["POST"]),
+    Route("/admin/db",                                    handle_admin_ui,          methods=["GET"]),
+    Route("/admin/db/tables",                             handle_list_tables,       methods=["GET"]),
+    Route("/admin/db/tables/{schema}/{table}/data",       handle_get_table_data,    methods=["GET"]),
+    Route("/admin/db/query",                              handle_query,             methods=["POST"]),
+    Route("/admin/trent",                                 handle_trent_ui,          methods=["GET"]),
+    Route("/admin/trent/data",                            handle_trent_data,        methods=["GET"]),
+    Route("/admin/trent/task/{task_id}",                  handle_trent_task_detail, methods=["GET"]),
 ]
