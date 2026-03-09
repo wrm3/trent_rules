@@ -48,72 +48,98 @@ The Docker MCP server gives every project access to RAG search, deep research, O
 
 ## Getting Started
 
-### 1. Clone this repository
+### Step 1 — Clone and configure
 
 ```bash
 git clone https://github.com/your-org/trent_rules.git
 cd trent_rules
+
+# Copy the example environment file
+copy .env.example .env       # Windows
+# cp .env.example .env       # Linux/Mac
 ```
 
-### 2. Set up environment variables
-
-```bash
-cp docker/.env.example .env
-```
-
-Edit `.env` and fill in:
+Edit `.env`. Minimum required to get the server running:
 
 ```env
-# Required — PostgreSQL (RAG, memory, crawl registry)
-POSTGRES_PASSWORD=your_secure_password
+# PostgreSQL — used by RAG, memory, and crawl registry
+POSTGRES_DB=knowledge_base
+POSTGRES_USER=knowledge_base
+POSTGRES_PASSWORD=choose_a_strong_password
 
-# Optional — enables AI research tools
+# OpenAI — required for RAG embeddings
 OPENAI_API_KEY=sk-...
 
-# Optional — enables deep research
-PERPLEXITY_API_KEY=pplx-...
-
-# Optional — enables Oracle DB access
-ORACLE_USER=...
-ORACLE_PASSWORD=...
-ORACLE_DSN=host:port/service
-
-# Optional — enables MediaWiki integration
-MEDIAWIKI_URL=https://your-wiki/api.php
-MEDIAWIKI_USERNAME=...
-MEDIAWIKI_PASSWORD=...
+# Anthropic — used for research and vision analysis (optional but recommended)
+ANTHROPIC_API_KEY=sk-ant-...
 ```
 
-### 3. Start the MCP server
+Additional optional settings in `.env`:
+
+| Variable | When you need it |
+|---|---|
+| `PERPLEXITY_API_KEY` | `research_deep` tool — multi-source web research |
+| `ORACLE_USER` / `ORACLE_PASSWORD` / `ORACLE_DSN` | Oracle DB tools |
+| `MEDIAWIKI_*` | MediaWiki integration (run with `--profile mediawiki`) |
+| `FIRECRAWL_API_KEY` | Platform docs crawler (run with `--profile platform-docs`) |
+| `PGADMIN_EMAIL` / `PGADMIN_PASSWORD` | pgAdmin UI (run with `--profile admin`) |
+
+---
+
+### Step 2 — Start the Docker stack
+
+From the `docker/` directory (recommended — avoids "variable not set" warnings):
 
 ```bash
 cd docker
-docker compose up -d
+docker compose --env-file ../.env up -d
 ```
 
-This starts:
-- **PostgreSQL** with pgvector (RAG, memory, crawl registry)
-- **trent MCP server** (28 tools available via HTTP)
-- **Firecrawl** (optional — `--profile platform-docs` for platform doc crawling)
-
-Verify it's running:
+Or from repo root:
 
 ```bash
-docker ps | grep trent_rules
-# or
-docker logs trent_rules_docker --tail 20
+docker compose -f docker/docker-compose.yml up -d
 ```
 
-Admin UI: `http://localhost:8082/admin/db` (DB Explorer) · `http://localhost:8082/admin/trent` (Task Visualizer)
+**What starts:**
 
-### 4. Connect the MCP server to your IDE
+| Service | Port | Description |
+|---|---|---|
+| `trent` MCP server | `8082` | 28 MCP tools + REST admin UI |
+| `postgres` | `5433` | PostgreSQL with pgvector |
+| `pgadmin` *(optional)* | `8083` | DB admin UI — add `--profile admin` |
+| `mediawiki` *(optional)* | `8880` | Wiki — add `--profile mediawiki` |
 
-**Cursor IDE** — add to `.cursor/mcp.json` or Cursor Settings → MCP:
+**Verify the server is up:**
+
+```bash
+# Check running containers
+docker ps | grep trent
+
+# Check logs (should show "28 plugins loaded")
+docker logs trent_rules_docker --tail 30
+
+# Health check
+curl http://localhost:8082/health
+# PowerShell:
+Invoke-WebRequest -Uri "http://localhost:8082/health" -UseBasicParsing
+```
+
+**Web UIs (no API key needed):**
+- `http://localhost:8082/admin/db` — DB Explorer (browse all Postgres tables)
+- `http://localhost:8082/admin/trent` — Task Visualizer (interactive DAG of `.trent/` tasks)
+- `http://localhost:8083` — pgAdmin (if started with `--profile admin`)
+
+---
+
+### Step 3 — Connect MCP to your IDE
+
+**Cursor IDE** — add to your project's `.cursor/mcp.json` (or Cursor Settings → MCP → Add):
 
 ```json
 {
   "mcpServers": {
-    "trent": {
+    "user-trent_rules_docker": {
       "url": "http://localhost:8082/mcp",
       "transport": "streamable-http"
     }
@@ -121,12 +147,14 @@ Admin UI: `http://localhost:8082/admin/db` (DB Explorer) · `http://localhost:80
 }
 ```
 
-**Claude Code** — add to `.claude/settings.local.json`:
+To verify in Cursor: open the MCP panel and confirm `user-trent_rules_docker` shows as connected with 28 tools.
+
+**Claude Code** — add to `.claude/settings.local.json` in your project:
 
 ```json
 {
   "mcpServers": {
-    "trent": {
+    "user-trent_rules_docker": {
       "type": "streamable-http",
       "url": "http://localhost:8082/mcp"
     }
@@ -134,22 +162,40 @@ Admin UI: `http://localhost:8082/admin/db` (DB Explorer) · `http://localhost:80
 }
 ```
 
-### 5. Install trent into a project
-
-From your IDE with the MCP server connected, run in any project:
-
-**Cursor:** `@trent-setup` or call the MCP tool directly:
-```
-trent_install(project_path="/path/to/your/project", use_v2=True)
+Or via CLI:
+```bash
+claude mcp add user-trent_rules_docker --transport streamable-http http://localhost:8082/mcp
 ```
 
-**Claude Code:** `/trent-setup`
-
-This creates the `.trent/` folder structure, initializes `TASKS.md`, `PROJECT_CONTEXT.md`, `ARCHITECTURE_CONSTRAINTS.md`, and copies the agent/skill/rule configs.
+**Verify tools are visible:**
+```bash
+# Claude Code CLI
+claude mcp list
+```
 
 ---
 
-## Project Structure (after install)
+### Step 4 — Install trent into a new project
+
+With the MCP server connected, open your target project in your IDE and run:
+
+**Cursor:**
+```
+@trent-setup
+```
+Or call the MCP tool directly in chat:
+```
+Use the trent_install tool:
+  project_path: "C:/path/to/your/project"
+  use_v2: true
+```
+
+**Claude Code:**
+```
+/trent-setup
+```
+
+**What `trent_install` creates:**
 
 ```
 your-project/
@@ -157,77 +203,243 @@ your-project/
 │   ├── TASKS.md                    # Master task list — source of truth
 │   ├── PROJECT_CONTEXT.md          # Mission, phase, goals
 │   ├── ARCHITECTURE_CONSTRAINTS.md # Non-negotiable decisions
-│   ├── PRD.md                      # Product Requirements Document
+│   ├── PRD.md                      # Product Requirements Document (blank)
 │   ├── BUGS.md                     # Bug tracking
 │   ├── SUBSYSTEMS.md               # Component registry
 │   ├── IDEA_BOARD.md               # Ideas not yet ready for tasks
 │   ├── PROJECT_GOALS.md            # Strategic goals (G-01, G-02...)
+│   ├── .project_id                 # Unique project ID for memory tools
 │   ├── tasks/                      # Individual task files (task001_name.md)
 │   └── phases/                     # Phase documentation
-├── .cursor/                        # Cursor IDE rules, agents, skills, commands
-├── .claude/                        # Claude Code rules, agents, skills, commands
+├── .cursor/
+│   ├── rules/                      # 8 slim always-apply rules
+│   ├── agents/                     # 42 on-demand agents
+│   ├── skills/                     # 56+ on-demand skills
+│   └── commands/                   # 24 @trent-* shortcut commands
+├── .claude/
+│   ├── rules/                      # Same 8 rules (.md format)
+│   ├── agents/                     # Same 42 agents
+│   ├── skills/                     # Same 56+ skills
+│   └── commands/                   # 24 /trent-* commands
 └── .agent/                         # Gemini rules and skills
 ```
 
----
-
-## Key Commands
-
-**Start a new project:**
+**After install, start planning:**
 ```
-@trent-setup       — initialize .trent/ folder and ask planning questions
-@trent-plan        — generate PRD from 27-question requirements interview
-@trent-phase-add   — add a new phase with tasks
-```
-
-**Daily development:**
-```
-@trent-task-new    — create a task with full YAML spec
-@trent-task-update — update status, add evidence
-@trent-status      — session start: load goals, phase, task list
-@trent-review      — code review (security, perf, reusability)
-```
-
-**Quality:**
-```
-@trent-bug-report  — log a bug to BUGS.md with severity
-@trent-qa          — run quality checklist
-@trent-sprint      — autonomous 2-hour sprint (claims + implements tasks)
-```
-
-**Ideas & memory:**
-```
-@trent-idea-capture — "make a note of that" → IDEA_BOARD.md
-@trent-harvest      — analyze an external codebase for ideas to adopt
+@trent-plan        ← runs the 27-question requirements interview, generates PRD.md
+@trent-phase-add   ← define Phase 0 with your first batch of tasks
+@trent-task-new    ← create your first task
 ```
 
 ---
 
-## The Agent & Skill System
+## Commands — Full Reference
 
-trent uses a **hybrid architecture**: 8 slim always-apply rules (~281 lines) that load every response, plus 19 specialized agents and 56 on-demand skills that load only when needed.
+Commands use `@trent-` prefix in Cursor, `/trent-` in Claude Code. All 24 commands:
 
-### Agents (loaded on-demand by the AI)
+### Project Setup
 
-| Agent | When it activates |
+| Command | What it does | Example |
+|---|---|---|
+| `@trent-setup` | Initialize `.trent/` folder structure in a new project. Detects if project already exists and protects existing data. | `@trent-setup` |
+| `@trent-plan` | Run the 27-question requirements interview and generate a full PRD. Covers users, scale, security, deployment, constraints. | `@trent-plan I want to build a multi-tenant API` |
+| `@trent-status` | Session start command — loads project goals, current phase, active tasks, and blockers. | `@trent-status` |
+
+### Task Management
+
+| Command | What it does | Example |
+|---|---|---|
+| `@trent-task-new` | Create a new task with full YAML spec (id, title, priority, subsystems, acceptance criteria, verification steps). | `@trent-task-new add JWT auth to the API` |
+| `@trent-task-update` | Update a task's status, add evidence, or change priority. Atomically updates both task file and TASKS.md. | `@trent-task-update task 42 is done, here's the test output` |
+| `@trent-task-sync-check` | Validate that TASKS.md entries and `.trent/tasks/` files are in sync. Detects orphans and phantoms. | `@trent-task-sync-check` |
+| `@trent-workflow` | Assess task complexity, expand complex tasks into sub-tasks, run sprint planning, visualize Kanban flow. | `@trent-workflow` |
+
+### Phase Management
+
+| Command | What it does | Example |
+|---|---|---|
+| `@trent-phase-add` | Add a new phase — atomically creates the TASKS.md header AND the `.trent/phases/phaseN_name.md` file. | `@trent-phase-add Phase 2: Core API` |
+| `@trent-phase-pivot` | Pivot to a new direction — marks old phase as paused, creates new phase with pivot reason recorded. | `@trent-phase-pivot we're switching from REST to GraphQL` |
+| `@trent-phase-sync-check` | Validate that TASKS.md phase headers and `.trent/phases/` files are in sync. | `@trent-phase-sync-check` |
+
+### Quality & Review
+
+| Command | What it does | Example |
+|---|---|---|
+| `@trent-review` | Comprehensive code review — security vulnerabilities, performance, reusability, code duplication. | `@trent-review` (with files open) |
+| `@trent-qa` | Activate quality assurance — runs quality checklist, checks for code smells, validates test coverage. | `@trent-qa` |
+| `@trent-qa-report` | Generate quality metrics report — bug counts by severity, resolution rates, phase health. | `@trent-qa-report` |
+| `@trent-bug-report` | Log a bug to BUGS.md with severity classification, reproduction steps, and a linked task. | `@trent-bug-report the login endpoint returns 500 when email has a + sign` |
+| `@trent-bug-fix` | Document a bug fix — updates BUGS.md status, closes the task, records the resolution. | `@trent-bug-fix BUG-007` |
+
+### Git
+
+| Command | What it does | Example |
+|---|---|---|
+| `@trent-git-commit` | Create a well-structured git commit following trent conventions with task references. | `@trent-git-commit` |
+
+### Ideas & Goals
+
+| Command | What it does | Example |
+|---|---|---|
+| `@trent-idea-capture` | Immediately capture an idea to IDEA_BOARD.md. Triggered by "make a note of that", "someday...", etc. | `@trent-idea-capture add dark mode someday` |
+| `@trent-idea-review` | Review and evaluate IDEA_BOARD entries — change status, promote to tasks, shelve stale ideas. | `@trent-idea-review` |
+| `@trent-goal-update` | Create or update PROJECT_GOALS.md with strategic goals tied to success metrics. | `@trent-goal-update` |
+
+### Autonomous Operations
+
+| Command | What it does | Example |
+|---|---|---|
+| `@trent-sprint` | Run a 2-hour autonomous sprint — reads SPRINT.md, claims tasks, implements, sets to awaiting-verification. | `@trent-sprint` |
+| `@trent-cleanup` | Nightly housekeeping — resets stale TTL claims, regenerates SPRINT.md and ACTIVE_BACKLOG.md, computes health score. | `@trent-cleanup` |
+
+### External Sources
+
+| Command | What it does | Example |
+|---|---|---|
+| `@trent-harvest` | Analyze an external repo, article, or video and present a menu of ideas to selectively adopt. Nothing is changed without your approval. | `@trent-harvest https://github.com/some/project` |
+| `@trent-analyze-codebase` | Deep merge two of YOUR OWN projects — full architecture mapping, comparison, integration plan. | `@trent-analyze-codebase` |
+| `@trent-issue-fix` | Fix a GitHub issue — reads the issue, creates a task, implements the fix. | `@trent-issue-fix #42` |
+
+---
+
+## Agents — Full Reference
+
+Agents are loaded on-demand — they only use context when active. 42 agents total.
+
+### trent System Agents (19)
+
+These activate automatically when you run trent commands or describe a trent-related task.
+
+| Agent | Activates when... |
 |---|---|
-| `trent-task-manager` | Creating, updating, or completing tasks |
-| `trent-planner` | PRDs, phases, planning questionnaire |
-| `trent-qa-engineer` | Bug reports, BUGS.md, quality gates |
-| `trent-verifier` | Cross-agent two-stage task verification |
-| `trent-workflow-manager` | Task expansion, sprint planning, Kanban |
-| `trent-code-reviewer` | Security, performance, reusability reviews |
-| `trent-autonomous` | Unattended sprint/cleanup runs |
-| `trent-platform-parity` | Keeping .cursor/.claude/.agent in sync |
-| `trent-ideas-goals` | IDEA_BOARD.md and PROJECT_GOALS.md |
-| `trent-python-dev` | Python projects, UV environment management |
-| `trent-project-manager` | New project init, .trent/ healing |
-| `trent-memory` | Session memory capture (Gemini/VS Code) |
-| *(+ 7 more)* | infrastructure, multi-agent, CLI refs, etc. |
+| `trent-task-manager` | Creating, updating, completing, or querying tasks in `.trent/` |
+| `trent-planner` | Creating PRDs, adding phases, pivoting direction, defining subsystems |
+| `trent-qa-engineer` | Reporting bugs, tracking issues, documenting fixes, managing BUGS.md |
+| `trent-verifier` | Verifying completed tasks — two-stage: spec compliance then code quality |
+| `trent-workflow-manager` | Expanding complex tasks into sub-tasks, scoring complexity, planning sprints |
+| `trent-code-reviewer` | Security audits, performance reviews, code quality, running `@trent-review` |
+| `trent-autonomous` | Running autonomous sprint execution, nightly cleanup, managing task TTL/claims |
+| `trent-platform-parity` | Syncing rules/agents/skills across `.cursor/`, `.claude/`, `.agent/` |
+| `trent-ideas-goals` | Capturing ideas to IDEA_BOARD.md, updating PROJECT_GOALS.md |
+| `trent-python-dev` | Working on Python projects, setting up UV virtual environments |
+| `trent-project-manager` | Setting up trent in new projects, grooming `.trent/` files, fixing placeholders |
+| `trent-memory` | Capturing session memory for Gemini/VS Code sessions |
+| `trent-infrastructure` | Organizing project files, scope boundaries, preventing over-engineering |
+| `trent-multi-agent` | Coordinating parallel agents, setting up git worktrees |
+| `trent-self-improvement` | Auditing the trent system for inconsistencies, proposing improvements |
+| `trent-task-expander` | Assessing task complexity, expanding complex tasks into sub-tasks |
+| `trent-project-files` | Updating AGENTS.md/CLAUDE.md after phase changes or new MCP tools |
+| `trent-cursor-cli` | Running Cursor CLI commands, using the `agent` terminal command |
+| `trent-claude-cli` | Running Claude Code CLI commands, managing MCP servers from CLI |
 
-### Skills (explicit workflow invocation)
+### General Development Agents (23)
 
-Grouped by function: **Task** · **Phase** · **Planning** · **Quality** · **Ideas** · **Utilities** · **Video/3D** (13 creative skills from Manim to Remotion)
+| Agent | Role |
+|---|---|
+| `backend-developer` | API design, microservices, server-side logic, database integration |
+| `frontend-developer` | React, TypeScript, UI components, responsive design |
+| `full-stack-developer` | End-to-end features across frontend and backend |
+| `api-designer` | REST/GraphQL API design, versioning, documentation |
+| `solution-architect` | High-level system design, technology selection, scalability |
+| `code-reviewer` | Comprehensive code review — quality, security, best practices |
+| `qa-engineer` | Test planning, manual testing, bug tracking, quality metrics |
+| `orchestrator` | Coordinates parallel execution of multiple subagents |
+| `agent-creator` | Designing new AI agent definitions for Cursor/Claude |
+| `skill-creator` | Designing new skill definitions |
+| `cursor-config-maintainer` | Maintaining `.cursor/` project configuration |
+| `claude-config-maintainer` | Maintaining `.claude/` project configuration |
+| `cursor-cli` | Cursor CLI operations, Cloud Agent handoff |
+| `claude-cli` | Claude Code CLI, headless/CI pipelines |
+| `mlops-engineer` | ML operations, model deployment, training pipelines |
+| `ai-model-developer` | AI/ML model development |
+| `ai-model-trainer` | Model training and fine-tuning |
+| `harvest-analyst` | Harvesting ideas from external sources (read-only, no auto-changes) |
+| `codebase-analyst` | Deep merge of your own projects, architecture mapping |
+| `trent-codebase-analyst` | Analyzing external codebases for integration |
+| `trent-planner` *(alias)* | Planning questionnaire and PRD generation |
+| `silicon-valley-superfan` | HBO Silicon Valley show knowledge base (trivia, character arcs) |
+| `trent-project-initializer` | Project scaffolding and initial setup |
+
+---
+
+## Skills — Full Reference
+
+Skills are explicit workflow invocations — they provide deep procedural knowledge for a specific task. 56+ skills total. Zero context cost when not active.
+
+### trent Workflow Skills (32)
+
+| Skill | What it provides |
+|---|---|
+| `trent-task-management` | Task lifecycle, status enforcement, YAML schema, sync rules |
+| `trent-task-new` | Step-by-step: create task file + TASKS.md entry atomically |
+| `trent-task-update` | Step-by-step: update status in task file + TASKS.md atomically |
+| `trent-task-sync-check` | Detect and fix orphans/phantoms between TASKS.md and task files |
+| `trent-planning` | PRD creation, phase management, subsystems documentation |
+| `trent-plan` | Full 27-question requirements interview workflow |
+| `trent-phase-add` | Add a new phase atomically (TASKS.md header + phase file) |
+| `trent-phase-pivot` | Pivot workflow — pause old phase, create new with pivot reason |
+| `trent-phase-sync-check` | Validate TASKS.md phase headers vs `.trent/phases/` files |
+| `trent-phase-archive` | Archive completed phase task files into `phases/phaseN/` subfolder |
+| `trent-setup` | Initialize trent in a new project — create all `.trent/` files |
+| `trent-status` | Session start: load context, phase, goals, active tasks |
+| `trent-grooming` | Heal `.trent/` files — fix placeholders, sync TASKS.md, validate YAML |
+| `trent-qa` | Quality assurance workflow — bug lifecycle, quality gates |
+| `trent-bug-report` | Document a new bug in BUGS.md + create linked task |
+| `trent-bug-fix` | Fix workflow — update BUGS.md status + close task |
+| `trent-qa-report` | Generate quality metrics — bug counts, resolution rates |
+| `trent-review` | Comprehensive code review (security, perf, reusability) |
+| `trent-code-reviewer` | Deep code review following trent standards |
+| `trent-workflow` | Task complexity scoring, sub-task expansion, sprint planning |
+| `trent-sprint` | Autonomous 2-hour sprint — claim, implement, verify tasks |
+| `trent-cleanup` | Nightly cleanup — TTL resets, SPRINT.md, ACTIVE_BACKLOG.md, health score |
+| `trent-git-commit` | Well-structured commits with task references and agent footers |
+| `trent-ideas-goals` | IDEA_BOARD.md and PROJECT_GOALS.md management |
+| `trent-idea-capture` | Immediately capture an idea (triggered by "make a note of that") |
+| `trent-idea-review` | Review and evaluate IDEA_BOARD entries |
+| `trent-goal-update` | Create or update PROJECT_GOALS.md |
+| `trent-harvest` | Selective harvest from external sources — present menu, nothing auto-applied |
+| `trent-visualizer` | Open task dependency DAG at `/admin/trent` |
+| `trent-task-management` *(alias)* | Full task system reference |
+| `trent-ideas-goals` *(alias)* | Ideas and goals reference |
+| `youtube-video-analysis` | Download, transcribe, analyze YouTube videos via MCP tools |
+
+### Development Skills (12)
+
+| Skill | What it provides |
+|---|---|
+| `trent-planning` | Planning questionnaire, PRD template, phase conventions |
+| `ai-ml-development` | AI/ML model training, RLHF, deployment, MLOps |
+| `github-integration` | GitHub workflows, issues, PRs, releases, API operations |
+| `mcp-builder` | Build MCP servers in Python (FastMCP) or Node/TypeScript |
+| `claude-code-project-config` | Maintain `.claude/` project configuration |
+| `cursor-project-config` | Maintain `.cursor/` project configuration |
+| `claude-cli` | Claude Code CLI reference — flags, headless mode, Agent SDK |
+| `cursor-cli` | Cursor CLI reference — agent command, modes, Cloud Agents |
+| `codebase-integration-analysis` | Deep merge your own projects — architecture mapping |
+| `selective-harvest` | Analyze external sources, present selective improvement menu |
+| `project-setup` | Initialize new project structure and documentation |
+| `skill-creator` | Create new skills for Cursor/Claude |
+| `agent-creator` | Create new agent definitions for Cursor/Claude |
+| `silicon-valley-superfan` | HBO Silicon Valley knowledge base |
+
+### Creative / Video / 3D Skills (13)
+
+| Skill | What it provides |
+|---|---|
+| `ai-video-generation` | Generate AI videos — text-to-video, image-to-video, 40+ models |
+| `ai-avatar-lipsync` | Create talking head videos with audio-driven lipsync |
+| `manim-animation` | Python mathematical animation with Manim Community |
+| `remotion-video` | Programmatic video creation with React/Remotion |
+| `animated-gif-creator` | Optimized animated GIF creation with composable animations |
+| `explainer-video` | Explainer video production — script formulas, pacing, storyboarding |
+| `storyboard-creation` | Film storyboarding — shot vocabulary, camera angles |
+| `animation-principles` | The 12 Disney animation principles for interactive/UI animation |
+| `algorithmic-art` | Generative art with p5.js — seeded randomness, flow fields |
+| `3d-performance` | 3D web scene optimization — LOD strategies, frustum culling |
+| `asset-optimization` | 3D asset optimization pipeline using gltf-transform |
+| `video-ad-specs` | Platform-specific video ad specs with AIDA framework |
+| `pipeline-validation` | Multi-agent validation gates for animation/video production |
 
 ---
 
@@ -353,23 +565,42 @@ The MCP server also exposes HTTP REST endpoints for browser access and automatio
 ## Docker Commands Reference
 
 ```bash
-# Start everything
-cd docker && docker compose up -d
+# --- Start ---
+cd docker
 
-# With platform docs crawling (optional, requires FIRECRAWL_API_KEY)
-cd docker && docker compose --profile platform-docs up -d
+# Core stack (MCP + Postgres)
+docker compose --env-file ../.env up -d
 
-# Rebuild after code changes
-cd docker && docker compose up -d --build trent
+# With pgAdmin database UI
+docker compose --env-file ../.env --profile admin up -d
 
-# View logs
-docker logs trent_rules_docker -f
+# With MediaWiki
+docker compose --env-file ../.env --profile mediawiki up -d
 
-# Apply a new SQL migration manually
-cat docker/init_db/09_new_migration.sql | docker exec -i trent_rules_postgres psql -U knowledge_base -d knowledge_base
+# With Firecrawl platform docs crawler
+docker compose --env-file ../.env --profile platform-docs up -d
 
-# Stop everything
-cd docker && docker compose down
+# All profiles
+docker compose --env-file ../.env --profile admin --profile mediawiki --profile platform-docs up -d
+
+# --- Monitor ---
+docker ps                                          # List running containers
+docker logs trent_rules_docker --tail 30          # View MCP server logs
+docker logs trent_rules_docker -f                 # Follow logs live
+
+# --- Rebuild after code changes ---
+docker compose --env-file ../.env up -d --build trent
+
+# --- Database ---
+# Apply a new SQL migration
+docker exec -i trent_rules_postgres psql -U knowledge_base -d knowledge_base < docker/init_db/09_migration.sql
+
+# Open psql shell
+docker exec -it trent_rules_postgres psql -U knowledge_base -d knowledge_base
+
+# --- Stop ---
+docker compose down                  # Stop, keep data
+docker compose down -v               # Stop and DELETE all data (destructive)
 ```
 
 ---
@@ -383,6 +614,6 @@ cd docker && docker compose down
 
 ---
 
-**Version**: 6.0.0  
-**Last Updated**: 2026-03-09  
+**Version**: 6.0.0
+**Last Updated**: 2026-03-09
 **Supported Platforms**: Cursor IDE · Claude Code · Gemini · Codex · OpenCode
