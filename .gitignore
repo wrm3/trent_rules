@@ -4,6 +4,7 @@
 # ============================================================================
 # Migration working directories (completed — production is in .cursor/.claude/.agent)
 # ============================================================================
+.hybrid/
 .hybrid/claude/
 .hybrid/cursor/
 .hybrid/cursor_original/
@@ -12,6 +13,10 @@
 .cursor/rules_backup_*/
 .claude/rules_backup_*/
 .agent/rules_backup_*/
+
+
+.trent_bk_2026)03_08.zip
+.trent_bk_2026_03_09.zip
 
 # Superseded tools (evolved into docker/trent/admin_db_rest.py)
 portable-db-explorer/

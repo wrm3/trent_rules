@@ -159,8 +159,8 @@ docs/                          # Project documentation
 | `trent_rules_update` | Update IDE configs/rules (preserves .trent/ task data) |
 | `trent_plan_reset` | Reset .trent/ to blank template (requires confirm=True) |
 | `trent_server_status` | Health check |
-| `trent_health_report` | Compute health score (0-100) for a trent project; returns subsystem breakdown, stale claims, blocked tasks |
-| `platform_docs_search` | Semantic search over Firecrawl-crawled Cursor/Claude/Gemini platform docs (requires `--profile platform-docs`) |
+| `check_crawl_freshness` | Check if platform docs are fresh in the crawl registry (prevents redundant multi-project crawls) |
+| `update_crawl_registry` | Record a completed platform doc crawl in the shared registry |
 | `memory_ingest_session` | Tier-1 passive capture: ingest raw turns from file adapters (Cursor, Claude Code) |
 | `memory_capture_session` | Tier-2 active capture: AI self-reports session summary (Gemini, VS Code) |
 | `memory_search` | Semantic search over captured session memory |
