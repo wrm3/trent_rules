@@ -59,6 +59,96 @@ def get_db_connection():
     return psycopg2.connect(**config)
 
 
+# ---------------------------------------------------------------------------
+# Crawl registry helpers
+# ---------------------------------------------------------------------------
+
+# Canonical mapping from CRAWL_TARGETS name → registry platform key
+# (CRAWL_TARGETS names come from crawler.py CrawlTarget.name values)
+_PLATFORM_REGISTRY_KEY: dict[str, str] = {
+    "cursor":      "cursor",
+    "claude_code": "claude_code",
+    "gemini":      "gemini",
+    # common aliases used in some CRAWL_TARGETS definitions
+    "claude":      "claude_code",
+    "claude-code": "claude_code",
+}
+
+REGISTRY_MAX_AGE_DAYS = int(os.environ.get("CRAWL_REGISTRY_MAX_AGE_DAYS", "30"))
+
+
+def check_registry_freshness(conn, platform_name: str) -> bool:
+    """
+    Return True if the platform was crawled within REGISTRY_MAX_AGE_DAYS.
+    Logs and returns False if the table doesn't exist (graceful degradation).
+    """
+    registry_key = _PLATFORM_REGISTRY_KEY.get(platform_name.lower())
+    if not registry_key:
+        return False  # unknown platform — don't skip, crawl it
+
+    try:
+        with conn.cursor(cursor_factory=psycopg2.extras.RealDictCursor) as cur:
+            cur.execute(
+                """
+                SELECT last_crawled_at, pages_count, crawl_status
+                FROM platform_docs_crawl_registry
+                WHERE platform = %s
+                """,
+                (registry_key,),
+            )
+            row = cur.fetchone()
+    except Exception as e:
+        logger.warning(f"Registry check failed for {platform_name}: {e} — proceeding with crawl")
+        return False
+
+    if not row or not row["last_crawled_at"] or row["crawl_status"] == "never":
+        return False
+
+    from datetime import timezone
+    last = row["last_crawled_at"]
+    if last.tzinfo is None:
+        last = last.replace(tzinfo=timezone.utc)
+    age_days = (datetime.now(timezone.utc) - last).days
+    fresh = age_days <= REGISTRY_MAX_AGE_DAYS
+
+    if fresh:
+        logger.info(
+            f"  REGISTRY: {platform_name} is fresh ({age_days}d old, "
+            f"threshold={REGISTRY_MAX_AGE_DAYS}d, pages={row['pages_count']}) — skipping crawl"
+        )
+    return fresh
+
+
+def update_registry_after_crawl(conn, platform_name: str, pages_count: int, status: str) -> None:
+    """
+    Upsert the crawl registry for a platform after a completed crawl.
+    Silently skips if the table doesn't exist.
+    """
+    registry_key = _PLATFORM_REGISTRY_KEY.get(platform_name.lower())
+    if not registry_key:
+        return
+
+    try:
+        with conn.cursor() as cur:
+            cur.execute(
+                """
+                INSERT INTO platform_docs_crawl_registry
+                    (platform, last_crawled_at, pages_count, crawl_status)
+                VALUES (%s, NOW(), %s, %s)
+                ON CONFLICT (platform) DO UPDATE SET
+                    last_crawled_at = NOW(),
+                    pages_count     = EXCLUDED.pages_count,
+                    crawl_status    = EXCLUDED.crawl_status,
+                    updated_at      = NOW()
+                """,
+                (registry_key, pages_count, status),
+            )
+        conn.commit()
+        logger.info(f"  REGISTRY: Updated {platform_name} → {pages_count} pages, status={status}")
+    except Exception as e:
+        logger.warning(f"Registry update failed for {platform_name}: {e} (non-fatal)")
+
+
 def rag_ingest_page(conn, page: PageResult, changed_type: str) -> None:
     """Ingest a single page to the RAG knowledge base."""
     chunks = _chunk_markdown(page.markdown)
@@ -288,8 +378,21 @@ def run_crawl(diff_only: bool = False, platforms: Optional[list[str]] = None) ->
     all_results: dict[str, list[PageResult]] = {}
     dead_letter_targets: list[str] = []
 
+    # Open a registry connection (non-fatal if unavailable)
+    registry_conn = None
+    try:
+        registry_conn = get_db_connection()
+    except Exception as e:
+        logger.warning(f"Registry DB unavailable — will crawl all platforms: {e}")
+
     targets_to_crawl = [t for t in CRAWL_TARGETS if not platforms or t.name in platforms]
     for target in targets_to_crawl:
+        # Check registry freshness before crawling (skip if already fresh)
+        if registry_conn and not diff_only:
+            if check_registry_freshness(registry_conn, target.name):
+                all_results[target.name] = []  # mark as skipped (not failed)
+                continue
+
         pages = crawl_with_retry(crawler, target)
         if pages:
             all_results[target.name] = pages
@@ -339,6 +442,16 @@ def run_crawl(diff_only: bool = False, platforms: Optional[list[str]] = None) ->
                 change_type = "new" if page.url in all_changes.get(page.platform, {}).get("new", []) else "updated"
                 rag_ingest_page(conn, page, change_type)
                 logger.info(f"  RAG ingested: {page.url}")
+
+            # Update the crawl registry per platform after successful ingest
+            if registry_conn:
+                for platform_name, pages_list in all_results.items():
+                    if pages_list:  # only update platforms that were actually crawled
+                        platform_status = "partial" if platform_name in dead_letter_targets else "success"
+                        update_registry_after_crawl(
+                            registry_conn, platform_name, len(pages_list), platform_status
+                        )
+
             conn.close()
         except Exception as e:
             logger.error(f"RAG ingest failed (continuing): {e}")
@@ -352,6 +465,12 @@ def run_crawl(diff_only: bool = False, platforms: Optional[list[str]] = None) ->
 
     if GIT_AUTO_COMMIT:
         git_commit_snapshots(crawl_date, all_changes)
+
+    if registry_conn:
+        try:
+            registry_conn.close()
+        except Exception:
+            pass
 
 def ingest_snapshots(platforms: Optional[list[str]] = None) -> None:
     """
