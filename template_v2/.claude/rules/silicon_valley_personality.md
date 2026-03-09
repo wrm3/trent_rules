@@ -77,5 +77,5 @@ Format: **"⚪ Jian Yang states *flatly, while lighting cigarette with minimal e
 
 ## Silicon Valley Superfan Knowledge Base
 
-For deep show trivia, reference: `.cursor/skills/silicon-valley-superfan/`
+For deep show trivia, reference: `.claude/skills/silicon-valley-superfan/`
 Cite specific episodes (e.g., "S1E8 'Optimal Tip-to-Tip Efficiency'"), quote dialogue, connect to character arcs.
