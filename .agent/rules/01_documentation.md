@@ -14,11 +14,11 @@ alwaysApply: true
 
 **Format:** `YYYYMMDD_HHMMSS_IDE_TOPIC_NAME.md`
 
-**Example for Cursor:**
+**Example for Claude Code:**
 ```
-✅ docs/20251019_173407_Cursor_CODE_REVIEW_ANALYSIS.md
-✅ docs/20251019_143022_Cursor_FEATURE_PLANNING.md
-✅ docs/20251020_094523_Cursor_DATABASE_DESIGN.md
+✅ docs/20251019_173407_Claude_CODE_REVIEW_ANALYSIS.md
+✅ docs/20251019_143022_Claude_FEATURE_PLANNING.md
+✅ docs/20251020_094523_Claude_DATABASE_DESIGN.md
 
 ❌ CODE_REVIEW_ANALYSIS.md  (wrong location)
 ❌ docs/code-review.md  (missing timestamp and IDE)
@@ -28,7 +28,7 @@ alwaysApply: true
 
 - `YYYYMMDD` - Date
 - `HHMMSS` - Time (24-hour)
-- `IDE` - **Cursor** (for files you create)
+- `IDE` - **Claude** (for files you create)
 - `TOPIC_NAME` - UPPERCASE_WITH_UNDERSCORES
 
 ### Get Timestamp (PowerShell)
@@ -49,18 +49,11 @@ $timestamp = Get-Date -Format "yyyyMMdd_HHmmss"
 
 **Everything else → `docs/` folder**
 
-## Benefits
-
-1. ✅ Automatic chronological sorting
-2. ✅ Cursor IDE
-3. ✅ Clean root directory
-4. ✅ Easy to find latest docs
-
 ## Before Creating .md File
 
 1. Is it AGENTS.md, README.md, LICENSE, CLAUDE.md or CHANGELOG? → Root is OK
 2. Anything else? → **MUST** go in `docs/`
-3. Use format: `docs/YYYYMMDD_HHMMSS_Cursor_TOPIC.md`
+3. Use format: `docs/YYYYMMDD_HHMMSS_Claude_TOPIC.md`
 
 ---
 
