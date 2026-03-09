@@ -6,4 +6,4 @@ if [ -z "$POSTGRES_USER" ]; then
   echo "10_mediawiki_db: POSTGRES_USER not set, skipping."
   exit 0
 fi
-psql -v ON_ERROR_STOP=1 --username postgres -c "ALTER USER \"$POSTGRES_USER\" CREATEDB;"
+psql -v ON_ERROR_STOP=1 --username "$POSTGRES_USER" -c "ALTER USER \"$POSTGRES_USER\" CREATEDB;"
