@@ -1,0 +1,21 @@
+{
+  "url": "https://opencode.ai/download",
+  "title": "OpenCode | Download",
+  "content_hash": "5b4faecd49c7",
+  "apple-mobile-web-app-title": "OpenCode",
+  "language": "en",
+  "twitter:image": "/social-share.png",
+  "ogImage": "/social-share.png",
+  "viewport": "width=device-width, initial-scale=1",
+  "description": "OpenCode - The open source coding agent., Download OpenCode for macOS, Windows, and Linux",
+  "og:image": "/social-share.png",
+  "favicon": "https://opencode.ai/favicon-96x96-v3.png",
+  "scrapeId": "019cd3ce-d99d-743c-a27d-a773157954b7",
+  "sourceURL": "https://opencode.ai/download",
+  "statusCode": 200,
+  "contentType": "text/html",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-09T02:05:18.093Z",
+  "creditsUsed": 1
+}

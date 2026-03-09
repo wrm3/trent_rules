@@ -8,6 +8,7 @@ Search for a command to run...
 
 [Welcome](https://cursor.com/docs) [Quickstart](https://cursor.com/docs/get-started/quickstart)
 Models & Pricing
+[Changelog](https://cursor.com/changelog)
 
 ## Agent
 

@@ -154,7 +154,7 @@ Learn more about [Teams pricing](https://cursor.com/docs/account/teams/pricing).
 
 Max Mode extends the context window to the maximum a model supports. More context gives models deeper understanding of your codebase, leading to better results on complex tasks. The models table above shows each model's maximum context size.
 
-Max Mode uses token-based pricing at the model's API rate plus a 20% upcharge, so it consumes usage faster than the default context window.
+Max Mode uses token-based pricing at the model's API rate, so it consumes usage faster than the default context window. On individual plans, a 20% upcharge is added to the model's API rate. On [Teams and Enterprise plans](https://cursor.com/docs/account/teams/pricing), the [Cursor Token Fee](https://cursor.com/docs/account/teams/pricing#cursor-token-fee) applies instead of the 20% upcharge.
 
 ## [FAQ](https://cursor.com/docs/models-and-pricing\#faq)
 

@@ -53,7 +53,16 @@ Use [print mode](https://cursor.com/docs/cli/using#non-interactive-mode) (`-p, -
 Combine `--print` with `--force` (or `--yolo`) to modify files in scripts:
 
 ```
-# Enable file modifications in print modeagent -p --force "Refactor this code to use modern ES6+ syntax"# Without --force, changes are only proposed, not appliedagent -p "Add JSDoc comments to this file"  # Won't modify files# Batch processing with actual file changesfind src/ -name "*.js" | while read file; do  agent -p --force "Add comprehensive JSDoc comments to $file"done
+# Enable file modifications in print mode
+agent -p --force "Refactor this code to use modern ES6+ syntax"
+
+# Without --force, changes are only proposed, not applied
+agent -p "Add JSDoc comments to this file"  # Won't modify files
+
+# Batch processing with actual file changes
+find src/ -name "*.js" | while read file; do
+  agent -p --force "Add comprehensive JSDoc comments to $file"
+done
 ```
 
 The `--force` flag allows the agent to make direct file changes without
@@ -64,7 +73,15 @@ confirmation
 See [Installation](https://cursor.com/docs/cli/installation) and [Authentication](https://cursor.com/docs/cli/reference/authentication) for complete setup details.
 
 ```
-# Install Cursor CLI (macOS, Linux, WSL)curl https://cursor.com/install -fsS | bash# Install Cursor CLI (Windows PowerShell)irm 'https://cursor.com/install?win32=true' | iex# Set API key for scriptsexport CURSOR_API_KEY=your_api_key_hereagent -p "Analyze this code"
+# Install Cursor CLI (macOS, Linux, WSL)
+curl https://cursor.com/install -fsS | bash
+
+# Install Cursor CLI (Windows PowerShell)
+irm 'https://cursor.com/install?win32=true' | iex
+
+# Set API key for scripts
+export CURSOR_API_KEY=your_api_key_here
+agent -p "Analyze this code"
 ```
 
 ## [Example scripts](https://cursor.com/docs/cli/headless\#example-scripts)
@@ -76,7 +93,10 @@ Use different output formats for different script needs. See [Output format](htt
 By default, `--print` uses `text` format for clean, final-answer-only responses:
 
 ```
-#!/bin/bash# Simple codebase question - uses text format by defaultagent -p "What does this codebase do?"
+#!/bin/bash
+# Simple codebase question - uses text format by default
+
+agent -p "What does this codebase do?"
 ```
 
 ### [Automated code review](https://cursor.com/docs/cli/headless\#automated-code-review)
@@ -84,7 +104,27 @@ By default, `--print` uses `text` format for clean, final-answer-only responses:
 Use `--output-format json` for structured analysis:
 
 ```
-#!/bin/bash# simple-code-review.sh - Basic code review scriptecho "Starting code review..."# Review recent changesagent -p --force --output-format text \  "Review the recent code changes and provide feedback on:  - Code quality and readability  - Potential bugs or issues  - Security considerations  - Best practices compliance  Provide specific suggestions for improvement and write to review.txt"if [ $? -eq 0 ]; then  echo "✅ Code review completed successfully"else  echo "❌ Code review failed"  exit 1fi
+#!/bin/bash
+# simple-code-review.sh - Basic code review script
+
+echo "Starting code review..."
+
+# Review recent changes
+agent -p --force --output-format text \
+  "Review the recent code changes and provide feedback on:
+  - Code quality and readability
+  - Potential bugs or issues
+  - Security considerations
+  - Best practices compliance
+
+  Provide specific suggestions for improvement and write to review.txt"
+
+if [ $? -eq 0 ]; then
+  echo "✅ Code review completed successfully"
+else
+  echo "❌ Code review failed"
+  exit 1
+fi
 ```
 
 ### [Real-time progress tracking](https://cursor.com/docs/cli/headless\#real-time-progress-tracking)
@@ -92,7 +132,76 @@ Use `--output-format json` for structured analysis:
 Use `--output-format stream-json` for message-level progress tracking, or add `--stream-partial-output` for incremental streaming of deltas:
 
 ```
-#!/bin/bash# stream-progress.sh - Track progress in real-timeecho "🚀 Starting stream processing..."# Track progress in real-timeaccumulated_text=""tool_count=0start_time=$(date +%s)agent -p --force --output-format stream-json --stream-partial-output \  "Analyze this project structure and create a summary report in analysis.txt" | \  while IFS= read -r line; do        type=$(echo "$line" | jq -r '.type // empty')    subtype=$(echo "$line" | jq -r '.subtype // empty')        case "$type" in      "system")        if [ "$subtype" = "init" ]; then          model=$(echo "$line" | jq -r '.model // "unknown"')          echo "🤖 Using model: $model"        fi        ;;              "assistant")        # Accumulate incremental text deltas for smooth progress        content=$(echo "$line" | jq -r '.message.content[0].text // empty')        accumulated_text="$accumulated_text$content"                # Show live progress (updates with each character delta)        printf "\r📝 Generating: %d chars" ${#accumulated_text}        ;;      "tool_call")        if [ "$subtype" = "started" ]; then          tool_count=$((tool_count + 1))          # Extract tool information          if echo "$line" | jq -e '.tool_call.writeToolCall' > /dev/null 2>&1; then            path=$(echo "$line" | jq -r '.tool_call.writeToolCall.args.path // "unknown"')            echo -e "\n🔧 Tool #$tool_count: Creating $path"          elif echo "$line" | jq -e '.tool_call.readToolCall' > /dev/null 2>&1; then            path=$(echo "$line" | jq -r '.tool_call.readToolCall.args.path // "unknown"')            echo -e "\n📖 Tool #$tool_count: Reading $path"          fi        elif [ "$subtype" = "completed" ]; then          # Extract and show tool results          if echo "$line" | jq -e '.tool_call.writeToolCall.result.success' > /dev/null 2>&1; then            lines=$(echo "$line" | jq -r '.tool_call.writeToolCall.result.success.linesCreated // 0')            size=$(echo "$line" | jq -r '.tool_call.writeToolCall.result.success.fileSize // 0')            echo "   ✅ Created $lines lines ($size bytes)"          elif echo "$line" | jq -e '.tool_call.readToolCall.result.success' > /dev/null 2>&1; then            lines=$(echo "$line" | jq -r '.tool_call.readToolCall.result.success.totalLines // 0')            echo "   ✅ Read $lines lines"          fi        fi        ;;      "result")        duration=$(echo "$line" | jq -r '.duration_ms // 0')        end_time=$(date +%s)        total_time=$((end_time - start_time))        echo -e "\n\n🎯 Completed in ${duration}ms (${total_time}s total)"        echo "📊 Final stats: $tool_count tools, ${#accumulated_text} chars generated"        ;;    esac  done
+#!/bin/bash
+# stream-progress.sh - Track progress in real-time
+
+echo "🚀 Starting stream processing..."
+
+# Track progress in real-time
+accumulated_text=""
+tool_count=0
+start_time=$(date +%s)
+
+agent -p --force --output-format stream-json --stream-partial-output \
+  "Analyze this project structure and create a summary report in analysis.txt" | \
+  while IFS= read -r line; do
+
+    type=$(echo "$line" | jq -r '.type // empty')
+    subtype=$(echo "$line" | jq -r '.subtype // empty')
+
+    case "$type" in
+      "system")
+        if [ "$subtype" = "init" ]; then
+          model=$(echo "$line" | jq -r '.model // "unknown"')
+          echo "🤖 Using model: $model"
+        fi
+        ;;
+
+      "assistant")
+        # Accumulate incremental text deltas for smooth progress
+        content=$(echo "$line" | jq -r '.message.content[0].text // empty')
+        accumulated_text="$accumulated_text$content"
+
+        # Show live progress (updates with each character delta)
+        printf "\r📝 Generating: %d chars" ${#accumulated_text}
+        ;;
+
+      "tool_call")
+        if [ "$subtype" = "started" ]; then
+          tool_count=$((tool_count + 1))
+
+          # Extract tool information
+          if echo "$line" | jq -e '.tool_call.writeToolCall' > /dev/null 2>&1; then
+            path=$(echo "$line" | jq -r '.tool_call.writeToolCall.args.path // "unknown"')
+            echo -e "\n🔧 Tool #$tool_count: Creating $path"
+          elif echo "$line" | jq -e '.tool_call.readToolCall' > /dev/null 2>&1; then
+            path=$(echo "$line" | jq -r '.tool_call.readToolCall.args.path // "unknown"')
+            echo -e "\n📖 Tool #$tool_count: Reading $path"
+          fi
+
+        elif [ "$subtype" = "completed" ]; then
+          # Extract and show tool results
+          if echo "$line" | jq -e '.tool_call.writeToolCall.result.success' > /dev/null 2>&1; then
+            lines=$(echo "$line" | jq -r '.tool_call.writeToolCall.result.success.linesCreated // 0')
+            size=$(echo "$line" | jq -r '.tool_call.writeToolCall.result.success.fileSize // 0')
+            echo "   ✅ Created $lines lines ($size bytes)"
+          elif echo "$line" | jq -e '.tool_call.readToolCall.result.success' > /dev/null 2>&1; then
+            lines=$(echo "$line" | jq -r '.tool_call.readToolCall.result.success.totalLines // 0')
+            echo "   ✅ Read $lines lines"
+          fi
+        fi
+        ;;
+
+      "result")
+        duration=$(echo "$line" | jq -r '.duration_ms // 0')
+        end_time=$(date +%s)
+        total_time=$((end_time - start_time))
+
+        echo -e "\n\n🎯 Completed in ${duration}ms (${total_time}s total)"
+        echo "📊 Final stats: $tool_count tools, ${#accumulated_text} chars generated"
+        ;;
+    esac
+  done
 ```
 
 ## [Working with images](https://cursor.com/docs/cli/headless\#working-with-images)
@@ -104,7 +213,14 @@ To send images, media files, or other binary data to the agent, include file pat
 Simply reference file paths in your prompt text. The agent will automatically read the files when needed:
 
 ```
-# Analyze an imageagent -p "Analyze this image and describe what you see: ./screenshot.png"# Process multiple media filesagent -p "Compare these two images and identify differences: ./before.png ./after.png"# Combine file paths with text instructionsagent -p "Review the code in src/app.ts and the design mockup in designs/homepage.png. Suggest improvements to match the design."
+# Analyze an image
+agent -p "Analyze this image and describe what you see: ./screenshot.png"
+
+# Process multiple media files
+agent -p "Compare these two images and identify differences: ./before.png ./after.png"
+
+# Combine file paths with text instructions
+agent -p "Review the code in src/app.ts and the design mockup in designs/homepage.png. Suggest improvements to match the design."
 ```
 
 ### [How it works](https://cursor.com/docs/cli/headless\#how-it-works-1)
@@ -119,13 +235,27 @@ When you include file paths in your prompt:
 ### [Example: Image analysis script](https://cursor.com/docs/cli/headless\#example-image-analysis-script)
 
 ```
-#!/bin/bash# analyze-image.sh - Analyze images using the headless CLIIMAGE_PATH="./screenshots/ui-mockup.png"agent -p --output-format json \  "Analyze this image and provide a detailed description: $IMAGE_PATH" | \  jq -r '.result'
+#!/bin/bash
+# analyze-image.sh - Analyze images using the headless CLI
+
+IMAGE_PATH="./screenshots/ui-mockup.png"
+
+agent -p --output-format json \
+  "Analyze this image and provide a detailed description: $IMAGE_PATH" | \
+  jq -r '.result'
 ```
 
 ### [Example: Batch media processing](https://cursor.com/docs/cli/headless\#example-batch-media-processing)
 
 ```
-#!/bin/bash# process-media.sh - Process multiple media filesfor image in images/*.png; do  echo "Processing $image..."  agent -p --output-format text \    "Describe what's in this image: $image" > "${image%.png}.description.txt"done
+#!/bin/bash
+# process-media.sh - Process multiple media files
+
+for image in images/*.png; do
+  echo "Processing $image..."
+  agent -p --output-format text \
+    "Describe what's in this image: $image" > "${image%.png}.description.txt"
+done
 ```
 
 File paths can be relative to the current working directory or absolute paths.
@@ -146,3 +276,11 @@ English
 - Türkçe
 - Bahasa Indonesia
 - Deutsch
+
+Agent
+
+Sonnet 4.6
+
+Tokenizer OffContext: 0/200k (0%)
+
+Open chat

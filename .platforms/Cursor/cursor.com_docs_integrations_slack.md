@@ -141,11 +141,11 @@ Use the context menu (⋯) on an agent's response for followup instructions. Use
 
 When Cloud Agent runs, you first get an option to _Open in Cursor_.
 
-![Open in Cursor button in Slack](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcloud-agent%2Fslack%2Fslack-open-in-cursor.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Open in Cursor button in Slack](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcloud-agent%2Fslack%2Fslack-open-in-cursor.png&w=1920&q=75&dpl=dpl_6VuyFUPTcyK2mHxYjtpZcYLMoWdi)
 
 When Cloud Agent completes, you get a notification in Slack and an option to view the created PR in GitHub.
 
-![View PR in GitHub in Slack](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcloud-agent%2Fslack%2Fslack-view-pr.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![View PR in GitHub in Slack](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcloud-agent%2Fslack%2Fslack-view-pr.png&w=1920&q=75&dpl=dpl_6VuyFUPTcyK2mHxYjtpZcYLMoWdi)
 
 ### [Managing agents](https://cursor.com/docs/integrations/slack\#managing-agents)
 
@@ -153,7 +153,7 @@ To see all running agents, run `@Cursor list my agents`.
 
 Manage Cloud Agents using the context menu by clicking the three dots (⋯) on any agent message.
 
-![Slack agent context menu](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcloud-agent%2Fslack%2Fslack-context-menu.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Slack agent context menu](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcloud-agent%2Fslack%2Fslack-context-menu.png&w=1920&q=75&dpl=dpl_6VuyFUPTcyK2mHxYjtpZcYLMoWdi)
 
 Available options:
 

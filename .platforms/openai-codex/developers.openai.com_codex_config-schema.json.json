@@ -1,0 +1,13 @@
+{
+  "url": "https://developers.openai.com/codex/config-schema.json",
+  "title": "https://developers.openai.com/codex/config-schema.json",
+  "content_hash": "406820b22734",
+  "scrapeId": "019cd3ce-5fc3-71fb-a216-eea3a72c8764",
+  "sourceURL": "https://developers.openai.com/codex/config-schema.json",
+  "statusCode": 200,
+  "contentType": "application/json; charset=utf-8",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-09T02:34:07.589Z",
+  "creditsUsed": 1
+}

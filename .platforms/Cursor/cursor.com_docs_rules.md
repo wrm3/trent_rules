@@ -263,11 +263,11 @@ Team Rules work alongside other rule types and take precedence to ensure organiz
 
 Team administrators can create and manage rules directly from the Cursor dashboard:
 
-![Empty team rules dashboard where team administrators can add new rules](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcontext%2Frules%2Fteam-rules-empty.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Empty team rules dashboard where team administrators can add new rules](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcontext%2Frules%2Fteam-rules-empty.png&w=1920&q=75&dpl=dpl_DHV6rzCiXvgdK91xVyexBSTLpw3h)
 
 Once team rules are created, they automatically apply to all team members and are visible in the dashboard:
 
-![Team rules dashboard showing a single team rule that will be enforced for all team members](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcontext%2Frules%2Fteam-rules-1.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Team rules dashboard showing a single team rule that will be enforced for all team members](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcontext%2Frules%2Fteam-rules-1.png&w=1920&q=75&dpl=dpl_DHV6rzCiXvgdK91xVyexBSTLpw3h)
 
 ### [Activation and enforcement](https://cursor.com/docs/rules\#activation-and-enforcement)
 

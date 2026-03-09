@@ -16,7 +16,8 @@ MERGE HANDLING (agents.md / CLAUDE.md / GEMINI.md):
   The server merges the trent-managed section while preserving your custom content.
 
 GUARDRAILS.md:
-  Omitted from the ZIP by default (skip_files). Pass skip_files=[] to overwrite it.
+  Included in the ZIP by default (first install). For upgrades where you have a
+  customized GUARDRAILS.md, pass skip_files=['GUARDRAILS.md'] to preserve it.
 """
 import json
 import logging
@@ -36,7 +37,8 @@ TOOL_DESCRIPTION = (
     "The command downloads template_v2/ as a ZIP from this MCP server and unzips it into target_path. "
     "For upgrades: pass existing_files with current content of agents.md/CLAUDE.md/GEMINI.md "
     "so the trent section is updated while your custom content is preserved. "
-    "GUARDRAILS.md is preserved by default (pass skip_files=[] to overwrite it)."
+    "GUARDRAILS.md is included by default (first install). For upgrades with a customized GUARDRAILS.md, "
+    "pass skip_files=['GUARDRAILS.md'] to preserve your version."
 )
 
 TOOL_PARAMS = {
@@ -52,7 +54,8 @@ TOOL_PARAMS = {
     ),
     "skip_files": (
         "Optional list of filenames to omit from the ZIP. "
-        "Default: ['GUARDRAILS.md']. Pass [] to overwrite GUARDRAILS.md too."
+        "Default: [] (all files included). For upgrades with a customized GUARDRAILS.md, "
+        "pass ['GUARDRAILS.md'] to preserve your version."
     ),
     "dry_run": "Preview the command without running it (default: False)",
 }
@@ -78,7 +81,7 @@ async def execute(
     endpoint = f"{trent_url}/install/download"
 
     if skip_files is None:
-        skip_files = ['GUARDRAILS.md']
+        skip_files = []
 
     # Build POST body (only needed when merging or skipping files)
     needs_post = bool(existing_files or skip_files)

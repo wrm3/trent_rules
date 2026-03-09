@@ -1,0 +1,28 @@
+{
+  "url": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fagents-and-tools%2Fagent-skills%2Fquickstart",
+  "title": "Sign In | Claude Developer Platform",
+  "content_hash": "4a1f295f0a8e",
+  "color-scheme": "light dark",
+  "mobile-web-app-capable": "yes",
+  "viewport": [
+    "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
+    "width=device-width, initial-scale=1.0,\n                                 maximum-scale=1.0, user-scalable=no"
+  ],
+  "description": "Build with the Claude API",
+  "language": "en-US",
+  "theme-color": [
+    "hsl(,undefined,undefined)",
+    "#fff"
+  ],
+  "next-size-adjust": "",
+  "apple-mobile-web-app-status-bar-style": "default",
+  "favicon": "https://platform.claude.com/favicon.ico",
+  "scrapeId": "019cd3be-4a1e-7173-9148-4b6db3239ba0",
+  "sourceURL": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fagents-and-tools%2Fagent-skills%2Fquickstart",
+  "statusCode": 200,
+  "contentType": "text/html; charset=utf-8",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-08T03:12:56.358Z",
+  "creditsUsed": 1
+}

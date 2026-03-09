@@ -350,7 +350,7 @@ Agent automatically uses MCP tools listed under `Available Tools` when relevant.
 
 Agent asks for approval before using MCP tools by default. Click the arrow next to the tool name to see arguments.
 
-![Tool confirmation prompt](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcontext%2Fmcp%2Ftool-confirm.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Tool confirmation prompt](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcontext%2Fmcp%2Ftool-confirm.png&w=1920&q=75&dpl=dpl_HFgEKdNrBwoyPcht6hNd9Lj4DjpL)
 
 #### [Auto-run](https://cursor.com/docs/mcp\#auto-run)
 
@@ -360,7 +360,7 @@ Enable auto-run for Agent to use MCP tools without asking. Works like terminal c
 
 Cursor shows the response in chat with expandable views of arguments and responses:
 
-![MCP tool call result](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcontext%2Fmcp%2Ftool-call.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![MCP tool call result](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcontext%2Fmcp%2Ftool-call.png&w=1920&q=75&dpl=dpl_HFgEKdNrBwoyPcht6hNd9Lj4DjpL)
 
 ### [Images as context](https://cursor.com/docs/mcp\#images-as-context)
 

@@ -66,12 +66,21 @@ def get_db_connection():
 # Canonical mapping from CRAWL_TARGETS name → registry platform key
 # (CRAWL_TARGETS names come from crawler.py CrawlTarget.name values)
 _PLATFORM_REGISTRY_KEY: dict[str, str] = {
-    "cursor":      "cursor",
-    "claude_code": "claude_code",
-    "gemini":      "gemini",
-    # common aliases used in some CRAWL_TARGETS definitions
-    "claude":      "claude_code",
-    "claude-code": "claude_code",
+    # Cursor
+    "cursor":        "cursor",
+    # Anthropic / Claude family — all share one registry slot
+    "claude":        "claude_code",
+    "claude_code":   "claude_code",
+    "claude-code":   "claude_code",
+    "claude-api":    "claude_code",
+    "claude-platform": "claude_code",
+    # Google
+    "gemini":        "gemini",
+    "antigravity":   "antigravity",
+    # OpenAI
+    "openai-codex":  "openai_codex",
+    # OpenCode
+    "opencode":      "opencode",
 }
 
 REGISTRY_MAX_AGE_DAYS = int(os.environ.get("CRAWL_REGISTRY_MAX_AGE_DAYS", "30"))

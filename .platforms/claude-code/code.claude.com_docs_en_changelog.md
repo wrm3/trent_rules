@@ -8,9 +8,9 @@ You signed in with another tab or window. [Reload](https://code.claude.com/docs/
 
 - [Notifications](https://code.claude.com/login?return_to=%2Fanthropics%2Fclaude-code) You must be signed in to change notification settings
 - [Fork\\
-6k](https://code.claude.com/login?return_to=%2Fanthropics%2Fclaude-code)
+6.1k](https://code.claude.com/login?return_to=%2Fanthropics%2Fclaude-code)
 - [Star\\
-74.9k](https://code.claude.com/login?return_to=%2Fanthropics%2Fclaude-code)
+75.6k](https://code.claude.com/login?return_to=%2Fanthropics%2Fclaude-code)
 
 
 ## FilesExpand file tree

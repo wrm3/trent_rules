@@ -1,0 +1,21 @@
+{
+  "url": "https://opencode.ai/legal/terms-of-service",
+  "title": "OpenCode | Terms of Service",
+  "content_hash": "71d9f7a7e234",
+  "apple-mobile-web-app-title": "OpenCode",
+  "twitter:image": "/social-share.png",
+  "og:image": "/social-share.png",
+  "description": "OpenCode - The open source coding agent., OpenCode terms of service",
+  "language": "en",
+  "ogImage": "/social-share.png",
+  "viewport": "width=device-width, initial-scale=1",
+  "favicon": "https://opencode.ai/favicon-96x96-v3.png",
+  "scrapeId": "019cd3ce-dac6-7431-ad0a-64c2e6e380b5",
+  "sourceURL": "https://opencode.ai/legal/terms-of-service",
+  "statusCode": 200,
+  "contentType": "text/html",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-09T14:06:20.594Z",
+  "creditsUsed": 1
+}

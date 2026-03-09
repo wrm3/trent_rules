@@ -27,6 +27,8 @@ Models & Pricing
 
 [Composer 1.5](https://cursor.com/docs/models/cursor-composer-1-5)
 
+[Changelog](https://cursor.com/changelog)
+
 ## Agent
 
 [Overview](https://cursor.com/docs/agent/overview) [Planning](https://cursor.com/docs/agent/plan-mode) [Prompting](https://cursor.com/docs/agent/prompting) [Debugging](https://cursor.com/docs/agent/debug-mode)

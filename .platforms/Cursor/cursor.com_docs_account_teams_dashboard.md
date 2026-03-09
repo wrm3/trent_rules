@@ -60,11 +60,11 @@ The dashboard lets you access billing, set up usage-based pricing, and manage yo
 
 Get a quick summary of your team's activity, usage statistics, and recent changes. The overview page provides at-a-glance insights into your workspace.
 
-![Team dashboard](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fdashboard.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Team dashboard](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fdashboard.png&w=1920&q=75&dpl=dpl_mhxpFeoPPnNYGz8MHZe6ZpZfxmyw)
 
 ## [Settings](https://cursor.com/docs/account/teams/dashboard\#settings)
 
-![Team settings](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fsettings.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Team settings](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fsettings.png&w=1920&q=75&dpl=dpl_mhxpFeoPPnNYGz8MHZe6ZpZfxmyw)
 
 Configure team-wide preferences and security settings. The settings page includes:
 
@@ -164,25 +164,25 @@ documentation](https://cursor.com/docs/account/teams/scim) for setup instruction
 
 Manage your team members, invite new users, and control access permissions. Set role-based permissions and monitor member activity.
 
-![Team members](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fmembers.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Team members](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fmembers.png&w=1920&q=75&dpl=dpl_mhxpFeoPPnNYGz8MHZe6ZpZfxmyw)
 
 ## [Audit Log](https://cursor.com/docs/account/teams/dashboard\#audit-log)
 
 Track security events, administrative actions, and team changes with comprehensive audit logs. View detailed records of who did what, when, and from where. Audit logs capture authentication events, membership changes, permission updates, API key actions, settings modifications, and more.
 
-![Audit Log](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Faudit-log.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Audit Log](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Faudit-log.png&w=1920&q=75&dpl=dpl_mhxpFeoPPnNYGz8MHZe6ZpZfxmyw)
 
 **Audit Log** is available exclusively on [Enterprise](https://cursor.com/docs/enterprise) plans and can only be viewed by admins.
 
 ## [Integrations](https://cursor.com/docs/account/teams/dashboard\#integrations)
 
-![Integrations](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fintegrations.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Integrations](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fintegrations.png&w=1920&q=75&dpl=dpl_mhxpFeoPPnNYGz8MHZe6ZpZfxmyw)
 
 Connect Cursor with your favorite tools and services. Configure integrations with version control systems, project management tools, and other developer services.
 
 ## [Cloud Agents](https://cursor.com/docs/account/teams/dashboard\#cloud-agents)
 
-![Cloud agents](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fintegrations.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Cloud agents](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fintegrations.png&w=1920&q=75&dpl=dpl_mhxpFeoPPnNYGz8MHZe6ZpZfxmyw)
 
 Monitor and manage cloud agents running in your workspace. View agent status, logs, and resource usage.
 
@@ -190,7 +190,7 @@ Monitor and manage cloud agents running in your workspace. View agent status, lo
 
 Access automated bug detection and fixing capabilities. Bugbot helps identify and resolve common issues in your codebase automatically.
 
-![Bugbot code review](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fbugbot.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Bugbot code review](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fbugbot.png&w=1920&q=75&dpl=dpl_mhxpFeoPPnNYGz8MHZe6ZpZfxmyw)
 
 ## [Active Directory Management](https://cursor.com/docs/account/teams/dashboard\#active-directory-management)
 
@@ -200,13 +200,13 @@ For enterprise teams, manage user authentication and access through Active Direc
 
 Track detailed usage metrics including AI requests, model usage, and resource consumption. Monitor usage across team members and projects.
 
-![Usage](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fusage.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Usage](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fusage.png&w=1920&q=75&dpl=dpl_mhxpFeoPPnNYGz8MHZe6ZpZfxmyw)
 
 ## [Billing & Invoices](https://cursor.com/docs/account/teams/dashboard\#billing-invoices)
 
 Manage your subscription, update payment methods, and access billing history. Download invoices and manage usage-based pricing settings.
 
-![Billing](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fbilling.png&w=1920&q=75&dpl=dpl_7zPiZUsTD7ownHrxp4Gk37N86tFn)
+![Billing](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Faccount%2Fteam%2Fbilling.png&w=1920&q=75&dpl=dpl_mhxpFeoPPnNYGz8MHZe6ZpZfxmyw)
 
 English
 
@@ -222,3 +222,11 @@ English
 - Türkçe
 - Bahasa Indonesia
 - Deutsch
+
+Agent
+
+Sonnet 4.6
+
+Tokenizer OffContext: 0/200k (0%)
+
+Open chat

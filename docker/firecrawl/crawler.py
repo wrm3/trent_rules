@@ -37,55 +37,110 @@ class CrawlTarget:
 
 
 CRAWL_TARGETS: list[CrawlTarget] = [
+    # -----------------------------------------------------------------------
+    # Cursor IDE docs
+    # -----------------------------------------------------------------------
     CrawlTarget(
         name="cursor",
         base_url="https://cursor.com/en-US/docs",
         platform_dir="cursor",
-        max_pages=100,
+        max_pages=300,
         exclude_patterns=["/changelog/", "/blog/", "/es/", "/ja/", "/fr/", "/de/", "/ko/", "/zh/"],
         include_patterns=["/docs/", "/en-US/docs/"],
-        sitemap="skip",           # cursor.com/llms.txt exists — depth crawl is better
-        max_discovery_depth=4,    # 4 levels as requested
-        crawl_entire_domain=True, # follow sibling /docs/* paths
+        sitemap="skip",           # cursor.com/llms.txt exists — link crawl is better
+        max_discovery_depth=4,
+        crawl_entire_domain=True,
     ),
+    # -----------------------------------------------------------------------
+    # Anthropic / Claude docs
+    # -----------------------------------------------------------------------
     CrawlTarget(
         name="claude",
         base_url="https://docs.anthropic.com/en/docs",
         platform_dir="claude",
-        max_pages=400,
+        max_pages=300,
         exclude_patterns=["/release-notes/"],
+        sitemap="skip",
+        max_discovery_depth=4,
+        crawl_entire_domain=True,
     ),
     CrawlTarget(
         name="claude-api",
         base_url="https://docs.anthropic.com/en/api",
-        platform_dir="claude",  # stored alongside claude docs
-        max_pages=200,
+        platform_dir="claude",
+        max_pages=300,
+        sitemap="skip",
+        max_discovery_depth=4,
+        crawl_entire_domain=True,
     ),
+    CrawlTarget(
+        name="claude-platform",
+        base_url="https://platform.claude.com/docs/en/home",
+        platform_dir="claude",
+        max_pages=300,
+        include_patterns=["/docs/"],
+        sitemap="skip",
+        max_discovery_depth=4,
+        crawl_entire_domain=True,
+    ),
+    CrawlTarget(
+        name="claude-code",
+        base_url="https://code.claude.com/docs/en/overview",
+        platform_dir="claude",
+        max_pages=300,
+        sitemap="skip",
+        max_discovery_depth=4,
+        crawl_entire_domain=True,
+    ),
+    # -----------------------------------------------------------------------
+    # Google Gemini API docs
+    # -----------------------------------------------------------------------
     CrawlTarget(
         name="gemini",
         base_url="https://ai.google.dev/gemini-api/docs",
         platform_dir="gemini",
         max_pages=300,
         exclude_patterns=["/samples/"],
+        sitemap="skip",
+        max_discovery_depth=4,
+        crawl_entire_domain=True,
     ),
+    # -----------------------------------------------------------------------
+    # Google Antigravity (Gemini agent IDE)
+    # -----------------------------------------------------------------------
     CrawlTarget(
-        name="claude-platform",
-        base_url="https://platform.claude.com/docs/en/home",
-        platform_dir="claude",
-        max_pages=25,
-        include_patterns=["/docs/"],
-        sitemap="skip",  # discover via links only; sitemap was returning useless pages
-        max_discovery_depth=2,  # follow links on home + one more level so Quickstart, API ref, etc. are crawled
-        crawl_entire_domain=True,  # follow sibling paths (/docs/en/api, /docs/en/get-started), not just deeper only
+        name="antigravity",
+        base_url="https://antigravity.google/docs/get-started",
+        platform_dir="antigravity",
+        max_pages=300,
+        sitemap="skip",
+        max_discovery_depth=4,
+        crawl_entire_domain=True,
     ),
+    # -----------------------------------------------------------------------
+    # OpenAI Codex docs
+    # -----------------------------------------------------------------------
     CrawlTarget(
-        name="claude-code",
-        base_url="https://code.claude.com/docs/en/overview",
-        platform_dir="claude",  # stored alongside other claude docs in .platforms/Claude/
-        max_pages=100,
-        sitemap="skip",          # sitemap not useful on this domain
-        max_discovery_depth=3,   # overview page → section index → detail pages
-        crawl_entire_domain=True,  # follow sibling /docs/en/* paths, not just deeper paths
+        name="openai-codex",
+        base_url="https://developers.openai.com/codex/",
+        platform_dir="openai",
+        max_pages=300,
+        sitemap="skip",
+        max_discovery_depth=4,
+        crawl_entire_domain=False,  # stay within /codex/ subtree only
+        include_patterns=["/codex/"],
+    ),
+    # -----------------------------------------------------------------------
+    # OpenCode docs
+    # -----------------------------------------------------------------------
+    CrawlTarget(
+        name="opencode",
+        base_url="https://opencode.ai/docs/",
+        platform_dir="opencode",
+        max_pages=300,
+        sitemap="skip",
+        max_discovery_depth=4,
+        crawl_entire_domain=True,
     ),
 ]
 

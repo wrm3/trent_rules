@@ -1,0 +1,28 @@
+{
+  "url": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fbuild-with-claude%2Fclaude-in-microsoft-foundry",
+  "title": "Sign In | Claude Developer Platform",
+  "content_hash": "4a1f295f0a8e",
+  "mobile-web-app-capable": "yes",
+  "next-size-adjust": "",
+  "apple-mobile-web-app-status-bar-style": "default",
+  "description": "Build with the Claude API",
+  "viewport": [
+    "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
+    "width=device-width, initial-scale=1.0,\n                                 maximum-scale=1.0, user-scalable=no"
+  ],
+  "language": "en-US",
+  "color-scheme": "light dark",
+  "theme-color": [
+    "hsl(,undefined,undefined)",
+    "#fff"
+  ],
+  "favicon": "https://platform.claude.com/favicon.ico",
+  "scrapeId": "019cd3be-418c-73ae-9370-2e01a5ecfe5a",
+  "sourceURL": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fbuild-with-claude%2Fclaude-in-microsoft-foundry",
+  "statusCode": 200,
+  "contentType": "text/html; charset=utf-8",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-08T03:17:24.226Z",
+  "creditsUsed": 1
+}

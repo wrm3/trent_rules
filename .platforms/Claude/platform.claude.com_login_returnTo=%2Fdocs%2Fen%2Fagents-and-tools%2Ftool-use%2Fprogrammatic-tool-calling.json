@@ -1,0 +1,28 @@
+{
+  "url": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fagents-and-tools%2Ftool-use%2Fprogrammatic-tool-calling",
+  "title": "Sign In | Claude Developer Platform",
+  "content_hash": "4a1f295f0a8e",
+  "color-scheme": "light dark",
+  "mobile-web-app-capable": "yes",
+  "language": "en-US",
+  "viewport": [
+    "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
+    "width=device-width, initial-scale=1.0,\n                                 maximum-scale=1.0, user-scalable=no"
+  ],
+  "theme-color": [
+    "hsl(,undefined,undefined)",
+    "#fff"
+  ],
+  "description": "Build with the Claude API",
+  "next-size-adjust": "",
+  "apple-mobile-web-app-status-bar-style": "default",
+  "favicon": "https://platform.claude.com/favicon.ico",
+  "scrapeId": "019cd3bb-5fb8-746b-83a0-b7a7ec4d06a7",
+  "sourceURL": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fagents-and-tools%2Ftool-use%2Fprogrammatic-tool-calling",
+  "statusCode": 200,
+  "contentType": "text/html; charset=utf-8",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-08T03:08:20.669Z",
+  "creditsUsed": 1
+}
