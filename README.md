@@ -231,18 +231,122 @@ Grouped by function: **Task** · **Phase** · **Planning** · **Quality** · **I
 
 ---
 
-## MCP Tools (28 available)
+## MCP Tools — Full Reference
 
-| Category | Tools |
+The Docker MCP server exposes **28 tools** over SSE/HTTP at `http://localhost:8082/mcp`. All tools are available to any connected IDE.
+
+### RAG / Knowledge Base
+
+| Tool | Description |
 |---|---|
-| RAG | `rag_search` · `rag_ingest_text` · `rag_list_subjects` |
-| Research | `research_deep` · `research_search` |
-| Oracle DB | `oracle_query` · `oracle_execute` |
-| MediaWiki | `mediawiki_page` · `mediawiki_search` |
-| Memory | `memory_search` · `memory_capture_session` · `memory_context` · `memory_sessions` |
-| Platform docs | `platform_docs_search` · `check_crawl_freshness` · `update_crawl_registry` |
-| trent | `trent_install` · `trent_health_report` · `trent_plan_reset` · `trent_validate_task` |
-| Utilities | `md_to_html` · `get_service_url` |
+| `rag_search` | Semantic search across stored knowledge (pgvector). Pass a query and optional subject. |
+| `rag_ingest_text` | Add raw text or markdown to the knowledge base under a subject. |
+| `rag_list_subjects` | List all available knowledge base subjects (namespaced collections). |
+
+### Research
+
+| Tool | Description |
+|---|---|
+| `research_deep` | Comprehensive multi-source research via Perplexity. Best for "what is X" or "compare A vs B". |
+| `research_search` | Lightweight web search. Fast, single-source answers. |
+
+### Oracle Database
+
+| Tool | Description |
+|---|---|
+| `oracle_query` | Read-only SQL on Oracle (`SELECT`, `DESCRIBE`, `EXPLAIN`). Credentials passed per call. |
+| `oracle_execute` | Write SQL on Oracle (`INSERT`, `UPDATE`, `DELETE`, `CREATE`, `ALTER`). Credentials passed per call. |
+
+### MediaWiki
+
+| Tool | Description |
+|---|---|
+| `mediawiki_page` | Create, read, update, or check pages in a MediaWiki instance. |
+| `mediawiki_search` | Full-text search across a MediaWiki instance. Returns titles + excerpts. |
+
+### Agent Memory
+
+| Tool | Description |
+|---|---|
+| `memory_search` | Semantic search across all stored agent sessions and memory captures. |
+| `memory_search_combined` | Semantic search across BOTH agent memory AND the RAG knowledge base simultaneously. |
+| `memory_capture_session` | Call at end of session — AI self-reports summary for future context injection. |
+| `memory_capture_insight` | Capture a specific insight, preference, or decision for long-term memory. |
+| `memory_context` | Retrieve token-budgeted context block for session-start injection. |
+| `memory_sessions` | List recent sessions for a project (for browsing what was worked on). |
+| `memory_ingest_session` | Ingest raw IDE session turns from file adapters (Cursor, Claude Code automatic capture). |
+| `memory_setup_user` | Create or update `~/.trent/user_config.json` for memory identity tracking. |
+
+### Platform Documentation
+
+| Tool | Description |
+|---|---|
+| `platform_docs_search` | Semantic search over Firecrawl-crawled Cursor, Claude Code, and Gemini docs. Requires `--profile platform-docs`. |
+| `check_crawl_freshness` | Check if a platform's docs are fresh in the shared crawl registry. Prevents redundant re-crawls across projects. |
+| `update_crawl_registry` | Record a successful platform doc crawl. Called automatically by the scheduler. |
+
+### trent System
+
+| Tool | Description |
+|---|---|
+| `trent_install` | Install or upgrade the full trent environment into a project directory. Pass `use_v2=True` for current architecture. |
+| `trent_health_report` | Compute health score (0–100) for a trent project. Returns subsystem breakdown, stale claims, blocked tasks. |
+| `trent_plan_reset` | Reset `.trent/` to blank template. Requires `confirm=True`. Destructive — clears task data. |
+| `trent_validate_task` | Validate a task against `ARCHITECTURE_CONSTRAINTS.md` before claiming. Returns `valid`, `warnings`, `violations`. |
+| `trent_server_status` | Health check — returns server version, loaded plugins, DB connectivity. |
+
+### Video Analysis (YouTube)
+
+| Tool | Description |
+|---|---|
+| `video_analyze` | Full analysis pipeline: metadata + transcript + key frames + AI vision description. |
+| `video_extract_metadata` | Extract video title, description, duration, channel, view count. |
+| `video_extract_transcript` | Extract auto-generated or manual captions. |
+| `video_extract_frames` | Extract key frames from a video at intervals. |
+| `video_get_playlist` | List all video IDs and metadata from a YouTube playlist. |
+| `video_check_new` | Check a playlist for videos added since last check (for automation pipelines). |
+| `video_batch_process` | Process multiple videos concurrently with configurable concurrency. |
+
+### Utilities
+
+| Tool | Description |
+|---|---|
+| `md_to_html` | Convert markdown to a beautifully styled, self-contained HTML document. |
+| `get_service_url` | Returns the base URL for a named service in the trent stack (e.g., `admin`, `pgadmin`). |
+
+---
+
+## REST API (Admin & Memory Endpoints)
+
+The MCP server also exposes HTTP REST endpoints for browser access and automation.
+
+### Admin / DB Explorer (`http://localhost:8082`)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/admin/db` | **DB Explorer UI** — browse all Postgres schemas and tables |
+| `GET` | `/admin/db/tables` | List all tables with schema, row count, size |
+| `GET` | `/admin/db/tables/{schema}/{table}/data` | Paginated table data with filtering |
+| `POST` | `/admin/db/query` | Execute arbitrary SQL and return results as JSON |
+| `GET` | `/admin/trent` | **Task Visualizer UI** — interactive DAG of `.trent/` tasks by phase |
+| `GET` | `/admin/trent/data` | Raw task data as JSON (phase groupings, statuses, dependencies) |
+| `GET` | `/admin/trent/task/{task_id}` | Full detail for a single task (YAML + markdown body) |
+
+### Memory REST (`http://localhost:8082`)
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET` | `/memory/health` | Memory subsystem health check |
+| `POST` | `/memory/ingest` | Ingest a raw session file (used by IDE file adapters) |
+| `POST` | `/memory/capture` | Capture a session summary (used by `memory_capture_session` tool) |
+| `POST` | `/memory/insight` | Capture a specific insight (used by `memory_capture_insight` tool) |
+| `GET` | `/memory/context` | Retrieve context block for session injection |
+
+### Install REST
+
+| Method | Endpoint | Description |
+|---|---|---|
+| `GET/POST` | `/install/download` | Download trent template bundle for offline installation |
 
 ---
 
