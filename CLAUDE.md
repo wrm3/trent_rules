@@ -5,13 +5,15 @@ trent is an AI-powered task management and development system for Cursor IDE and
 
 ## This Repository's Purpose
 This is the **source repository** for the trent system. It contains:
-- The complete rule set for task management
+- 19 specialized trent agents (agents/skills architecture — 95% context reduction)
+- 32+ skills covering task management, QA, planning, video/3D, and more
+- 8 slim always-apply rules per platform (was 5,420 lines, now 281 lines)
 - Templates for installing trent in other projects
 - MCP server for RAG, research, Oracle, and video analysis tools
 
 When making changes here, consider:
-1. Does this affect the docker/templates/ files?
-2. Does this need to update agents.md trent section?
+1. Parity: Changes to `.cursor/` must also apply to `.claude/` and `.agent/`
+2. Does this affect the `docker/templates/` files?
 3. Should this trigger a version bump?
 
 ## Tech Stack
@@ -55,24 +57,27 @@ temp_scripts/           # Test and utility scripts
 | `memory_capture_session` | AI self-reports session summary |
 | `memory_search` | Semantic search over session memory |
 | `memory_sessions` | List recent sessions for a project |
-| `memory_context` | Token-budgeted context block |
+| `check_crawl_freshness` | Check if platform docs are fresh (prevents redundant crawls) |
+| `update_crawl_registry` | Record completed platform doc crawl in registry |
 
 ## Development Commands
 ```bash
-cd docker && docker-compose up -d              # Start MCP server
+cd docker && docker compose up -d              # Start MCP server
 docker ps | grep trent_rules_docker            # Check status
 docker logs trent_rules_docker -f              # View logs
-cd docker && docker-compose up -d --build trent_rules_docker  # Rebuild
+cd docker && docker compose up -d --build trent  # Rebuild
 ```
 
 ## Rules & Configuration
-All detailed rules are in `.claude/rules/`. Key areas:
-- **00-04**: Core (response format, docs, git, code review, reusability)
-- **20-32**: Trent task management system (vNext: rules 31=autonomous, 32=verification, 66=parity)
-- **23**: Agent memory, Cursor CLI
-- **30-32**: PowerShell, Python/UV
-- **41**: RAG knowledge base
-- **SV**: Silicon Valley personalities
+**New hybrid architecture** — agents/skills replace monolithic rules:
+
+- **Always-apply rules** (8 files, ~281 lines): `00_always`, `01_documentation`, `02_git_workflow`, `08_powershell`, `09_python_venv`, `25_trent_session_start`, `33_enforcement_catchall`, `silicon_valley_personality`
+- **Trent agents** (19 files): `trent-task-manager`, `trent-planner`, `trent-qa-engineer`, `trent-workflow-manager`, `trent-infrastructure`, `trent-autonomous`, `trent-verifier`, `trent-self-improvement`, `trent-project-files`, `trent-platform-parity`, `trent-multi-agent`, `trent-memory`, `trent-cursor-cli`, `trent-claude-cli`, `trent-codebase-analyst`, `trent-ideas-goals`, `trent-code-reviewer`, `trent-python-dev`, `trent-project-manager`
+- **Skills** (32+ files): `trent-task-new`, `trent-plan`, `trent-review`, `trent-sprint`, + 13 video/3D skills (manim, remotion, storyboard, etc.)
+
+**MCP Tools new in v6:**
+- `check_crawl_freshness` — check if platform docs need re-crawling
+- `update_crawl_registry` — mark platform docs as freshly crawled
 
 ## Security
 - Never commit API keys, tokens, or passwords
@@ -81,6 +86,6 @@ All detailed rules are in `.claude/rules/`. Key areas:
 - Oracle credentials passed per-query via tool parameters
 
 ---
-**Version**: 5.1.0
-**Last Updated**: 2026-03-06
-**Supported IDEs**: Cursor, Claude Code, Gemini
+**Version**: 6.0.0
+**Last Updated**: 2026-03-09
+**Supported IDEs**: Cursor, Claude Code, Gemini, Codex, OpenCode
