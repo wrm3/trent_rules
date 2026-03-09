@@ -275,3 +275,6 @@ docs/
 !.gitignore
 !.mcp.json
 !agents.md
+
+# Docker has no separate .env.example - use repo root .env.example
+docker/.env.example
