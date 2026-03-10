@@ -2,29 +2,16 @@
 # Triggered when a new composer conversation is created.
 # Injects past agent-memory context so the AI has continuity across sessions.
 
-# Read JSON input from stdin
 $inputJson = $input | Out-String
 
 try {
     $eventData    = $inputJson | ConvertFrom-Json
     $sessionId    = $eventData.session_id
     $composerMode = $eventData.composer_mode
-    $timestamp    = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
 } catch {
     $sessionId    = "unknown"
     $composerMode = "unknown"
-    $timestamp    = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
 }
-
-# ── Logging ──────────────────────────────────────────────────────────────────
-$logDir = ".cursor/logs"
-if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir -Force | Out-Null }
-
-$datePrefix = Get-Date -Format "yyyy-MM-dd"
-$logFile    = "$logDir/${datePrefix}_session_lifecycle.log"
-
-$logEntry = "[$timestamp] [SESSION_START] Session: $sessionId | Mode: $composerMode"
-Add-Content -Path $logFile -Value $logEntry
 
 # ── User config check ────────────────────────────────────────────────────────
 $userConfigDir  = Join-Path $env:USERPROFILE ".trent"
@@ -32,7 +19,6 @@ $userConfigFile = Join-Path $userConfigDir "user_config.json"
 
 $setupNeeded = $false
 if (-not (Test-Path $userConfigFile)) {
-    # First run — create minimal skeleton so adapters don't crash, but flag for setup
     try {
         if (-not (Test-Path $userConfigDir)) {
             New-Item -ItemType Directory -Path $userConfigDir -Force | Out-Null
@@ -54,13 +40,9 @@ if (-not (Test-Path $userConfigFile)) {
             setup_completed = $false
         }
         $cfg | ConvertTo-Json | Set-Content -Path $userConfigFile -Encoding UTF8
-        Add-Content -Path $logFile -Value "[$timestamp] [CONFIG] Created skeleton user_config.json — setup needed"
-    } catch {
-        Add-Content -Path $logFile -Value "[$timestamp] [CONFIG] Failed to create user_config.json: $_"
-    }
+    } catch {}
     $setupNeeded = $true
 } else {
-    # Check if user has completed setup (not just the auto-generated skeleton)
     try {
         $cfgCheck = Get-Content $userConfigFile -Raw | ConvertFrom-Json
         if ($cfgCheck.user_id -eq "SETUP_NEEDED" -or $cfgCheck.setup_completed -eq $false) {
@@ -69,9 +51,7 @@ if (-not (Test-Path $userConfigFile)) {
     } catch {}
 }
 
-# ── Memory Context Retrieval ─────────────────────────────────────────────────
-
-# --- Setup banner ---
+# ── Reflection reminder (letta-style step-count trigger) ─────────────────────
 $setupBanner = ""
 if ($setupNeeded) {
     $setupBanner = @"
@@ -85,31 +65,22 @@ AI memory features will work but sessions won't be linked to a named user until 
 
 ---
 "@
-    Add-Content -Path $logFile -Value "[$timestamp] [CONFIG] Injecting setup reminder into context"
 }
 
-# --- Reflection reminder (letta-style step-count trigger) ---
-# If the previous session was long (≥5 loops), inject a one-time reminder
-# asking the AI to capture any valuable insights before starting new work.
 $reflectionBanner = ""
-$reflectionFile   = "$logDir/pending_reflection.json"
+$reflectionFile   = ".cursor/logs/pending_reflection.json"
 if (Test-Path $reflectionFile) {
     try {
-        $reflData  = Get-Content $reflectionFile -Raw | ConvertFrom-Json
-
-        # cursor_adapter writes turn_count; agent-complete writes loop_count
+        $reflData    = Get-Content $reflectionFile -Raw | ConvertFrom-Json
         $sessionSize = 0
-        if ($reflData.turn_count) { $sessionSize = [int]$reflData.turn_count }
+        if ($reflData.turn_count)  { $sessionSize = [int]$reflData.turn_count }
         elseif ($reflData.loop_count) { $sessionSize = [int]$reflData.loop_count }
 
         if ($sessionSize -ge 5) {
-            # Build topic hint block if cursor_adapter enriched the file
             $topicHint = ""
             if ($reflData.recent_topics -and $reflData.recent_topics.Count -gt 0) {
                 $topicHint = "`nSession covered (rough summary from first/last messages):`n"
-                foreach ($t in $reflData.recent_topics) {
-                    $topicHint += "  - $t`n"
-                }
+                foreach ($t in $reflData.recent_topics) { $topicHint += "  - $t`n" }
             }
 
             $reflectionBanner = @"
@@ -127,12 +98,9 @@ Keep captures concise (1-3 sentences each). Skip trivial exchanges.
 
 ---
 "@
-            Add-Content -Path $logFile -Value "[$timestamp] [REFLECT] Injecting memory check reminder (turns=$sessionSize)"
         }
-        # Consume the file so we don't repeat the reminder
         Remove-Item $reflectionFile -ErrorAction SilentlyContinue
     } catch {
-        Add-Content -Path $logFile -Value "[$timestamp] [REFLECT] Failed to read reflection hint: $_"
         Remove-Item $reflectionFile -ErrorAction SilentlyContinue
     }
 }
@@ -140,8 +108,6 @@ Keep captures concise (1-3 sentences each). Skip trivial exchanges.
 $additionalContext = "${setupBanner}${reflectionBanner}trent task management system is active. Check .trent/TASKS.md for current tasks."
 
 # ── Fallback Drain ────────────────────────────────────────────────────────────
-# If the previous session couldn't reach the server, sessions were saved to
-# .trent/memory_fallback.jsonl — try to ingest them now.
 $fallbackFile = ".trent/memory_fallback.jsonl"
 if (Test-Path $fallbackFile) {
     try {
@@ -154,51 +120,35 @@ if (Test-Path $fallbackFile) {
             } catch {}
         }
 
-        # Test if server is reachable
-        $healthUrl = "$mcpUrlFallback/memory/health"
-        $healthResp = Invoke-WebRequest -Uri $healthUrl -UseBasicParsing -TimeoutSec 3 -ErrorAction Stop
+        Invoke-WebRequest -Uri "$mcpUrlFallback/memory/health" -UseBasicParsing -TimeoutSec 3 -ErrorAction Stop | Out-Null
 
-        # Server is up — read and attempt to ingest each record
         $lines = Get-Content $fallbackFile
-        $ingestedLines = @()
         $failedLines = @()
-
         foreach ($line in $lines) {
             $line = $line.Trim()
             if (-not $line) { continue }
             try {
-                $ingestUrl = "$mcpUrlFallback/memory/ingest"
                 $headers = @{ "Content-Type" = "application/json" }
-                $respIngest = Invoke-WebRequest -Uri $ingestUrl -Method POST -Body $line -Headers $headers -UseBasicParsing -TimeoutSec 30 -ErrorAction Stop
-                $ingestedLines += $line
-                Add-Content -Path $logFile -Value "[$timestamp] [FALLBACK] Drained 1 record from fallback file"
+                Invoke-WebRequest -Uri "$mcpUrlFallback/memory/ingest" -Method POST -Body $line -Headers $headers -UseBasicParsing -TimeoutSec 30 -ErrorAction Stop | Out-Null
             } catch {
                 $failedLines += $line
-                Add-Content -Path $logFile -Value "[$timestamp] [FALLBACK] Failed to drain record: $_"
             }
         }
 
-        # Rewrite fallback file with only failed lines
         if ($failedLines.Count -eq 0) {
             Remove-Item $fallbackFile -ErrorAction SilentlyContinue
-            Add-Content -Path $logFile -Value "[$timestamp] [FALLBACK] Fallback file fully drained and removed"
         } else {
             Set-Content -Path $fallbackFile -Value ($failedLines -join "`n") -Encoding UTF8
-            Add-Content -Path $logFile -Value "[$timestamp] [FALLBACK] $($failedLines.Count) records remain in fallback"
         }
-    } catch {
-        # Server still down — leave fallback file for next session
-        Add-Content -Path $logFile -Value "[$timestamp] [FALLBACK] Server still unavailable — fallback file preserved: $_"
-    }
+    } catch {}
 }
 
+# ── Memory Context Retrieval ─────────────────────────────────────────────────
 $projectIdFile = ".trent/.project_id"
 if (Test-Path $projectIdFile) {
     $projectId = (Get-Content $projectIdFile -Raw).Trim()
-
     if ($projectId -ne "") {
         try {
-            # Read mcp_url from user_config.json — falls back to localhost
             $mcpUrl = "http://localhost:8082"
             $userConfigPath = Join-Path $env:USERPROFILE ".trent\user_config.json"
             if (Test-Path $userConfigPath) {
@@ -208,26 +158,18 @@ if (Test-Path $projectIdFile) {
                 } catch {}
             }
 
-            # Call the trent memory REST bridge (synchronous — hook waits for this)
-            $contextUrl = "$mcpUrl/memory/context?project_id=$projectId&max_tokens=3000&platform=cursor"
-
-            $resp = Invoke-WebRequest -Uri $contextUrl -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
+            $resp = Invoke-WebRequest -Uri "$mcpUrl/memory/context?project_id=$projectId&max_tokens=3000&platform=cursor" -UseBasicParsing -TimeoutSec 5 -ErrorAction Stop
             $body = $resp.Content | ConvertFrom-Json
 
             if ($body.success -and $body.context -ne "") {
-                $memoryContext = $body.context
                 $additionalContext = @"
-$memoryContext
+$($body.context)
 
 ---
 trent task management system is active. Check .trent/TASKS.md for current tasks.
 "@
-                Add-Content -Path $logFile -Value "[$timestamp] [MEMORY] Injected context: sessions=$($body.sessions_included) captures=$($body.captures_included)"
             }
-        } catch {
-            # Memory bridge unavailable — fall back to default context silently
-            Add-Content -Path $logFile -Value "[$timestamp] [MEMORY] Context fetch failed (bridge unavailable): $_"
-        }
+        } catch {}
     }
 }
 

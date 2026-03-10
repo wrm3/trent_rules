@@ -60,9 +60,15 @@ credentials/
 # ============================================================================
 # Personal Data & Logs
 # ============================================================================
+# Block ALL log files everywhere, including nested directories (.hybrid/, etc.)
 *.log
+logs/
+**/logs/
 **/logs/*
 !**/logs/.gitkeep
+# Block metrics CSVs (contain session data, not for distribution)
+**/*.csv
+!**/.gitkeep
 *.sqlite
 *.db
 *.db-journal
@@ -242,6 +248,13 @@ template/.cursor/logs/*
 !template/.cursor/logs/.gitkeep
 .cursor/metrics/*
 !.cursor/metrics/.gitkeep
+# Claude metrics (session-specific, not for distribution)
+.claude/metrics/*
+!.claude/metrics/.gitkeep
+template_v2/.claude/metrics/*
+!template_v2/.claude/metrics/.gitkeep
+template_old/.claude/metrics/*
+!template_old/.claude/metrics/.gitkeep
 
 # Other IDE configurations
 !.windsurf/
