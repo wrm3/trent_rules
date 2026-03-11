@@ -233,6 +233,61 @@ your-project/
 
 ---
 
+### Alternative: Windows Dynamic Links (Single Shared Storage)
+
+Instead of installing a full copy of trent into each project, you can use **Windows Dynamic Links** — junction points that make every project folder point to your single `trent_rules` installation. Any edit to an agent, skill, or rule in one project is instantly reflected in all other projects.
+
+**When to use this approach:**
+- You work on many projects on the same Windows machine
+- You want agent/skill/rule updates to propagate everywhere immediately — no re-installs
+- You're the primary developer and want a single source of truth for all trent configuration
+
+**How it works:**
+
+Copy `windows_dynamic_links.bat` (from the root of this repo) into your project folder and run it as Administrator. It creates Windows junction links for the four trent config directories:
+
+```
+your-project/
+├── .agent     → G:\trent_rules\.agent     (junction link)
+├── .claude    → G:\trent_rules\.claude    (junction link)
+├── .cursor    → G:\trent_rules\.cursor    (junction link)
+└── .platforms → G:\trent_rules\.platforms (junction link)
+```
+
+The junction links behave exactly like real folders — your IDE, git, and all tools see them as local directories. But writes go directly to `trent_rules`, so installing a new skill or editing a rule in any project updates the shared source immediately.
+
+**Steps:**
+
+```bat
+REM 1. Copy windows_dynamic_links.bat into your project folder
+REM 2. Open a terminal as Administrator
+REM 3. Navigate to your project folder
+cd C:\path\to\your-project
+
+REM 4. Run the script
+windows_dynamic_links.bat
+```
+
+**Before running**, open `windows_dynamic_links.bat` and verify the `SHARED` path matches where your `trent_rules` repo lives:
+
+```bat
+REM Edit this line to match your actual trent_rules location:
+set SHARED=G:\trent_rules
+```
+
+> **Note:** Junction links are Windows-only (`mklink /J`). On Linux/Mac, use `ln -s` to create equivalent symbolic links. Junction links are not followed by git — your project repo stays clean.
+
+**Trade-offs vs. standard install:**
+
+| | Standard Install (`trent_install`) | Dynamic Links |
+|---|---|---|
+| Updates | Re-run `trent_install` to get new agents/skills | Instant — edits in any project apply everywhere |
+| Project isolation | Each project has its own copy | All projects share one copy |
+| Works on | All platforms | Windows only (junction links) |
+| Teammate compatibility | ✅ They get their own copy | ❌ Only works on machines with same drive layout |
+
+---
+
 ## Commands — Full Reference
 
 Commands use `@trent-` prefix in Cursor, `/trent-` in Claude Code. All 24 commands:
