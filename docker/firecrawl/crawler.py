@@ -38,12 +38,12 @@ class CrawlTarget:
 
 CRAWL_TARGETS: list[CrawlTarget] = [
     # -----------------------------------------------------------------------
-    # Cursor IDE docs
+    # Cursor IDE docs  →  saved under Cursor/docs/
     # -----------------------------------------------------------------------
     CrawlTarget(
         name="cursor",
         base_url="https://cursor.com/en-US/docs",
-        platform_dir="cursor",
+        platform_dir="Cursor/docs",
         max_pages=300,
         exclude_patterns=["/changelog/", "/blog/", "/es/", "/ja/", "/fr/", "/de/", "/ko/", "/zh/"],
         include_patterns=["/docs/", "/en-US/docs/"],

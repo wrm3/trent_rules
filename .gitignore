@@ -14,8 +14,9 @@
 .claude/rules_backup_*/
 .agent/rules_backup_*/
 
+.trent/logs/
 
-.trent_bk_2026)03_08.zip
+.trent_bk_2026_03_08.zip
 .trent_bk_2026_03_09.zip
 
 # Superseded tools (evolved into docker/trent/admin_db_rest.py)
@@ -274,6 +275,9 @@ template_old/.claude/metrics/*
 
 # Documentation (private - not for distribution)
 docs/
+
+# Platform docs subdirectories (these MUST be tracked — crawled reference content)
+!.platforms/**
 
 # GitHub files
 !.github/
