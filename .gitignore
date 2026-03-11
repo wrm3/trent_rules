@@ -277,7 +277,12 @@ template_old/.claude/metrics/*
 docs/
 
 # Platform docs subdirectories (these MUST be tracked — crawled reference content)
+# Must explicitly unignore the docs/ directories AND their contents because
+# git won't recurse into an ignored directory even with a negation on files inside.
+!.platforms/
 !.platforms/**
+!.platforms/**/docs/
+!.platforms/**/docs/**
 
 # GitHub files
 !.github/
