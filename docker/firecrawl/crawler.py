@@ -52,12 +52,12 @@ CRAWL_TARGETS: list[CrawlTarget] = [
         crawl_entire_domain=True,
     ),
     # -----------------------------------------------------------------------
-    # Anthropic / Claude docs
+    # Anthropic / Claude docs  →  all saved under Claude/
     # -----------------------------------------------------------------------
     CrawlTarget(
         name="claude",
         base_url="https://docs.anthropic.com/en/docs",
-        platform_dir="claude",
+        platform_dir="Claude/docs",
         max_pages=300,
         exclude_patterns=["/release-notes/"],
         sitemap="skip",
@@ -67,7 +67,7 @@ CRAWL_TARGETS: list[CrawlTarget] = [
     CrawlTarget(
         name="claude-api",
         base_url="https://docs.anthropic.com/en/api",
-        platform_dir="claude",
+        platform_dir="Claude/api",
         max_pages=300,
         sitemap="skip",
         max_discovery_depth=4,
@@ -76,7 +76,7 @@ CRAWL_TARGETS: list[CrawlTarget] = [
     CrawlTarget(
         name="claude-platform",
         base_url="https://platform.claude.com/docs/en/home",
-        platform_dir="claude",
+        platform_dir="Claude/platform",
         max_pages=300,
         include_patterns=["/docs/"],
         sitemap="skip",
@@ -86,19 +86,19 @@ CRAWL_TARGETS: list[CrawlTarget] = [
     CrawlTarget(
         name="claude-code",
         base_url="https://code.claude.com/docs/en/overview",
-        platform_dir="claude",
+        platform_dir="Claude/code",
         max_pages=300,
         sitemap="skip",
         max_discovery_depth=4,
         crawl_entire_domain=True,
     ),
     # -----------------------------------------------------------------------
-    # Google Gemini API docs
+    # Google Gemini API docs  →  saved under Gemini/
     # -----------------------------------------------------------------------
     CrawlTarget(
         name="gemini",
         base_url="https://ai.google.dev/gemini-api/docs",
-        platform_dir="gemini",
+        platform_dir="Gemini/api",
         max_pages=300,
         exclude_patterns=["/samples/"],
         sitemap="skip",
@@ -106,24 +106,24 @@ CRAWL_TARGETS: list[CrawlTarget] = [
         crawl_entire_domain=True,
     ),
     # -----------------------------------------------------------------------
-    # Google Antigravity (Gemini agent IDE)
+    # Google Antigravity (Gemini agent IDE)  →  saved under Gemini/antigravity
     # -----------------------------------------------------------------------
     CrawlTarget(
         name="antigravity",
         base_url="https://antigravity.google/docs/get-started",
-        platform_dir="antigravity",
+        platform_dir="Gemini/antigravity",
         max_pages=300,
         sitemap="skip",
         max_discovery_depth=4,
         crawl_entire_domain=True,
     ),
     # -----------------------------------------------------------------------
-    # OpenAI Codex docs
+    # OpenAI Codex docs  →  saved under OpenAI/codex
     # -----------------------------------------------------------------------
     CrawlTarget(
         name="openai-codex",
         base_url="https://developers.openai.com/codex/",
-        platform_dir="openai",
+        platform_dir="OpenAI/codex",
         max_pages=300,
         sitemap="skip",
         max_discovery_depth=4,
@@ -391,11 +391,12 @@ class SnapshotManager:
         return result
 
     def load_all(self, platform_dir: Path) -> list[PageResult]:
-        """Load all .md snapshots from a platform directory (for backfill ingest)."""
+        """Load all .md snapshots from a platform directory (for backfill ingest).
+        Uses rglob to support nested subdirectories (e.g. Claude/docs/, Claude/api/)."""
         pages = []
         if not platform_dir.exists():
             return pages
-        for md_path in sorted(platform_dir.glob("*.md")):
+        for md_path in sorted(platform_dir.rglob("*.md")):
             meta_path = md_path.with_suffix(".json")
             try:
                 markdown = md_path.read_text(encoding="utf-8")
