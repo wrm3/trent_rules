@@ -1,0 +1,28 @@
+{
+  "url": "https://opencode.ai/zen",
+  "title": "OpenCode Zen | A curated set of reliable optimized models for coding agents",
+  "content_hash": "5a355189481b",
+  "viewport": "width=device-width, initial-scale=1",
+  "apple-mobile-web-app-title": "OpenCode",
+  "language": "en",
+  "ogImage": "/social-share.png",
+  "twitter:image": [
+    "/social-share.png",
+    "/social-share-zen.png"
+  ],
+  "description": "OpenCode - The open source coding agent.",
+  "og:image": [
+    "/social-share.png",
+    "/social-share-zen.png"
+  ],
+  "opencode:auth": "false",
+  "favicon": "https://opencode.ai/favicon-96x96-v3.png",
+  "scrapeId": "019cd3ce-d8ed-7589-b50f-cf2eed6cd181",
+  "sourceURL": "https://opencode.ai/zen",
+  "statusCode": 200,
+  "contentType": "text/html",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-08T15:09:37.160Z",
+  "creditsUsed": 1
+}

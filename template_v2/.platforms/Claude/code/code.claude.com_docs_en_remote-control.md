@@ -1,0 +1,151 @@
+[Skip to main content](https://code.claude.com/docs/en/remote-control#content-area)
+
+[Claude Code Docs home page![light logo](https://mintcdn.com/claude-code/TBPmHzr19mDCuhZi/logo/light.svg?fit=max&auto=format&n=TBPmHzr19mDCuhZi&q=85&s=d535f2e20f53cd911acc59ad1b64b2e0)![dark logo](https://mintcdn.com/claude-code/TBPmHzr19mDCuhZi/logo/dark.svg?fit=max&auto=format&n=TBPmHzr19mDCuhZi&q=85&s=28e49a2ffe69101f4aae9bfa70b393d0)](https://code.claude.com/docs)
+
+![US](https://d3gk2c5xim1je2.cloudfront.net/flags/US.svg)
+
+English
+
+Search...
+
+Ctrl KAsk AI
+
+Search...
+
+Navigation
+
+Platforms and integrations
+
+Continue local sessions from any device with Remote Control
+
+[Getting started](https://code.claude.com/docs/en/overview) [Build with Claude Code](https://code.claude.com/docs/en/sub-agents) [Deployment](https://code.claude.com/docs/en/third-party-integrations) [Administration](https://code.claude.com/docs/en/setup) [Configuration](https://code.claude.com/docs/en/settings) [Reference](https://code.claude.com/docs/en/cli-reference) [Resources](https://code.claude.com/docs/en/legal-and-compliance)
+
+On this page
+
+- [Requirements](https://code.claude.com/docs/en/remote-control#requirements)
+- [Start a Remote Control session](https://code.claude.com/docs/en/remote-control#start-a-remote-control-session)
+- [Connect from another device](https://code.claude.com/docs/en/remote-control#connect-from-another-device)
+- [Enable Remote Control for all sessions](https://code.claude.com/docs/en/remote-control#enable-remote-control-for-all-sessions)
+- [Connection and security](https://code.claude.com/docs/en/remote-control#connection-and-security)
+- [Remote Control vs Claude Code on the web](https://code.claude.com/docs/en/remote-control#remote-control-vs-claude-code-on-the-web)
+- [Limitations](https://code.claude.com/docs/en/remote-control#limitations)
+- [Related resources](https://code.claude.com/docs/en/remote-control#related-resources)
+
+Remote Control is available on all plans. Team and Enterprise admins must first enable Claude Code in [admin settings](https://claude.ai/admin-settings/claude-code).
+
+Remote Control connects [claude.ai/code](https://claude.ai/code) or the Claude app for [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) and [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude) to a Claude Code session running on your machine. Start a task at your desk, then pick it up from your phone on the couch or a browser on another computer.When you start a Remote Control session on your machine, Claude keeps running locally the entire time, so nothing moves to the cloud. With Remote Control you can:
+
+- **Use your full local environment remotely**: your filesystem, [MCP servers](https://code.claude.com/docs/en/mcp), tools, and project configuration all stay available
+- **Work from both surfaces at once**: the conversation stays in sync across all connected devices, so you can send messages from your terminal, browser, and phone interchangeably
+- **Survive interruptions**: if your laptop sleeps or your network drops, the session reconnects automatically when your machine comes back online
+
+Unlike [Claude Code on the web](https://code.claude.com/docs/en/claude-code-on-the-web), which runs on cloud infrastructure, Remote Control sessions run directly on your machine and interact with your local filesystem. The web and mobile interfaces are just a window into that local session.This page covers setup, how to start and connect to sessions, and how Remote Control compares to Claude Code on the web.
+
+## [​](https://code.claude.com/docs/en/remote-control\#requirements)  Requirements
+
+Before using Remote Control, confirm that your environment meets these conditions:
+
+- **Subscription**: available on Pro, Max, Team, and Enterprise plans. Team and Enterprise admins must first enable Claude Code in [admin settings](https://claude.ai/admin-settings/claude-code). API keys are not supported.
+- **Authentication**: run `claude` and use `/login` to sign in through claude.ai if you haven’t already.
+- **Workspace trust**: run `claude` in your project directory at least once to accept the workspace trust dialog.
+
+## [​](https://code.claude.com/docs/en/remote-control\#start-a-remote-control-session)  Start a Remote Control session
+
+You can start a new session directly in Remote Control, or connect a session that’s already running.
+
+- New session
+
+- From an existing session
+
+
+Navigate to your project directory and run:
+
+Report incorrect code
+
+Copy
+
+Ask AI
+
+```
+claude remote-control
+```
+
+The process stays running in your terminal, waiting for remote connections. It displays a session URL you can use to [connect from another device](https://code.claude.com/docs/en/remote-control#connect-from-another-device), and you can press spacebar to show a QR code for quick access from your phone. While a remote session is active, the terminal shows connection status and tool activity.This command supports the following flags:
+
+- **`--name "My Project"`**: set a custom session title visible in the session list at claude.ai/code. You can also pass the name as a positional argument: `claude remote-control "My Project"`
+- **`--verbose`**: show detailed connection and session logs
+- **`--sandbox`** / **`--no-sandbox`**: enable or disable [sandboxing](https://code.claude.com/docs/en/sandboxing) for filesystem and network isolation during the session. Sandboxing is off by default.
+
+If you’re already in a Claude Code session and want to continue it remotely, use the `/remote-control` (or `/rc`) command:
+
+Report incorrect code
+
+Copy
+
+Ask AI
+
+```
+/remote-control
+```
+
+Pass a name as an argument to set a custom session title:
+
+Report incorrect code
+
+Copy
+
+Ask AI
+
+```
+/remote-control My Project
+```
+
+This starts a Remote Control session that carries over your current conversation history and displays a session URL and QR code you can use to [connect from another device](https://code.claude.com/docs/en/remote-control#connect-from-another-device). The `--verbose`, `--sandbox`, and `--no-sandbox` flags are not available with this command.
+
+### [​](https://code.claude.com/docs/en/remote-control\#connect-from-another-device)  Connect from another device
+
+Once a Remote Control session is active, you have a few ways to connect from another device:
+
+- **Open the session URL** in any browser to go directly to the session on [claude.ai/code](https://claude.ai/code). Both `claude remote-control` and `/remote-control` display this URL in the terminal.
+- **Scan the QR code** shown alongside the session URL to open it directly in the Claude app. With `claude remote-control`, press spacebar to toggle the QR code display.
+- **Open [claude.ai/code](https://claude.ai/code) or the Claude app** and find the session by name in the session list. Remote Control sessions show a computer icon with a green status dot when online.
+
+The remote session takes its name from the `--name` argument (or the name passed to `/remote-control`), your last message, your `/rename` value, or “Remote Control session” if there’s no conversation history. If the environment already has an active session, you’ll be asked whether to continue it or start a new one.If you don’t have the Claude app yet, use the `/mobile` command inside Claude Code to display a download QR code for [iOS](https://apps.apple.com/us/app/claude-by-anthropic/id6473753684) or [Android](https://play.google.com/store/apps/details?id=com.anthropic.claude).
+
+### [​](https://code.claude.com/docs/en/remote-control\#enable-remote-control-for-all-sessions)  Enable Remote Control for all sessions
+
+By default, Remote Control only activates when you explicitly run `claude remote-control` or `/remote-control`. To enable it automatically for every session, run `/config` inside Claude Code and set **Enable Remote Control for all sessions** to `true`. Set it back to `false` to disable.Each Claude Code instance supports one remote session at a time. If you run multiple instances, each one gets its own environment and session.
+
+## [​](https://code.claude.com/docs/en/remote-control\#connection-and-security)  Connection and security
+
+Your local Claude Code session makes outbound HTTPS requests only and never opens inbound ports on your machine. When you start Remote Control, it registers with the Anthropic API and polls for work. When you connect from another device, the server routes messages between the web or mobile client and your local session over a streaming connection.All traffic travels through the Anthropic API over TLS, the same transport security as any Claude Code session. The connection uses multiple short-lived credentials, each scoped to a single purpose and expiring independently.
+
+## [​](https://code.claude.com/docs/en/remote-control\#remote-control-vs-claude-code-on-the-web)  Remote Control vs Claude Code on the web
+
+Remote Control and [Claude Code on the web](https://code.claude.com/docs/en/claude-code-on-the-web) both use the claude.ai/code interface. The key difference is where the session runs: Remote Control executes on your machine, so your local MCP servers, tools, and project configuration stay available. Claude Code on the web executes in Anthropic-managed cloud infrastructure.Use Remote Control when you’re in the middle of local work and want to keep going from another device. Use Claude Code on the web when you want to kick off a task without any local setup, work on a repo you don’t have cloned, or run multiple tasks in parallel.
+
+## [​](https://code.claude.com/docs/en/remote-control\#limitations)  Limitations
+
+- **One remote session at a time**: each Claude Code session supports one remote connection.
+- **Terminal must stay open**: Remote Control runs as a local process. If you close the terminal or stop the `claude` process, the session ends. Run `claude remote-control` again to start a new one.
+- **Extended network outage**: if your machine is awake but unable to reach the network for more than roughly 10 minutes, the session times out and the process exits. Run `claude remote-control` again to start a new session.
+
+## [​](https://code.claude.com/docs/en/remote-control\#related-resources)  Related resources
+
+- [Claude Code on the web](https://code.claude.com/docs/en/claude-code-on-the-web): run sessions in Anthropic-managed cloud environments instead of on your machine
+- [Authentication](https://code.claude.com/docs/en/authentication): set up `/login` and manage credentials for claude.ai
+- [CLI reference](https://code.claude.com/docs/en/cli-reference): full list of flags and commands including `claude remote-control`
+- [Security](https://code.claude.com/docs/en/security): how Remote Control sessions fit into the Claude Code security model
+- [Data usage](https://code.claude.com/docs/en/data-usage): what data flows through the Anthropic API during local and remote sessions
+
+Was this page helpful?
+
+YesNo
+
+[Best practices](https://code.claude.com/docs/en/best-practices) [Claude Code on the web](https://code.claude.com/docs/en/claude-code-on-the-web)
+
+Ctrl+I
+
+Assistant
+
+Responses are generated using AI and may contain mistakes.

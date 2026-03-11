@@ -1,0 +1,11 @@
+- side\_navigation
+- [Artifacts](https://antigravity.google/docs/artifacts)
+>- Task List
+
+# Task List
+
+A task list is an artifact that the agent uses to approach complex tasks and monitor progress on various action items. You can find a live snapshot of what the agent is doing in this artifact, which is constructed as a markdown list of items related to research, implementation, verification, and more. This type of artifact is generally used by the agent to keep on track with the user’s overarching goal; typically, you do not need to directly interact with this artifact.
+
+![Task List](https://antigravity.google/assets/image/docs/artifacts/artifact-task.png)
+
+On this Page

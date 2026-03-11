@@ -5,6 +5,7 @@ trent is an AI-powered task management and development system for Cursor IDE and
 
 ## This Repository's Purpose
 This is the **source repository** for the trent system. It contains:
+- The complete rule set for task management
 - 19 specialized trent agents (agents/skills architecture — 95% context reduction)
 - 32+ skills covering task management, QA, planning, video/3D, and more
 - 8 slim always-apply rules per platform (was 5,420 lines, now 281 lines)
@@ -12,9 +13,10 @@ This is the **source repository** for the trent system. It contains:
 - MCP server for RAG, research, Oracle, and video analysis tools
 
 When making changes here, consider:
-1. Parity: Changes to `.cursor/` must also apply to `.claude/` and `.agent/`
-2. Does this affect the `docker/templates/` files?
-3. Should this trigger a version bump?
+1. Parity: Changes to `.cursor/` must also apply to `.agent/` and `.claude/` and `.codex/` and `.opencode/` and vice versa
+2. Does this affect the docker/templates/ files?
+3. Does this need to update agents.md trent section?
+4. Should this trigger a version bump?
 
 ## Tech Stack
 - **Rules**: `.claude/rules/*.md` (Claude Code) / `.cursor/rules/*.mdc` (Cursor)
@@ -46,7 +48,7 @@ temp_scripts/           # Test and utility scripts
 | `oracle_execute` | Write SQL on Oracle |
 | `mediawiki_page` | MediaWiki CRUD operations |
 | `mediawiki_search` | Search MediaWiki |
-| `trent_install` | Install full trent environment (use_v2=True for vNext) |
+| `trent_install` | Install full trent environment |
 | `trent_rules_update` | Update IDE configs/rules |
 | `trent_plan_reset` | Reset .trent/ to blank template |
 | `trent_server_status` | Health check |
@@ -57,6 +59,7 @@ temp_scripts/           # Test and utility scripts
 | `memory_capture_session` | AI self-reports session summary |
 | `memory_search` | Semantic search over session memory |
 | `memory_sessions` | List recent sessions for a project |
+| `memory_context` | Token-budgeted context block |
 | `check_crawl_freshness` | Check if platform docs are fresh (prevents redundant crawls) |
 | `update_crawl_registry` | Record completed platform doc crawl in registry |
 
@@ -65,7 +68,7 @@ temp_scripts/           # Test and utility scripts
 cd docker && docker compose up -d              # Start MCP server
 docker ps | grep trent_rules_docker            # Check status
 docker logs trent_rules_docker -f              # View logs
-cd docker && docker compose up -d --build trent  # Rebuild
+cd docker && docker-compose up -d --build trent_rules_docker  # Rebuild
 ```
 
 ## Rules & Configuration

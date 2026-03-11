@@ -1,0 +1,22 @@
+{
+  "url": "https://opencode.ai/brand",
+  "title": "OpenCode | Brand",
+  "content_hash": "b4ea927de800",
+  "viewport": "width=device-width, initial-scale=1",
+  "og:image": "/social-share.png",
+  "twitter:image": "/social-share.png",
+  "apple-mobile-web-app-title": "OpenCode",
+  "language": "en",
+  "ogImage": "/social-share.png",
+  "description": "OpenCode - The open source coding agent., OpenCode brand guidelines",
+  "favicon": "https://opencode.ai/favicon-96x96-v3.png",
+  "scrapeId": "019cd3ce-da44-7798-b1b8-ddec58bd31dc",
+  "sourceURL": "https://opencode.ai/brand",
+  "statusCode": 200,
+  "contentType": "text/html",
+  "timezone": "America/New_York",
+  "proxyUsed": "basic",
+  "cacheState": "miss",
+  "indexId": "cf81c1c2-4c5c-4e84-a1b2-34099f65008d",
+  "creditsUsed": 1
+}

@@ -1,0 +1,22 @@
+{
+  "url": "https://opencode.ai/enterprise",
+  "title": "OpenCode | Enterprise solutions for your organisation",
+  "content_hash": "d018eed7d202",
+  "language": "en",
+  "ogImage": "/social-share.png",
+  "viewport": "width=device-width, initial-scale=1",
+  "twitter:image": "/social-share.png",
+  "apple-mobile-web-app-title": "OpenCode",
+  "og:image": "/social-share.png",
+  "description": "OpenCode - The open source coding agent., Contact OpenCode for enterprise solutions",
+  "favicon": "https://opencode.ai/favicon-96x96-v3.png",
+  "scrapeId": "019cd3ce-d960-77b4-a9ab-1011d9ecc6a6",
+  "sourceURL": "https://opencode.ai/enterprise",
+  "statusCode": 200,
+  "contentType": "text/html",
+  "timezone": "America/New_York",
+  "proxyUsed": "basic",
+  "cacheState": "miss",
+  "indexId": "390546c5-7031-434e-ba08-212b5948a86e",
+  "creditsUsed": 1
+}

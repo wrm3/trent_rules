@@ -1,7 +1,7 @@
 @echo off
 
 REM === Shared template root ===
-set SHARED=G:\trent_rules\shared
+set SHARED=G:\trent_rules\template_v2
 
 REM === Current project folder (folder this script is in) ===
 set PROJECT=%~dp0

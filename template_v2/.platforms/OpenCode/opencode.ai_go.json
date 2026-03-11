@@ -1,0 +1,38 @@
+{
+  "url": "https://opencode.ai/go",
+  "title": "OpenCode Go | Low cost coding models for everyone",
+  "content_hash": "37e064642e82",
+  "og:title": "OpenCode Go | Low cost coding models for everyone",
+  "viewport": "width=device-width, initial-scale=1",
+  "og:type": "website",
+  "apple-mobile-web-app-title": "OpenCode",
+  "ogTitle": "OpenCode Go | Low cost coding models for everyone",
+  "ogUrl": "https://opencode.ai/go",
+  "twitter:description": "Go is a $10/month subscription with generous 5-hour request limits for GLM-5, Kimi K2.5, and MiniMax M2.5.",
+  "language": "en",
+  "ogDescription": "Go is a $10/month subscription with generous 5-hour request limits for GLM-5, Kimi K2.5, and MiniMax M2.5.",
+  "ogImage": "/social-share.png",
+  "opencode:auth": "false",
+  "twitter:card": "summary_large_image",
+  "og:description": "Go is a $10/month subscription with generous 5-hour request limits for GLM-5, Kimi K2.5, and MiniMax M2.5.",
+  "og:image": [
+    "/social-share.png",
+    "/social-share-black.png"
+  ],
+  "og:url": "https://opencode.ai/go",
+  "twitter:image": [
+    "/social-share.png",
+    "/social-share-black.png"
+  ],
+  "twitter:title": "OpenCode Go | Low cost coding models for everyone",
+  "description": "OpenCode - The open source coding agent., Go is a $10/month subscription with generous 5-hour request limits for GLM-5, Kimi K2.5, and MiniMax M2.5.",
+  "favicon": "https://opencode.ai/favicon-96x96-v3.png",
+  "scrapeId": "019cd3ce-d91d-7165-ad27-47130df1710f",
+  "sourceURL": "https://opencode.ai/go",
+  "statusCode": 200,
+  "contentType": "text/html",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-09T08:50:47.566Z",
+  "creditsUsed": 1
+}

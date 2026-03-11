@@ -1,0 +1,21 @@
+{
+  "url": "https://opencode.ai/changelog",
+  "title": "OpenCode | Changelog",
+  "content_hash": "e567b448ac6d",
+  "twitter:image": "/social-share.png",
+  "ogImage": "/social-share.png",
+  "viewport": "width=device-width, initial-scale=1",
+  "apple-mobile-web-app-title": "OpenCode",
+  "description": "OpenCode - The open source coding agent., OpenCode release notes and changelog",
+  "og:image": "/social-share.png",
+  "language": "en",
+  "favicon": "https://opencode.ai/favicon-96x96-v3.png",
+  "scrapeId": "019cd3ce-d9f3-75db-89d7-e0f946b7e055",
+  "sourceURL": "https://opencode.ai/changelog",
+  "statusCode": 200,
+  "contentType": "text/html",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-09T05:47:56.905Z",
+  "creditsUsed": 1
+}

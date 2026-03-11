@@ -1,0 +1,27 @@
+{
+  "url": "https://opencode.ai/",
+  "title": "OpenCode | The open source AI coding agent",
+  "content_hash": "e0652548ebb4",
+  "language": "en",
+  "ogImage": "/social-share.png",
+  "og:image": [
+    "/social-share.png",
+    "/social-share.png"
+  ],
+  "description": "OpenCode - The open source coding agent.",
+  "apple-mobile-web-app-title": "OpenCode",
+  "twitter:image": [
+    "/social-share.png",
+    "/social-share.png"
+  ],
+  "viewport": "width=device-width, initial-scale=1",
+  "favicon": "https://opencode.ai/favicon-96x96-v3.png",
+  "scrapeId": "019cd3ce-d781-77df-b14c-a9cfcfcf1324",
+  "sourceURL": "https://opencode.ai/",
+  "statusCode": 200,
+  "contentType": "text/html",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-09T12:52:19.696Z",
+  "creditsUsed": 1
+}

@@ -1,0 +1,28 @@
+{
+  "url": "https://code.claude.com/docs/en/sessions",
+  "title": "Page Not Found",
+  "content_hash": "58cddbdcc77e",
+  "language": "en",
+  "application-name": "Claude Code Docs",
+  "generator": "Mintlify",
+  "msapplication-TileColor": "#0E0E0E",
+  "viewport": "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
+  "robots": [
+    "noindex, nofollow",
+    "noindex"
+  ],
+  "apple-mobile-web-app-title": "Claude Code Docs",
+  "msapplication-config": "/docs/_mintlify/favicons/claude-code/pLsy-mRpNksna2sx/_generated/favicon/browserconfig.xml",
+  "mode": "custom",
+  "next-size-adjust": "",
+  "favicon": "https://code.claude.com/docs/_mintlify/favicons/claude-code/pLsy-mRpNksna2sx/_generated/favicon/favicon-16x16.png",
+  "scrapeId": "019ccef7-0448-7294-ac28-e1fa650f3da4",
+  "sourceURL": "https://code.claude.com/docs/en/sessions",
+  "statusCode": 404,
+  "error": "Not Found",
+  "contentType": "text/html; charset=utf-8",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-08T19:40:37.822Z",
+  "creditsUsed": 1
+}
