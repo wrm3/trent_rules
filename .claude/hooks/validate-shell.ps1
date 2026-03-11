@@ -35,15 +35,15 @@ foreach ($pattern in $dangerousPatterns) {
     }
 }
 
-# Log the command with secrets redacted
-$logDir = ".claude/logs"
+# Write to .trent/logs/ — project-local, safe with symlinked .claude/
+$logDir = ".trent/logs"
 if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir -Force | Out-Null }
 
 $datePrefix = Get-Date -Format "yyyy-MM-dd"
 $logFile    = "$logDir/${datePrefix}_shell_commands.log"
 $timestamp  = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
 $safeCmd    = Invoke-Sanitize $command
-$logEntry   = "[$timestamp] [SHELL] Command: $safeCmd | CWD: $cwd"
+$logEntry   = "[$timestamp] [claude] [SHELL] Command: $safeCmd | CWD: $cwd"
 Add-Content -Path $logFile -Value $logEntry
 
 $response | ConvertTo-Json -Compress

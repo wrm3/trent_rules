@@ -42,7 +42,7 @@ if (Test-Path $adapterScript) {
 # session-start.ps1 injects a memory-check reminder on the NEXT session.
 if ([int]$loopCount -ge 5) {
     try {
-        $logsDir = ".cursor/logs"
+        $logsDir = ".trent/logs"
         if (-not (Test-Path $logsDir)) { New-Item -ItemType Directory -Path $logsDir -Force | Out-Null }
         $reflectionData = @{
             conversation_id = $conversationId

@@ -1,12 +1,14 @@
 # audit.ps1 - Cursor hook for auditing all tool events
-# Logs tool inputs with API keys and secrets redacted via sanitize-logs.ps1.
+# Logs to .trent/logs/ (project-local, safe with symlinked .cursor/).
+# Source system tagged [cursor] in every entry.
 
 . (Join-Path $PSScriptRoot "sanitize-logs.ps1")
 
 $inputJson = $input | Out-String
 $timestamp = Get-Date -Format "yyyy-MM-ddTHH:mm:ssZ"
 
-$logDir = ".cursor/logs"
+# Write to .trent/logs/ — project-local, never inside the symlinked .cursor/ dir
+$logDir = ".trent/logs"
 if (-not (Test-Path $logDir)) { New-Item -ItemType Directory -Path $logDir -Force | Out-Null }
 
 try {
@@ -22,7 +24,7 @@ $logFile    = "$logDir/${datePrefix}_agent-audit.log"
 
 # Sanitize before writing — replaces real key values with [VAR_NAME]
 $safeJson  = Invoke-Sanitize $inputJson
-$logEntry  = "[$timestamp] [$hookEvent] $safeJson"
+$logEntry  = "[$timestamp] [cursor] [$hookEvent] $safeJson"
 Add-Content -Path $logFile -Value $logEntry
 
 Write-Output "{}"

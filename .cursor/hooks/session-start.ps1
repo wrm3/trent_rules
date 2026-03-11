@@ -68,7 +68,7 @@ AI memory features will work but sessions won't be linked to a named user until 
 }
 
 $reflectionBanner = ""
-$reflectionFile   = ".cursor/logs/pending_reflection.json"
+$reflectionFile   = ".trent/logs/pending_reflection.json"
 if (Test-Path $reflectionFile) {
     try {
         $reflData    = Get-Content $reflectionFile -Raw | ConvertFrom-Json
