@@ -249,6 +249,8 @@ template/.cursor/logs/*
 !template/.cursor/logs/.gitkeep
 .cursor/metrics/*
 !.cursor/metrics/.gitkeep
+# Cursor hook state (per-session, per-project — never shared)
+.cursor/hooks/state/
 # Claude metrics (session-specific, not for distribution)
 .claude/metrics/*
 !.claude/metrics/.gitkeep

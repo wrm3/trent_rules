@@ -15,7 +15,9 @@ echo Creating junction links...
 
 mklink /J "%PROJECT%.agent" "%SHARED%\.agent"
 mklink /J "%PROJECT%.claude" "%SHARED%\.claude"
+mklink /J "%PROJECT%.codex" "%SHARED%\.codex"
 mklink /J "%PROJECT%.cursor" "%SHARED%\.cursor"
+mklink /J "%PROJECT%.opencode" "%SHARED%\.opencode"
 mklink /J "%PROJECT%.platforms" "%SHARED%\.platforms"
 
 echo.
