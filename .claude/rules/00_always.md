@@ -23,10 +23,10 @@ alwaysApply: true
    ---
    ``` 
 
-2. if any particular file in the code base exceeds 800 lines of code...
-  * begin asking the user if they would like to refactor the code to keep the file sizes smaller
-  * become more insistant with every 100 lines added thereafter
-  * become very insistant on refactoring once a file has hit 1000 lines
+2. if any particular file in the code base exceeds 1500 lines of code...
+ * begin asking the user if they would like to refactor the code to keep the file sizes smaller
+ * become more insistant with every 100 lines added thereafter
+ * become very insistant on refactoring once a file has hit 1700 lines
 
 3. check your MCP tool lists, you seem to forget you have a lot of tools
 
