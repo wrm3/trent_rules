@@ -1,8 +1,0 @@
-{
-  "mcpServers": {
-    "trent_rules_docker": {
-      "url": "http://localhost:8082/mcp",
-      "transport": "streamable-http"
-    }
-  }
-}

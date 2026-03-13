@@ -317,6 +317,26 @@ Commands use the `trent-` prefix.
 
 ---
 
+## Learned Workspace Facts
+
+- The `chrome-devtools` MCP server is installed and enabled in Cursor; it exposes 28 browser automation tools including navigation, interaction, network inspection, performance profiling, and Lighthouse audits.
+- User is interested in routing chrome-devtools MCP calls through the Docker MCP server as a proxy/aggregator pattern rather than maintaining two separate MCP registrations.
+- Docker `environment:` blocks using `${VAR:-default}` syntax override `env_file` values with empty strings when the Windows shell doesn't have those vars set; fix by removing secrets from `environment:` entirely and letting `env_file` handle them.
+- PostgreSQL: Docker trent postgres runs on host port `5433`, local native postgres on `5432`. The trent data database is named `knowledge_base` (not `postgres` or `rag_knowledge`).
+- Admin DB viewer lives at `http://localhost:8082/admin/db` (dark theme, table browser + SQL runner, served by `admin_db_rest.py` wired into the Starlette server). pgAdmin is at `http://localhost:8083`.
+- Platform docs (Firecrawl): 67 Claude Code doc pages crawled to `.platforms/claude-code/`, stored as 1,520 chunks in the `memory_captures` table with `subject=platform_docs`. Search via `platform_docs_search` MCP tool with `platform="claude-code"`.
+- `trent_install` deploys from the `template/` subfolder in the GitHub repo (not repo root). Changes require commit + push to `wrm3/trent_rules` to take effect. The `GITHUB_TOKEN` in `.env.example` is a dead leftover and should be removed.
+- Cursor `stop` hook only fires when the user clicks the Stop button or the agent loop hits its iteration limit — not at end of each message exchange. Memory capture via `cursor_adapter.py` must be triggered manually or via the continual-learning plugin hook.
+- The continual-learning Cursor plugin has hardcoded state paths at `.cursor/hooks/state/continual-learning.json` and `.cursor/hooks/state/continual-learning-index.json` (cannot be changed). The canonical cross-platform shared index with source metadata lives at `.trent/state/continual-learning-index.json`. Both paths are gitignored.
+- `.cursor/mcp.json` is machine-specific and gitignored. `.mcp.json` (root) is the committed version.
+- `.trent/state/` is gitignored — it holds cross-platform runtime state shared between Cursor, Claude Code, and other IDEs.
+- User is actively concerned about always-apply rules consuming ~40% of context window and wants to migrate toward agents/skills architecture to reduce context overhead.
+- The `admin_db_rest.py` file (`docker/trent/admin_db_rest.py`) is the canonical DB explorer; if missing, the old version lives at `i:\20260305\trent_rules_obs\` and can be copied in.
+- `database/client.py` uses the key `postgres_db` but `RAGDatabase.__init__` was reading `postgres_database` — a silent mismatch that caused the system to default to `rag_work_knowledge` instead of `knowledge_base`; this has been fixed.
+- When `trent_install` is called on an existing project (one that already has `.trent/`), the agent must read old task/context data first and must never overwrite the 7 user-data files during migration.
+
+---
+
 **Version**: 5.0.0
 **Last Updated**: 2026-03-03
 **Supported IDEs**: Cursor IDE (`.cursor/`), Claude Code (`.claude/`)

@@ -251,6 +251,10 @@ template/.cursor/logs/*
 !.cursor/metrics/.gitkeep
 # Cursor hook state (per-session, per-project — never shared)
 .cursor/hooks/state/
+# Cursor MCP configuration (local machine-specific, not shared)
+.cursor/mcp.json
+# trent shared runtime state (cross-platform state, private — Cursor + Claude share .trent/state/)
+.trent/state/
 # Claude metrics (session-specific, not for distribution)
 .claude/metrics/*
 !.claude/metrics/.gitkeep
