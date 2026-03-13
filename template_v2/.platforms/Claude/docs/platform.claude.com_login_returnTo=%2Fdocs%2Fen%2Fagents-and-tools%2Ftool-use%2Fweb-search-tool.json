@@ -1,0 +1,28 @@
+{
+  "url": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fagents-and-tools%2Ftool-use%2Fweb-search-tool",
+  "title": "Sign In | Claude Developer Platform",
+  "content_hash": "4a1f295f0a8e",
+  "mobile-web-app-capable": "yes",
+  "next-size-adjust": "",
+  "viewport": [
+    "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
+    "width=device-width, initial-scale=1.0,\n                                 maximum-scale=1.0, user-scalable=no"
+  ],
+  "language": "en-US",
+  "apple-mobile-web-app-status-bar-style": "default",
+  "description": "Build with the Claude API",
+  "color-scheme": "light dark",
+  "theme-color": [
+    "hsl(,undefined,undefined)",
+    "#fff"
+  ],
+  "favicon": "https://platform.claude.com/favicon.ico",
+  "scrapeId": "019cd3bd-0d05-74f2-9328-e44bba1905d2",
+  "sourceURL": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fagents-and-tools%2Ftool-use%2Fweb-search-tool",
+  "statusCode": 200,
+  "contentType": "text/html; charset=utf-8",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-08T03:08:20.609Z",
+  "creditsUsed": 1
+}

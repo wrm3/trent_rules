@@ -1,0 +1,28 @@
+{
+  "url": "https://platform.claude.com/login?returnTo=%2Fusage",
+  "title": "Sign In | Claude Developer Platform",
+  "content_hash": "4a1f295f0a8e",
+  "description": "Build with the Claude API",
+  "language": "en-US",
+  "apple-mobile-web-app-status-bar-style": "default",
+  "color-scheme": "light dark",
+  "viewport": [
+    "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
+    "width=device-width, initial-scale=1.0,\n                                 maximum-scale=1.0, user-scalable=no"
+  ],
+  "next-size-adjust": "",
+  "theme-color": [
+    "hsl(,undefined,undefined)",
+    "#fff"
+  ],
+  "mobile-web-app-capable": "yes",
+  "favicon": "https://platform.claude.com/favicon.ico",
+  "scrapeId": "019cd3bc-e6b6-7228-8a58-d7cb5b0a175d",
+  "sourceURL": "https://platform.claude.com/usage",
+  "statusCode": 200,
+  "contentType": "text/html; charset=utf-8",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-09T17:48:24.389Z",
+  "creditsUsed": 1
+}

@@ -1,0 +1,28 @@
+{
+  "url": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fbuild-with-claude%2Fprompt-engineering%2Fclaude-prompting-best-practices",
+  "title": "Sign In | Claude Developer Platform",
+  "content_hash": "4a1f295f0a8e",
+  "language": "en-US",
+  "description": "Build with the Claude API",
+  "apple-mobile-web-app-status-bar-style": "default",
+  "theme-color": [
+    "hsl(,undefined,undefined)",
+    "#fff"
+  ],
+  "viewport": [
+    "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
+    "width=device-width, initial-scale=1.0,\n                                 maximum-scale=1.0, user-scalable=no"
+  ],
+  "mobile-web-app-capable": "yes",
+  "color-scheme": "light dark",
+  "next-size-adjust": "",
+  "favicon": "https://platform.claude.com/favicon.ico",
+  "scrapeId": "019cd3b8-6c28-71e8-9c88-a8023ac244cb",
+  "sourceURL": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fbuild-with-claude%2Fprompt-engineering%2Fclaude-prompting-best-practices",
+  "statusCode": 200,
+  "contentType": "text/html; charset=utf-8",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-08T03:04:34.293Z",
+  "creditsUsed": 1
+}

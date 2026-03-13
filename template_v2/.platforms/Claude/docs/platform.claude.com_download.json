@@ -1,0 +1,30 @@
+{
+  "url": "https://platform.claude.com/download",
+  "title": "Claude Developer Platform",
+  "content_hash": "642a1e3ba40f",
+  "robots": "noindex",
+  "apple-mobile-web-app-status-bar-style": "default",
+  "next-size-adjust": "",
+  "description": "Build with the Claude API",
+  "viewport": [
+    "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
+    "width=device-width, initial-scale=1.0,\n                                 maximum-scale=1.0, user-scalable=no"
+  ],
+  "language": "en-US",
+  "color-scheme": "light dark",
+  "theme-color": [
+    "hsl(,undefined,undefined)",
+    "#fff"
+  ],
+  "mobile-web-app-capable": "yes",
+  "favicon": "https://platform.claude.com/favicon.ico",
+  "scrapeId": "019cd3bb-4221-758a-ac99-6833a442f106",
+  "sourceURL": "https://platform.claude.com/download",
+  "statusCode": 404,
+  "error": "Not Found",
+  "contentType": "text/html; charset=utf-8",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-09T17:47:57.851Z",
+  "creditsUsed": 1
+}

@@ -1,0 +1,482 @@
+[Skip to main content](https://cursor.com/docs/mcp#main-content)
+
+## Command Palette
+
+Search for a command to run...
+
+## Get Started
+
+[Welcome](https://cursor.com/docs) [Quickstart](https://cursor.com/docs/get-started/quickstart)
+Models & Pricing
+
+## Agent
+
+[Overview](https://cursor.com/docs/agent/overview) [Planning](https://cursor.com/docs/agent/plan-mode) [Prompting](https://cursor.com/docs/agent/prompting) [Debugging](https://cursor.com/docs/agent/debug-mode)
+Tools
+[Parallel Agents](https://cursor.com/docs/configuration/worktrees) [Security](https://cursor.com/docs/agent/security)
+
+## Customizing
+
+[Plugins](https://cursor.com/docs/plugins) [Rules](https://cursor.com/docs/rules) [Skills](https://cursor.com/docs/skills) [Subagents](https://cursor.com/docs/subagents) [Hooks](https://cursor.com/docs/hooks) [MCP](https://cursor.com/docs/mcp)
+
+## Cloud Agents
+
+[Overview](https://cursor.com/docs/cloud-agent) [Setup](https://cursor.com/docs/cloud-agent/setup) [Capabilities](https://cursor.com/docs/cloud-agent/capabilities) [Bugbot](https://cursor.com/docs/bugbot) [Best Practices](https://cursor.com/docs/cloud-agent/best-practices) [Security & Network](https://cursor.com/docs/cloud-agent/security-network) [Settings](https://cursor.com/docs/cloud-agent/settings) [API](https://cursor.com/docs/cloud-agent/api/endpoints)
+
+## Integrations
+
+[Slack](https://cursor.com/docs/integrations/slack) [Linear](https://cursor.com/docs/integrations/linear) [GitHub](https://cursor.com/docs/integrations/github) [GitLab](https://cursor.com/docs/integrations/gitlab) [JetBrains](https://cursor.com/docs/integrations/jetbrains) [Deeplinks](https://cursor.com/docs/reference/deeplinks)
+
+## CLI
+
+[Overview](https://cursor.com/docs/cli/overview) [Installation](https://cursor.com/docs/cli/installation) [Capabilities](https://cursor.com/docs/cli/using) [Shell Mode](https://cursor.com/docs/cli/shell-mode) [ACP](https://cursor.com/docs/cli/acp) [Headless / CI](https://cursor.com/docs/cli/headless)
+Reference
+
+## Teams & Enterprise
+
+Teams
+
+Enterprise
+
+Customizing
+
+# Model Context Protocol (MCP)
+
+## [What is MCP?](https://cursor.com/docs/mcp\#what-is-mcp)
+
+[Model Context Protocol (MCP)](https://modelcontextprotocol.io/introduction) enables Cursor to connect to external tools and data sources.
+
+media loading
+
+### Network Error
+
+A network error caused the media download to fail.
+
+
+
+PlayPause
+
+en0:00
+
+en0:00
+
+PlayPause10
+
+Seek backward
+10
+10
+
+Seek forward
+10
+0:00 / 0:00
+
+MuteUnmute
+
+Quality1x
+
+Playback rate
+
+Audio
+
+Captions
+
+start airplaystop airplay
+
+Start castingStop casting
+
+Enter picture in picture modeExit picture in picture mode
+
+Enter fullscreen modeExit fullscreen mode![](https://image.mux.com/llBTFuPgMZqBIeT701J2ZDaEuL7BB8AgHfUFijQiBnQo/thumbnail.webp)
+
+## [Servers](https://cursor.com/docs/mcp\#servers)
+
+Browse available MCP servers. Click "Add to Cursor" to install them directly.
+
+Filters
+
+| Name | Install | Description |
+| --- | --- | --- |
+| Aikido Security | [Add to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=Aikido%20Security&config=eyJjb21tYW5kIjoibnB4IC15IEBhaWtpZG9zZWMvbWNwIiwiZW52Ijp7IkFJS0lET19BUElfS0VZIjoiIn19) | Security scanning in your AI coding workflow. |
+| Apache Airflow<br>Airflow | [Add to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=Airflow&config=eyJjb21tYW5kIjoidXZ4IGFzdHJvLWFpcmZsb3ctbWNwIC0tdHJhbnNwb3J0IHN0ZGlvIn0%3D) | Manage Apache Airflow DAGs, monitor runs, debug failures, and access Airflow's REST API. |
+| Airwallex Developer MCP | [Add to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=Airwallex%20Developer%20MCP&config=eyJjb21tYW5kIjoibnB4IC15IEBhaXJ3YWxsZXgvZGV2ZWxvcGVyLW1jcEBsYXRlc3QiLCJlbnYiOnsiQUlSV0FMTEVYX1NBTkRCT1hfQ0xJRU5UX0lEIjoiIiwiQUlSV0FMTEVYX1NBTkRCT1hfQVBJX0tFWSI6IiJ9fQ%3D%3D) | Tools to search Airwallex docs and interact with the Airwallex sandbox environment while integrating with Airwallex APIs. |
+| Alpha Vantage | [Add to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=Alpha%20Vantage&config=eyJ1cmwiOiJodHRwczovL21jcC5hbHBoYXZhbnRhZ2UuY28vbWNwIiwiaGVhZGVycyI6eyJhcGlrZXkiOiI8QUxQSEFWQU5UQUdFX0FQSV9LRVk%252BIn19) | Financial data API for stocks, forex, crypto, and economic indicators. |
+| alphaXiv | [Add to Cursor](cursor://anysphere.cursor-deeplink/mcp/install?name=alphaXiv&config=eyJ1cmwiOiJodHRwczovL2FwaS5hbHBoYXhpdi5vcmcvbWNwL3YxIn0%3D) | Search ML research papers and analyze PDFs. |
+
+Show more servers
+
+### [Why use MCP?](https://cursor.com/docs/mcp\#why-use-mcp)
+
+MCP connects Cursor to external systems and data. Instead of explaining your project structure repeatedly, integrate directly with your tools.
+
+Write MCP servers in any language that can print to `stdout` or serve an HTTP endpoint - Python, JavaScript, Go, etc.
+
+### [How it works](https://cursor.com/docs/mcp\#how-it-works)
+
+MCP servers expose capabilities through the protocol, connecting Cursor to external tools or data sources.
+
+Cursor supports three transport methods:
+
+| Transport | Execution environment | Deployment | Users | Input | Auth |
+| --- | --- | --- | --- | --- | --- |
+| **`stdio`** | Local | Cursor manages | Single user | Shell command | Manual |
+| **`SSE`** | Local/Remote | Deploy as server | Multiple users | URL to an SSE endpoint | OAuth |
+| **`Streamable HTTP`** | Local/Remote | Deploy as server | Multiple users | URL to an HTTP endpoint | OAuth |
+
+### [Protocol and extension support](https://cursor.com/docs/mcp\#protocol-and-extension-support)
+
+Cursor supports these MCP protocol capabilities and extensions:
+
+| Feature | Support | Description |
+| --- | --- | --- |
+| **Tools** | Supported | Functions for the AI model to execute |
+| **Prompts** | Supported | Templated messages and workflows for users |
+| **Resources** | Supported | Structured data sources that can be read and referenced |
+| **Roots** | Supported | Server-initiated inquiries into URI or filesystem boundaries |
+| **Elicitation** | Supported | Server-initiated requests for additional information from users |
+| **Apps (extension)** | Supported | Interactive UI views returned by MCP tools |
+
+### [MCP apps](https://cursor.com/docs/mcp\#mcp-apps)
+
+Cursor supports the [MCP Apps extension](https://modelcontextprotocol.io/extensions/apps/overview). MCP tools can return interactive UI along with standard tool output.
+
+MCP Apps follow progressive enhancement. If a host cannot render app UI, the same tool still works through normal MCP responses.
+
+## [Installing MCP servers](https://cursor.com/docs/mcp\#installing-mcp-servers)
+
+### [One-click installation](https://cursor.com/docs/mcp\#one-click-installation)
+
+Browse and install MCP servers from the [Cursor Marketplace](https://cursor.com/marketplace). Click "Add to Cursor" on any server to install it and authenticate with OAuth.
+
+### [Using `mcp.json`](https://cursor.com/docs/mcp\#using-mcpjson)
+
+Configure custom MCP servers with a JSON file:
+
+CLI Server - Node.js
+
+```
+{
+  "mcpServers": {
+    "server-name": {
+      "command": "npx",
+      "args": ["-y", "mcp-server"],
+      "env": {
+        "API_KEY": "value"
+      }
+    }
+  }
+}
+```
+
+CLI Server - Python
+
+```
+{
+  "mcpServers": {
+    "server-name": {
+      "command": "python",
+      "args": ["mcp-server.py"],
+      "env": {
+        "API_KEY": "value"
+      }
+    }
+  }
+}
+```
+
+Remote Server
+
+```
+// MCP server using HTTP or SSE - runs on a server
+{
+  "mcpServers": {
+    "server-name": {
+      "url": "http://localhost:3000/mcp",
+      "headers": {
+        "API_KEY": "value"
+      }
+    }
+  }
+}
+```
+
+### [Static OAuth for remote servers](https://cursor.com/docs/mcp\#static-oauth-for-remote-servers)
+
+For MCP servers that use OAuth, you can provide **static OAuth client credentials** in `mcp.json` instead of dynamic client registration. Use this when:
+
+- The MCP provider gives you a fixed **Client ID** (and optionally **Client Secret**)
+- The provider requires **whitelisting a redirect URL** (e.g. Figma, Linear)
+- The provider does not support OAuth 2.0 Dynamic Client Registration
+
+Add an `auth` object to remote server entries that use `url`:
+
+Remote Server with Static OAuth
+
+```
+{
+  "mcpServers": {
+    "oauth-server": {
+      "url": "https://api.example.com/mcp",
+      "auth": {
+        "CLIENT_ID": "your-oauth-client-id",
+        "CLIENT_SECRET": "your-client-secret",
+        "scopes": ["read", "write"]
+      }
+    }
+  }
+}
+```
+
+| Field | Required | Description |
+| --- | --- | --- |
+| **CLIENT\_ID** | Yes | OAuth 2.0 Client ID from the MCP provider |
+| **CLIENT\_SECRET** | No | OAuth 2.0 Client Secret (if the provider uses confidential clients) |
+| **scopes** | No | OAuth scopes to request. If omitted, Cursor will use `/.well-known/oauth-authorization-server` to discover `scopes_supported` |
+
+#### [Static redirect URL](https://cursor.com/docs/mcp\#static-redirect-url)
+
+Cursor uses a **fixed OAuth redirect URL** for all MCP servers:
+
+```
+cursor://anysphere.cursor-mcp/oauth/callback
+```
+
+When configuring the MCP provider's OAuth app, register this URL as an allowed redirect URI. The server is identified via the OAuth `state` parameter, so one redirect URL works for all MCP servers.
+
+#### [Combining with config interpolation](https://cursor.com/docs/mcp\#combining-with-config-interpolation)
+
+`auth` values support the same interpolation as other fields:
+
+```
+{
+  "mcpServers": {
+    "oauth-server": {
+      "url": "https://api.example.com/mcp",
+      "auth": {
+        "CLIENT_ID": "${env:MCP_CLIENT_ID}",
+        "CLIENT_SECRET": "${env:MCP_CLIENT_SECRET}"
+      }
+    }
+  }
+}
+```
+
+Use environment variables for Client ID and Client Secret instead of hardcoding them.
+
+### [STDIO server configuration](https://cursor.com/docs/mcp\#stdio-server-configuration)
+
+For STDIO servers (local command-line servers), configure these fields in your `mcp.json`:
+
+| Field | Required | Description | Examples |
+| --- | --- | --- | --- |
+| **type** | Yes | Server connection type | `"stdio"` |
+| **command** | Yes | Command to start the server executable. Must be available on your system path or contain its full path. | `"npx"`, `"node"`, `"python"`, `"docker"` |
+| **args** | No | Array of arguments passed to the command | `["server.py", "--port", "3000"]` |
+| **env** | No | Environment variables for the server | `{"API_KEY": "${env:api-key}"}` |
+| **envFile** | No | Path to an environment file to load more variables | `".env"`, `"${workspaceFolder}/.env"` |
+
+The `envFile` option is only available for STDIO servers. Remote servers (HTTP/SSE) do not support `envFile`. For remote servers, use [config interpolation](https://cursor.com/docs/mcp#config-interpolation) with environment variables set in your shell profile or system environment instead.
+
+### [Using the Extension API](https://cursor.com/docs/mcp\#using-the-extension-api)
+
+For programmatic MCP server registration, Cursor provides an extension API that allows dynamic configuration without modifying `mcp.json` files. This is particularly useful for enterprise environments and automated setup workflows.
+
+[MCP Extension API Reference\\
+\\
+Learn how to register MCP servers programmatically using\\
+`vscode.cursor.mcp.registerServer()`](https://cursor.com/docs/context/mcp-extension-api)
+
+### [Configuration locations](https://cursor.com/docs/mcp\#configuration-locations)
+
+Project Configuration
+
+Create `.cursor/mcp.json` in your project for project-specific tools.
+
+Global Configuration
+
+Create `~/.cursor/mcp.json` in your home directory for tools available everywhere.
+
+### [Config interpolation](https://cursor.com/docs/mcp\#config-interpolation)
+
+Use variables in `mcp.json` values. Cursor resolves variables in these fields: `command`, `args`, `env`, `url`, and `headers`.
+
+Supported syntax:
+
+- `${env:NAME}` environment variables
+- `${userHome}` path to your home folder
+- `${workspaceFolder}` project root (the folder that contains `.cursor/mcp.json`)
+- `${workspaceFolderBasename}` name of the project root
+- `${pathSeparator}` and `${/}` OS path separator
+
+Examples
+
+```
+{
+  "mcpServers": {
+    "local-server": {
+      "command": "python",
+      "args": ["${workspaceFolder}/tools/mcp_server.py"],
+      "env": {
+        "API_KEY": "${env:API_KEY}"
+      }
+    }
+  }
+}
+```
+
+```
+{
+  "mcpServers": {
+    "remote-server": {
+      "url": "https://api.example.com/mcp",
+      "headers": {
+        "Authorization": "Bearer ${env:MY_SERVICE_TOKEN}"
+      }
+    }
+  }
+}
+```
+
+### [Authentication](https://cursor.com/docs/mcp\#authentication)
+
+MCP servers use environment variables for authentication. Pass API keys and tokens through the config.
+
+Cursor supports OAuth for servers that require it.
+
+## [Using MCP in chat](https://cursor.com/docs/mcp\#using-mcp-in-chat)
+
+Agent automatically uses MCP tools listed under `Available Tools` when relevant. This includes [Plan Mode](https://cursor.com/docs/agent/plan-mode#plan). Ask for a specific tool by name or describe what you need. Enable or disable tools from settings.
+
+### [Tool approval](https://cursor.com/docs/mcp\#tool-approval)
+
+Agent asks for approval before using MCP tools by default. Click the arrow next to the tool name to see arguments.
+
+![Tool confirmation prompt](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcontext%2Fmcp%2Ftool-confirm.png&w=1920&q=75&dpl=dpl_HFgEKdNrBwoyPcht6hNd9Lj4DjpL)
+
+#### [Auto-run](https://cursor.com/docs/mcp\#auto-run)
+
+Enable auto-run for Agent to use MCP tools without asking. Works like terminal commands. Read more about Auto-run settings [here](https://cursor.com/docs/agent/overview#auto-run).
+
+### [Tool response](https://cursor.com/docs/mcp\#tool-response)
+
+Cursor shows the response in chat with expandable views of arguments and responses:
+
+![MCP tool call result](https://cursor.com/docs-static/_next/image?url=%2Fdocs-static%2Fimages%2Fcontext%2Fmcp%2Ftool-call.png&w=1920&q=75&dpl=dpl_HFgEKdNrBwoyPcht6hNd9Lj4DjpL)
+
+### [Images as context](https://cursor.com/docs/mcp\#images-as-context)
+
+MCP servers can return images - screenshots, diagrams, etc. Return them as base64 encoded strings:
+
+```
+const RED_CIRCLE_BASE64 = "/9j/4AAQSkZJRgABAgEASABIAAD/2w...";
+// ^ full base64 clipped for readability
+
+server.tool("generate_image", async (params) => {
+  return {
+    content: [\
+      {\
+        type: "image",\
+        data: RED_CIRCLE_BASE64,\
+        mimeType: "image/jpeg",\
+      },\
+    ],
+  };
+});
+```
+
+See this [example server](https://github.com/msfeldstein/mcp-test-servers/blob/main/src/image-server.js) for implementation details. Cursor attaches returned images to the chat. If the model supports images, it analyzes them.
+
+## [Security considerations](https://cursor.com/docs/mcp\#security-considerations)
+
+When installing MCP servers, consider these security practices:
+
+- **Verify the source**: Only install MCP servers from trusted developers and repositories
+- **Review permissions**: Check what data and APIs the server will access
+- **Limit API keys**: Use restricted API keys with minimal required permissions
+- **Audit code**: For critical integrations, review the server's source code
+
+Remember that MCP servers can access external services and execute code on your behalf. Always understand what a server does before installation.
+
+## [Real-world examples](https://cursor.com/docs/mcp\#real-world-examples)
+
+For practical examples of MCP in action, see our [Web Development guide](https://cursor.com/for/web-development) which demonstrates integrating Linear, Figma, and browser tools into your development workflow.
+
+## [FAQ](https://cursor.com/docs/mcp\#faq)
+
+### What's the point of MCP servers?
+
+MCP servers connect Cursor to external tools like Google Drive, Notion, and
+other services to bring docs and requirements into your coding workflow.
+
+### How do I debug MCP server issues?
+
+View MCP logs by:
+
+1. Open the Output panel in Cursor ( `Cmd+Shift+UCtrl+Shift+U`)
+2. Select "MCP Logs" from the dropdown
+3. Check for connection errors, authentication issues, or server crashes
+
+The logs show server initialization, tool calls, and error messages.
+
+### Can I temporarily disable an MCP server?
+
+Yes! Toggle servers on/off without removing them:
+
+1. Open Settings ( `Cmd+Shift+JCtrl+Shift+J`)
+2. Go to Features → Model Context Protocol
+3. Click the toggle next to any server to enable/disable
+
+Disabled servers won't load or appear in chat. This is useful for troubleshooting or reducing tool clutter.
+
+### What happens if an MCP server crashes or times out?
+
+If an MCP server fails:
+
+- Cursor shows an error message in chat
+- The tool call is marked as failed
+- You can retry the operation or check logs for details
+- Other MCP servers continue working normally
+
+Cursor isolates server failures to prevent one server from affecting others.
+
+### How do I update an MCP server?
+
+For npm-based servers:
+
+1. Remove the server from settings
+2. Clear npm cache: `npm cache clean --force`
+3. Re-add the server to get the latest version
+
+For custom servers, update your local files and restart Cursor.
+
+### Can I use MCP servers with sensitive data?
+
+Yes, but follow security best practices:
+
+- Use environment variables for secrets, never hardcode them
+- Run sensitive servers locally with `stdio` transport
+- Limit API key permissions to minimum required
+- Review server code before connecting to sensitive systems
+- Consider running servers in isolated environments
+
+English
+
+- English
+- 简体中文
+- 日本語
+- 繁體中文
+- Español
+- Français
+- Português
+- 한국어
+- Русский
+- Türkçe
+- Bahasa Indonesia
+- Deutsch
+
+Agent
+
+Sonnet 4.6
+
+Tokenizer OffContext: 0/200k (0%)
+
+Open chat

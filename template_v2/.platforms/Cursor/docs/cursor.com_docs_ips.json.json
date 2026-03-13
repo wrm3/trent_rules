@@ -1,0 +1,13 @@
+{
+  "url": "https://cursor.com/docs/ips.json",
+  "title": "https://cursor.com/docs/ips.json",
+  "content_hash": "4af02c19e953",
+  "scrapeId": "019ccf60-c6cf-75eb-abb8-9c9e1f182583",
+  "sourceURL": "https://cursor.com/docs/ips.json",
+  "statusCode": 200,
+  "contentType": "application/json",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-08T03:18:27.221Z",
+  "creditsUsed": 1
+}

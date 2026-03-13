@@ -1,0 +1,28 @@
+{
+  "url": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fbuild-with-claude%2Fembeddings",
+  "title": "Sign In | Claude Developer Platform",
+  "content_hash": "4a1f295f0a8e",
+  "description": "Build with the Claude API",
+  "color-scheme": "light dark",
+  "mobile-web-app-capable": "yes",
+  "theme-color": [
+    "hsl(,undefined,undefined)",
+    "#fff"
+  ],
+  "language": "en-US",
+  "viewport": [
+    "width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover",
+    "width=device-width, initial-scale=1.0,\n                                 maximum-scale=1.0, user-scalable=no"
+  ],
+  "apple-mobile-web-app-status-bar-style": "default",
+  "next-size-adjust": "",
+  "favicon": "https://platform.claude.com/favicon.ico",
+  "scrapeId": "019cd3bd-05b8-758a-bb4d-b2a7da5682ae",
+  "sourceURL": "https://platform.claude.com/login?returnTo=%2Fdocs%2Fen%2Fbuild-with-claude%2Fembeddings",
+  "statusCode": 200,
+  "contentType": "text/html; charset=utf-8",
+  "proxyUsed": "basic",
+  "cacheState": "hit",
+  "cachedAt": "2026-03-08T03:08:25.235Z",
+  "creditsUsed": 1
+}
